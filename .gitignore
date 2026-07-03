@@ -1,0 +1,33 @@
+# Build outputs
+backend/bin/
+frontend/dist/
+frontend/node_modules/
+frontend/src-tauri/target/
+startup/src-tauri/target/
+startup/node_modules/
+installer/out/
+
+# Sustainment pipeline data (large; archived separately)
+sustainment/ref-archive/
+sustainment/inf/
+sustainment/graph/
+sustainment/validation/
+sustainment/artifacts/
+sustainment/.venv/
+__pycache__/
+*.pyc
+
+# Runtime data
+deploy/data/
+deploy/caddy-data/
+*.log
+
+# Environment / secrets
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
