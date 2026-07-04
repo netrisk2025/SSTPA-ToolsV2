@@ -1,12 +1,12 @@
-// ConnectionTool — interim scaffold; full implementation per SRS §6.5.13.
+// TraceTool — interim scaffold; full implementation per its SRS §6.5 section.
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 
 import { ToolScaffold } from "../ToolScaffold";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 
-export default function ConnectionTool(props: {
+export default function TraceTool(props: {
   ctx: ToolLaunchContext;
   manifest: ToolManifest;
 }) {
-  return <ToolScaffold {...props} note="Connection management per SRS §6.5.13 is being implemented." />;
+  return <ToolScaffold {...props} note="Asset trace matrix per SRS §6.5.9 is being implemented." />;
 }

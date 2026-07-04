@@ -88,6 +88,12 @@ export const api = {
   hierarchy: () =>
     request<{ entries: HierarchyEntry[] | null }>("GET", "/api/hierarchy"),
 
+  nodesByType: (label: string, params?: Record<string, string>) =>
+    request<{ nodes: NodeResponse[] | null }>(
+      "GET",
+      `/api/nodes/type/${encodeURIComponent(label)}?${new URLSearchParams(params ?? {})}`,
+    ),
+
   soi: (systemHid: string) =>
     request<SoIResponse>("GET", `/api/soi/${encodeURIComponent(systemHid)}`),
 

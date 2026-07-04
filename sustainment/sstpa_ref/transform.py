@@ -189,6 +189,10 @@ def run(inf_dir: Path, out_dir: Path, log_dir: Path | None, dry_run: bool) -> in
     counts: dict[str, dict[str, int]] = {}
     root_nodes_emitted: set[str] = set()
     edge_stmts: list[str] = []
+    # MERGE key is (ExternalID, FrameworkName, FrameworkVersion) per §3.4.5;
+    # ATT&CK objects shared across domains (groups, software) deduplicate, so
+    # the expected count is distinct keys, not the per-file sum.
+    distinct_keys: set[tuple] = set()
 
     for path in inf_files:
         inf = json.loads(path.read_text())
@@ -215,6 +219,7 @@ def run(inf_dir: Path, out_dir: Path, log_dir: Path | None, dry_run: bool) -> in
         for rec in inf["nodes"]:
             lines.append(emit_node(rec, framework, version, domain, imported_at))
             fw_counts["nodes"] += 1
+            distinct_keys.add((rec.get("external_id") or rec.get("stix_id"), framework, version))
             # Root CONTAINS for matrices / families / EMB3D items (§3.4.1.4, §3.4.3.4, §3.4.7).
             eid = rec.get("external_id") or rec.get("stix_id")
             if root_label and rec["sstpa_label"] in ("AK_Matrix", "NIST_Family", "EMB3D_Vulnerability", "EMB3D_CourseOfAction", "EMB3D_Device"):
@@ -235,8 +240,8 @@ def run(inf_dir: Path, out_dir: Path, log_dir: Path | None, dry_run: bool) -> in
     lines.append("\n// ---- Relationships ----\n")
     lines.extend(edge_stmts)
 
-    # Count verification suffix (§9.2 Stage 3).
-    total_nodes = sum(c["nodes"] for c in counts.values())
+    # Count verification suffix (§9.2 Stage 3): distinct MERGE keys.
+    total_nodes = len(distinct_keys)
     lines.append("")
     lines.append(f"// Expected reference node count (excluding roots): {total_nodes}")
     lines.append("MATCH (n:REF) WHERE coalesce(n.IsFrameworkRoot, false) = false RETURN count(n) AS referenceNodes;")

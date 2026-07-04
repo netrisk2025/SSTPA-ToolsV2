@@ -378,6 +378,39 @@ func (s *Server) validateRelInTx(ctx context.Context, tx neo4j.ManagedTransactio
 			return fmt.Sprintf("[:%s] would create a cycle (SRS §3.3.6)", relType)
 		}
 	}
+	// Each (:Loss) is associated with exactly one (:Environment) (§3.3.4.11).
+	if relType == "HAS_ENVIRONMENT" && src.label == "Loss" {
+		res, err := tx.Run(ctx,
+			`MATCH (l {HID: $src})-[r:HAS_ENVIRONMENT]->() RETURN count(r) AS n`,
+			map[string]any{"src": srcHID})
+		if err != nil {
+			return err.Error()
+		}
+		single, err := res.Single(ctx)
+		if err != nil {
+			return err.Error()
+		}
+		if n, _ := single.AsMap()["n"].(int64); n > 0 {
+			return "each (:Loss) SHALL be associated with exactly one (:Environment) via [:HAS_ENVIRONMENT] (SRS §3.3.4.11)"
+		}
+	}
+	// A single (:SystemFunction)/(:Interface) has at most one [:IMPLEMENTS]
+	// into an STPA role node (§3.3.4.12).
+	if relType == "IMPLEMENTS" {
+		res, err := tx.Run(ctx,
+			`MATCH (a {HID: $src})-[r:IMPLEMENTS]->() RETURN count(r) AS n`,
+			map[string]any{"src": srcHID})
+		if err != nil {
+			return err.Error()
+		}
+		single, err := res.Single(ctx)
+		if err != nil {
+			return err.Error()
+		}
+		if n, _ := single.AsMap()["n"].(int64); n > 0 {
+			return "a single (:SystemFunction) or (:Interface) SHALL have no more than one [:IMPLEMENTS] relationship into an STPA role node (SRS §3.3.4.12)"
+		}
+	}
 	// Component parents at most one System (§3.3.4.1).
 	if relType == "PARENTS" && src.label == "Component" && tgt.label == "System" {
 		res, err := tx.Run(ctx,
