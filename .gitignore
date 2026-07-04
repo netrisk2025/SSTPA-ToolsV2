@@ -31,3 +31,4 @@ deploy/caddy-data/
 .idea/
 *.swp
 .DS_Store
+deploy/neo4j/import/
