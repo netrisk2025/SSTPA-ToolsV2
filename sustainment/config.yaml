@@ -1,0 +1,43 @@
+# SSTPA Sustainment pipeline configuration (SRS §9.6).
+# Version selections per SRS §9.3 Source File Manifest; deviations recorded in
+# the acquisition manifest (see docs/REQUIREMENTS-NOTES.md I-2).
+
+archive_dir: ref-archive
+inf_dir: inf
+graph_dir: graph
+validation_dir: validation
+artifacts_dir: artifacts
+log_dir: logs
+
+sources:
+  attack:
+    repo: https://github.com/mitre-attack/attack-stix-data
+    version_tag: v19.1
+    files:
+      - enterprise-attack/enterprise-attack-19.1.json
+      - ics-attack/ics-attack-19.1.json
+      - mobile-attack/mobile-attack-19.1.json
+    license: "CC BY 4.0 / Apache 2.0"
+  atlas:
+    repo: https://github.com/mitre-atlas/atlas-data
+    version_tag: v5.4.0
+    files:
+      - dist/ATLAS.yaml
+    license: "Apache 2.0"
+  nist:
+    repo: https://github.com/usnistgov/oscal-content
+    commit: 78650f02ad9321bb7b817846f8fbd4f2bcd620de
+    files:
+      - nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json
+    license: "NIST public domain"
+  emb3d:
+    repo: https://github.com/mitre/emb3d
+    commit: 0d7c25bb4e2928c516fb5811aaab9ff8bab2896c
+    files:
+      - assets/emb3d-stix-2.0.1.json
+    license: "Apache 2.0"
+
+validate:
+  neo4j_image: neo4j:2026.05.0-community
+  bolt_port: 17687
+  http_port: 17474

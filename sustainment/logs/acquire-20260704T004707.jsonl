@@ -1,0 +1,13 @@
+{"time": "2026-07-04T00:47:07.895539+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/enterprise-attack/enterprise-attack-19.1.json"}
+{"time": "2026-07-04T00:47:10.118157+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired enterprise-attack-19.1.json sha256=bdf1ce86a4e60421\u2026"}
+{"time": "2026-07-04T00:47:10.118205+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/ics-attack/ics-attack-19.1.json"}
+{"time": "2026-07-04T00:47:10.998937+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired ics-attack-19.1.json sha256=a91f659d6d03095e\u2026"}
+{"time": "2026-07-04T00:47:10.999023+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/mitre-attack/attack-stix-data/v19.1/mobile-attack/mobile-attack-19.1.json"}
+{"time": "2026-07-04T00:47:12.049901+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired mobile-attack-19.1.json sha256=423cbceb604770c8\u2026"}
+{"time": "2026-07-04T00:47:12.050057+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/mitre-atlas/atlas-data/v5.4.0/dist/ATLAS.yaml"}
+{"time": "2026-07-04T00:47:12.262231+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired ATLAS.yaml sha256=632b4f0209883eae\u2026"}
+{"time": "2026-07-04T00:47:12.262417+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/usnistgov/oscal-content/78650f02ad9321bb7b817846f8fbd4f2bcd620de/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json"}
+{"time": "2026-07-04T00:47:13.357344+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired NIST_SP-800-53_rev5_catalog.json sha256=01f37cf90ea99d92\u2026"}
+{"time": "2026-07-04T00:47:13.357423+00:00", "level": "INFO", "stage": "acquire", "msg": "fetch https://raw.githubusercontent.com/mitre/emb3d/0d7c25bb4e2928c516fb5811aaab9ff8bab2896c/assets/emb3d-stix-2.0.1.json"}
+{"time": "2026-07-04T00:47:13.604009+00:00", "level": "INFO", "stage": "acquire", "msg": "acquired emb3d-stix-2.0.1.json sha256=3fed4b36a8907cef\u2026"}
+{"time": "2026-07-04T00:47:13.604709+00:00", "level": "INFO", "stage": "acquire", "msg": "acquisition manifest written: /home/netrisk/Projects/SSTPA Tools/sustainment/ref-archive/2026-07-04-v1/acquisition-manifest.json"}

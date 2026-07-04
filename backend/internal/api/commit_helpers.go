@@ -266,6 +266,37 @@ func (s *Server) castRelProps(relType string, in map[string]any) (map[string]any
 	return out, nil
 }
 
+// validateTransitionProps enforces §3.3.4.3 / §6.5.5.14: when TransitionKind
+// is COUNTERMEASURE_REQUIRED or BOTH, RequiredByCountermeasureHID (or UUID)
+// must identify an existing (:Countermeasure) in the same SoI as the states.
+func validateTransitionProps(ctx context.Context, tx neo4j.ManagedTransaction, props map[string]any, soiIndex string) error {
+	kind, _ := props["TransitionKind"].(string)
+	if kind != "COUNTERMEASURE_REQUIRED" && kind != "BOTH" {
+		return nil
+	}
+	cmHID, _ := props["RequiredByCountermeasureHID"].(string)
+	cmUUID, _ := props["RequiredByCountermeasureUUID"].(string)
+	if cmHID == "" && cmUUID == "" {
+		return fmt.Errorf("TransitionKind %s requires RequiredByCountermeasureHID or RequiredByCountermeasureUUID (SRS §3.3.4.3)", kind)
+	}
+	res, err := tx.Run(ctx, `
+		MATCH (cm:Countermeasure)
+		WHERE ($hid <> '' AND cm.HID = $hid) OR ($uuid <> '' AND cm.uuid = $uuid)
+		RETURN cm.SoIIndex AS soi LIMIT 1`,
+		map[string]any{"hid": cmHID, "uuid": cmUUID})
+	if err != nil {
+		return err
+	}
+	single, err := res.Single(ctx)
+	if err != nil {
+		return fmt.Errorf("referenced (:Countermeasure) %s%s does not exist (SRS §3.3.4.3)", cmHID, cmUUID)
+	}
+	if cmSoI, _ := single.AsMap()["soi"].(string); soiIndex != "" && cmSoI != soiIndex {
+		return fmt.Errorf("governing (:Countermeasure) must belong to the same SoI as the transition (SRS §6.5.5.14)")
+	}
+	return nil
+}
+
 // isTraceRel reports the three state-scoped Asset trace types (§3.3.4.6).
 func isTraceRel(relType string) bool {
 	return relType == "HOLDS" || relType == "TRANSPORTS" || relType == "USES"

@@ -281,6 +281,11 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 					return nil, err
 				}
 			}
+			if op.Type == "TRANSITIONS_TO" {
+				if err := validateTransitionProps(ctx, tx, relProps, srcInfo.soiIndex); err != nil {
+					return nil, err
+				}
+			}
 			q := fmt.Sprintf(`MATCH (a:SSTPA {HID: $src}) MATCH (b {HID: $tgt})
 				CREATE (a)-[rel:%s]->(b) SET rel = $props`, op.Type)
 			if _, err := tx.Run(ctx, q,

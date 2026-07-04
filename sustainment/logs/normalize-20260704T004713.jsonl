@@ -1,0 +1,7 @@
+{"time": "2026-07-04T00:47:13.864250+00:00", "level": "INFO", "stage": "normalize", "msg": "ATT&CK enterprise: 4369 nodes, 9845 edges, 446 filtered"}
+{"time": "2026-07-04T00:47:13.997949+00:00", "level": "INFO", "stage": "normalize", "msg": "ATT&CK ics: 455 nodes, 677 edges, 48 filtered"}
+{"time": "2026-07-04T00:47:14.041925+00:00", "level": "INFO", "stage": "normalize", "msg": "ATT&CK mobile: 663 nodes, 465 edges, 80 filtered"}
+{"time": "2026-07-04T00:47:14.265082+00:00", "level": "INFO", "stage": "normalize", "msg": "ATLAS: 258 nodes, 862 edges"}
+{"time": "2026-07-04T00:47:14.357072+00:00", "level": "INFO", "stage": "normalize", "msg": "NIST: 1034 nodes, 4524 edges, 160 withdrawn filtered"}
+{"time": "2026-07-04T00:47:14.410810+00:00", "level": "INFO", "stage": "normalize", "msg": "EMB3D: 229 nodes, 213 edges"}
+{"time": "2026-07-04T00:47:14.415927+00:00", "level": "INFO", "stage": "normalize", "msg": "normalization report: {\"attack-enterprise\": {\"nodes\": 4369, \"edges\": 9845, \"filtered\": 446}, \"attack-ics\": {\"nodes\": 455, \"edges\": 677, \"filtered\": 48}, \"attack-mobile\": {\"nodes\": 663, \"edges\": 465, \"filtered\": 80}, \"atlas\": {\"nodes\": 258, \"edges\": 862, \"filtered\": 0}, \"nist\": {\"nodes\": 1034, \"edges\": 4524, \"filtered\": 160}, \"emb3d\": {\"nodes\": 229, \"edges\": 213, \"filtered\": 0}}"}

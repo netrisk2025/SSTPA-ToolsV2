@@ -1,0 +1,8 @@
+{"time": "2026-07-04T00:47:07.894249+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage acquire starting"}
+{"time": "2026-07-04T00:47:13.604869+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage acquire complete"}
+{"time": "2026-07-04T00:47:13.605519+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage normalize starting"}
+{"time": "2026-07-04T00:47:14.416029+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage normalize complete"}
+{"time": "2026-07-04T00:47:14.416049+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage transform starting"}
+{"time": "2026-07-04T00:47:14.724547+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage transform complete"}
+{"time": "2026-07-04T00:47:14.724719+00:00", "level": "INFO", "stage": "pipeline", "msg": "stage validate starting"}
+{"time": "2026-07-04T00:47:26.177109+00:00", "level": "ERROR", "stage": "pipeline", "msg": "stage validate failed (exit 1); pipeline halted"}

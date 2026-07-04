@@ -1,0 +1,5 @@
+# SSTPA Sustainment Environment dependencies (SRS §9.6)
+stix2>=3.0.1
+PyYAML>=6.0
+jsonschema>=4.21
+neo4j>=5.28

@@ -102,6 +102,10 @@ func NewRouter(cfg config.Config, db *graph.DB, sch *schema.Schema, m *telemetry
 			// System creation from Component (SRS §3.3.7)
 			r.Post("/systems/create-from-component", s.handleCreateSystemFromComponent)
 
+			// Requirements Tool (SRS §6.5.2.18)
+			r.Get("/requirements/lineage/{hid}", s.handleRequirementLineage)
+			r.Get("/requirements/soi/{soi}", s.handleRequirementsBySoI)
+
 			// Messaging (SRS §5.6.6.11)
 			r.Get("/messages", s.handleListMessages)
 			r.Get("/messages/unread-count", s.handleUnreadCount)
