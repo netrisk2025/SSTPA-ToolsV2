@@ -117,14 +117,6 @@ func NewRouter(cfg config.Config, db *graph.DB, sch *schema.Schema, m *telemetry
 			r.Get("/loss/{lossHid}/paths", s.handleLossPaths)
 			r.Post("/loss/{lossHid}/auto-build", s.handleLossAutoBuild)
 
-			// Model translation — G2M/M2G (SRS §3.7, §5.6.6.12).
-			// Every model-displaying tool's Model Text Panel renders these.
-			r.Get("/model/sysml", s.handleModelSysML)
-			r.Get("/model/kerml", s.handleModelKerML)
-			r.Get("/model/profile", s.handleModelProfile)
-			r.Post("/model/validate", s.handleModelValidate)
-			r.Post("/model/commit", s.handleModelCommit)
-
 			// Messaging (SRS §5.6.6.11)
 			r.Get("/messages", s.handleListMessages)
 			r.Get("/messages/unread-count", s.handleUnreadCount)

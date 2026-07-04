@@ -5,7 +5,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../api/client";
-import { useUnderConstruction } from "../state/stores";
 import {
   activeStyle,
   applyStyle,
@@ -16,8 +15,8 @@ import {
 export function GearMenu({ onClose }: { onClose: () => void }) {
   const [showProduct, setShowProduct] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [style, setStyle] = useState<StyleName>(activeStyle());
   const [resetMsg, setResetMsg] = useState<string | null>(null);
-  const underConstruction = useUnderConstruction((s) => s.show);
   const qc = useQueryClient();
 
   const reset = useMutation({
@@ -60,10 +59,33 @@ export function GearMenu({ onClose }: { onClose: () => void }) {
         {item("Product & license information", () => {
           setShowProduct(true);
         })}
-        {item("Select style…", () => {
-          underConstruction("Alternate styles");
-          onClose();
-        })}
+        <div
+          style={{
+            padding: "6px 8px",
+            fontSize: "0.82rem",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+        >
+          <span>Style</span>
+          <select
+            className="sstpa-input"
+            style={{ flex: 1 }}
+            value={style}
+            onChange={(e) => {
+              const next = e.target.value as StyleName;
+              setStyle(next);
+              applyStyle(next);
+            }}
+          >
+            {availableStyles.map((s) => (
+              <option key={s.name} value={s.name}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
         {item("Hover help & definitions…", () => {
           setShowHelp(true);
         })}
@@ -112,6 +134,12 @@ function ProductDialog({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <h2>SSTPA Tools</h2>
+        {/* The heritage logo's one ceremonial home (docs/DESIGN.md). */}
+        <img
+          src="/sstpa-logo-large.png"
+          alt=""
+          style={{ maxWidth: 200, display: "block", margin: "0 auto var(--sstpa-sp-3)" }}
+        />
         <p className="mono" style={{ fontSize: "0.78rem" }}>
           Version {String(p.Version ?? "—")} · Build{" "}
           {String(p.BuildNumber ?? "—")}
@@ -178,11 +206,15 @@ function HelpDialog({ onClose }: { onClose: () => void }) {
         <div style={{ maxHeight: "56vh", overflow: "auto", marginTop: 10 }}>
           {entries.map((e) => (
             <div key={e.term} style={{ marginBottom: 10 }}>
-              <div style={{ fontWeight: 700, color: "var(--sstpa-navy)" }}>
+              <div style={{ fontWeight: 600, color: "var(--sstpa-text-strong)" }}>
                 {e.term}{" "}
                 <span
                   className="type-badge"
-                  style={{ background: "var(--sstpa-node-muted)", fontSize: "0.6rem" }}
+                  style={{
+                    color: "var(--sstpa-muted)",
+                    background: "var(--sstpa-inset)",
+                    fontSize: "0.6rem",
+                  }}
                 >
                   {e.category}
                 </span>
