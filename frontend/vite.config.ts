@@ -1,6 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+const backendProxyTarget =
+  process.env.SSTPA_DEV_PROXY_TARGET ??
+  process.env.SSTPA_BACKEND_URL ??
+  "https://localhost";
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -12,7 +17,7 @@ export default defineConfig({
     // page is served by Vite (see src/api/client.ts).
     proxy: {
       "/api": {
-        target: "https://localhost",
+        target: backendProxyTarget,
         changeOrigin: true,
         secure: false, // Caddy internal CA
       },

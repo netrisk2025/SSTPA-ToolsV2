@@ -20,6 +20,7 @@ __pycache__/
 # Runtime data
 deploy/data/
 deploy/caddy-data/
+deploy/caddy-root-ca.crt
 *.log
 
 # Environment / secrets
