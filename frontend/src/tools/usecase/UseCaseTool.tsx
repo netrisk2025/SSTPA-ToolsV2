@@ -98,7 +98,7 @@ export default function UseCaseTool({
   const includedUseCases = selected ? relatedNodes(selected, "INCLUDES_UC", byHid) : [];
   const extendedUseCases = selected ? relatedNodes(selected, "EXTENDS", byHid) : [];
   const findings = selected ? validateUseCase(selected, actors, participantInterfaces, participantFunctions) : [];
-  const visibleUseCases = useCases.filter((u) => useCaseMatches(u, search, byHid));
+  const visibleUseCases = useCases.filter((u) => matchesUseCase(u, search, byHid));
 
   if (!ctx.soiHid) return <p style={{ padding: 20 }}>Select a System of Interest first.</p>;
 
@@ -131,7 +131,7 @@ export default function UseCaseTool({
               {
                 op: "updateNode",
                 hid: selected.hid,
-                properties: useCaseComputedProps(selected, actors, participantInterfaces, participantFunctions, includedUseCases, extendedUseCases, system),
+                properties: computedUseCaseProps(selected, actors, participantInterfaces, participantFunctions, includedUseCases, extendedUseCases, system),
               },
             ])
           }
@@ -700,7 +700,7 @@ function ExportView({
   findings: Finding[];
   system?: SoINode;
 }) {
-  const md = useCaseMarkdown(useCase, actors, interfaces, functions, includedUseCases, extendedUseCases, findings, system);
+  const md = buildUseCaseMarkdown(useCase, actors, interfaces, functions, includedUseCases, extendedUseCases, findings, system);
   const json = JSON.stringify({ useCase, actors, interfaces, functions, includedUseCases, extendedUseCases, findings, systemHid: system?.hid }, null, 2);
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -811,7 +811,7 @@ function cleanActorRefsOnInterfaceRemove(ops: CommitOperation[], actors: ActorEn
   return [...ops, { op: "updateNode", hid: useCaseHid, properties: { ActorList: JSON.stringify(nextActors) } }];
 }
 
-function useCaseComputedProps(
+function computedUseCaseProps(
   useCase: SoINode,
   actors: ActorEntry[],
   interfaces: SoINode[],
@@ -845,7 +845,7 @@ function useCaseComputedProps(
   };
 }
 
-function useCaseMatches(u: SoINode, search: string, byHid: Map<string, SoINode>): boolean {
+function matchesUseCase(u: SoINode, search: string, byHid: Map<string, SoINode>): boolean {
   if (!search.trim()) return true;
   const actors = parseActors(u.properties.ActorList);
   const related = (u.relationships ?? []).map((r) => byHid.get(r.targetHID)).filter((n): n is SoINode => !!n);
@@ -873,7 +873,7 @@ function emptyDiagram(system?: SoINode) {
   };
 }
 
-function useCaseMarkdown(
+function buildUseCaseMarkdown(
   useCase: SoINode,
   actors: ActorEntry[],
   interfaces: SoINode[],
