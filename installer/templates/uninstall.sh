@@ -53,6 +53,12 @@ else
   echo "    docker volume ls --filter name=sstpa-backend"
 fi
 
+if [[ -x "${PREFIX}/trust-ca.sh" ]]; then
+  echo "==> Removing Caddy's local root CA from the trust store"
+  "${PREFIX}/trust-ca.sh" --remove --no-start || \
+    echo "WARN: could not remove the Caddy CA; remove 'Caddy Local Authority' manually if desired." >&2
+fi
+
 echo "==> Removing ${PREFIX}"
 cd /
 rm -rf "${PREFIX}"

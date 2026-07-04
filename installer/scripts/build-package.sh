@@ -287,6 +287,8 @@ install -m 0755 "${ROOT_DIR}/installer/templates/install.sh" "${PACKAGE_DIR}/ins
 install -m 0644 "${ROOT_DIR}/installer/templates/install.ps1" "${PACKAGE_DIR}/install.ps1"
 install -m 0755 "${ROOT_DIR}/installer/templates/uninstall.sh" "${PACKAGE_DIR}/uninstall.sh"
 install -m 0644 "${ROOT_DIR}/installer/templates/uninstall.ps1" "${PACKAGE_DIR}/uninstall.ps1"
+install -m 0755 "${ROOT_DIR}/installer/templates/trust-ca.sh" "${PACKAGE_DIR}/trust-ca.sh"
+install -m 0644 "${ROOT_DIR}/installer/templates/trust-ca.ps1" "${PACKAGE_DIR}/trust-ca.ps1"
 install -m 0644 "${ROOT_DIR}/installer/templates/load-reference-data.ps1" "${PACKAGE_DIR}/load-reference-data.ps1"
 
 if [[ "${SAVE_IMAGES}" -eq 1 ]]; then

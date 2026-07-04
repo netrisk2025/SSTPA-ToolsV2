@@ -13,6 +13,7 @@ into a release payload:
 - Optional Docker image archives for air-gapped installation.
 - Install/uninstall helpers for Linux/macOS (`install.sh`, `uninstall.sh`)
   and Windows (`install.ps1`, `uninstall.ps1`, `load-reference-data.ps1`).
+- Caddy local-CA trust helpers (`trust-ca.sh`, `trust-ca.ps1`).
 
 Local deployment secrets are **never packaged**: `deploy/.env` and
 `deploy/docker-compose.override.yml` are excluded from the payload, and the
@@ -68,15 +69,48 @@ Windows PowerShell:
 
 The installers verify Docker Engine/Desktop with Compose v2, copy the
 payload, generate `deploy/.env` with fresh random credentials (kept on
-re-install), and load any bundled Docker images. They do not start the
-Backend: the **Startup Software** (`bundles/startup/bin/sstpa-startup`) is
-the user entry point (SRS §4). On first launch it starts the Backend, walks
-the user through creating the **RootAdmin** account (SRS §3.2 "the Installer
-becomes the RootAdmin"), and opens the GUI.
+re-install), and load any bundled Docker images. Apart from the CA-trust step
+below they do not start the Backend: the **Startup Software**
+(`bundles/startup/bin/sstpa-startup`) is the user entry point (SRS §4). On
+first launch it starts the Backend, walks the user through creating the
+**RootAdmin** account (SRS §3.2 "the Installer becomes the RootAdmin"), and
+opens the GUI.
 
 When a Reference Data artifact is included, the installers print the exact
 load command (`deploy/load-reference-data.sh` on Linux/macOS,
 `load-reference-data.ps1` on Windows) to run once the Backend is healthy.
+
+### Trusting Caddy's local root CA
+
+The Backend terminates TLS at Caddy with an internal (`local_certs`) CA
+(SRS §5.4). The desktop GUI's webview connects to `https://localhost` and, in a
+production build, validates that certificate directly — so the host must trust
+Caddy's local root CA, or the GUI's first connection fails on an untrusted
+certificate. (The Startup Software's own health/auth probes use `curl -k` and
+do not need this; only the GUI webview does.)
+
+Caddy mints the root CA on first startup, so the installers bring the stack up
+once (when Docker is reachable) and run the trust helper automatically. Pass
+`--skip-ca-trust` (`-SkipCaTrust` on Windows) to opt out, then run it yourself
+later:
+
+```bash
+<prefix>/trust-ca.sh            # trust (starts the Backend to mint the CA if needed)
+<prefix>/trust-ca.sh --check    # report trust status, change nothing
+<prefix>/trust-ca.sh --remove   # untrust
+```
+
+```powershell
+powershell -File "<prefix>\trust-ca.ps1"          # trust
+powershell -File "<prefix>\trust-ca.ps1" -Check   # status only
+powershell -File "<prefix>\trust-ca.ps1" -Remove  # untrust
+```
+
+Trust store per platform: macOS System keychain when run as root, otherwise
+your login keychain (a macOS authorization dialog confirms the change); Linux
+`update-ca-trust`/`update-ca-certificates` anchors (needs root); Windows
+`CurrentUser\Root`, which WebView2 trusts and which needs **no** elevation. The
+uninstallers reverse the trust automatically.
 
 ## Uninstall
 

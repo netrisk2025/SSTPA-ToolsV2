@@ -4,15 +4,21 @@
 # - copies the packaged payload to the install prefix
 # - generates deploy\.env with fresh random passwords (never shipped)
 # - loads bundled container images for air-gapped hosts
+# - trusts Caddy's local root CA (CurrentUser Root store; no elevation)
 # - installs the uninstaller and the Windows reference-data loader
 #
-# The Backend is NOT started here; the Startup Software is the user entry
-# point (SRS §4) and performs `docker compose up` on launch.
+# The Backend is otherwise NOT started here; the Startup Software is the user
+# entry point (SRS §4) and performs `docker compose up` on launch. The one
+# exception is the CA-trust step (-SkipCaTrust to opt out): Caddy mints its
+# local root CA on first startup, so when Docker is running the installer brings
+# the stack up once to obtain and trust that certificate - without it the GUI's
+# very first connection to https://localhost would fail on an untrusted cert.
 #
 # 2025 Nicholas Triska. All rights reserved. See NOTICE in the payload.
 param(
   [string]$Prefix = "$env:LOCALAPPDATA\SSTPA-Tools",
-  [switch]$SkipDockerCheck
+  [switch]$SkipDockerCheck,
+  [switch]$SkipCaTrust
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,7 +48,7 @@ if (-not $SkipDockerCheck) {
 Write-Host "==> Installing payload to $Prefix"
 New-Item -ItemType Directory -Force -Path $Prefix | Out-Null
 Copy-Item -Path (Join-Path $Payload "*") -Destination $Prefix -Recurse -Force
-foreach ($helper in @("uninstall.ps1", "load-reference-data.ps1")) {
+foreach ($helper in @("uninstall.ps1", "load-reference-data.ps1", "trust-ca.ps1")) {
   $src = Join-Path $ScriptDir $helper
   if (Test-Path $src) { Copy-Item -Path $src -Destination $Prefix -Force }
 }
@@ -90,6 +96,30 @@ if (Test-Path $ImagesDir) {
       }
     }
   }
+}
+
+# Trust Caddy's local root CA so the GUI WebView2 can validate https://localhost.
+# Best-effort: it brings the stack up once to mint the CA, so it only runs when
+# Docker is reachable; failure never aborts the install.
+$TrustHelper = Join-Path $Prefix "trust-ca.ps1"
+$DockerReady = $false
+$DockerCmd = Get-Command docker -ErrorAction SilentlyContinue
+if ($DockerCmd) { & docker info *> $null; $DockerReady = ($LASTEXITCODE -eq 0) }
+if ($SkipCaTrust) {
+  Write-Host "==> Skipping Caddy CA trust (-SkipCaTrust)"
+  Write-Host "    Trust it later so the GUI can connect: powershell -File `"$TrustHelper`""
+} elseif ($DockerReady -and (Test-Path $TrustHelper)) {
+  Write-Host "==> Trusting Caddy's local root CA (needed for the GUI to reach https://localhost)"
+  try {
+    & powershell -ExecutionPolicy Bypass -File $TrustHelper
+    if ($LASTEXITCODE -ne 0) { throw "trust-ca.ps1 exited $LASTEXITCODE" }
+  } catch {
+    Write-Warning "Could not trust the Caddy CA automatically: $_"
+    Write-Warning "Run it yourself once the Backend is up: powershell -File `"$TrustHelper`""
+  }
+} else {
+  Write-Host "==> Docker not running now; skipping Caddy CA trust."
+  Write-Host "    After first launch, trust it so the GUI can connect: powershell -File `"$TrustHelper`""
 }
 
 Write-Host ""

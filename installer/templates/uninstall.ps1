@@ -43,6 +43,16 @@ if ($PurgeData) {
   Write-Host "==> Data volumes kept. Remove later with: docker volume ls --filter name=sstpa-backend"
 }
 
+$TrustHelper = Join-Path $Prefix "trust-ca.ps1"
+if (Test-Path $TrustHelper) {
+  Write-Host "==> Removing Caddy's local root CA from the trust store"
+  try {
+    & powershell -ExecutionPolicy Bypass -File $TrustHelper -Remove -NoStart
+  } catch {
+    Write-Warning "Could not remove the Caddy CA; remove 'Caddy Local Authority' from Cert:\CurrentUser\Root manually if desired."
+  }
+}
+
 Write-Host "==> Removing $Prefix"
 Set-Location $env:TEMP
 Remove-Item -Recurse -Force $Prefix

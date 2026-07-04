@@ -5,10 +5,15 @@
 # - copies the packaged payload to the install prefix
 # - generates deploy/.env with fresh random passwords (never shipped)
 # - loads bundled container images for air-gapped hosts
+# - trusts Caddy's local root CA so the GUI can reach https://localhost
 # - installs the uninstaller
 #
-# The Backend is NOT started here; the Startup Software is the user entry
-# point (SRS §4) and performs `docker compose up` on launch.
+# The Backend is otherwise NOT started here; the Startup Software is the user
+# entry point (SRS §4) and performs `docker compose up` on launch. The one
+# exception is the CA-trust step (--skip-ca-trust to opt out): Caddy mints its
+# local root CA on first startup, so when Docker is running the installer brings
+# the stack up once to obtain and trust that certificate — without it the GUI's
+# very first connection to https://localhost would fail on an untrusted cert.
 #
 # 2025 Nicholas Triska. All rights reserved. See NOTICE in the payload.
 set -euo pipefail
@@ -16,14 +21,16 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFIX=""
 SKIP_DOCKER_CHECK=0
+SKIP_CA_TRUST=0
 
 usage() {
   cat <<'USAGE'
-Usage: install.sh [--prefix PATH] [--skip-docker-check]
+Usage: install.sh [--prefix PATH] [--skip-docker-check] [--skip-ca-trust]
 
 Installs SSTPA Tools to PATH (default: /opt/sstpa-tools as root,
 ~/.local/share/sstpa-tools otherwise), generates deployment credentials,
-and loads bundled Docker images when present.
+loads bundled Docker images when present, and trusts Caddy's local root CA
+(unless --skip-ca-trust) so the desktop GUI can reach https://localhost.
 USAGE
 }
 
@@ -35,6 +42,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --skip-docker-check)
       SKIP_DOCKER_CHECK=1
+      shift
+      ;;
+    --skip-ca-trust)
+      SKIP_CA_TRUST=1
       shift
       ;;
     -h|--help)
@@ -78,6 +89,7 @@ echo "==> Installing payload to ${PREFIX}"
 mkdir -p "${PREFIX}"
 tar -C "${SCRIPT_DIR}/payload" -cf - . | tar -C "${PREFIX}" -xf -
 install -m 0755 "${SCRIPT_DIR}/uninstall.sh" "${PREFIX}/uninstall.sh" 2>/dev/null || true
+install -m 0755 "${SCRIPT_DIR}/trust-ca.sh" "${PREFIX}/trust-ca.sh" 2>/dev/null || true
 
 # Fresh deployment credentials: generated per-installation, never packaged.
 ENV_FILE="${PREFIX}/deploy/.env"
@@ -119,6 +131,24 @@ if [[ -d "${SCRIPT_DIR}/payload/images" ]] && command -v docker >/dev/null 2>&1 
   while IFS= read -r tarball; do
     docker load -i "${tarball}"
   done < <(find "${SCRIPT_DIR}/payload/images" -maxdepth 1 -type f -name '*.tar' | sort)
+fi
+
+# Trust Caddy's local root CA so the GUI webview can validate https://localhost.
+# Best-effort: it brings the stack up once to mint the CA, so it only runs when
+# Docker is reachable; failure never aborts the install.
+TRUST_HELPER="${PREFIX}/trust-ca.sh"
+if [[ "${SKIP_CA_TRUST}" -eq 1 ]]; then
+  echo "==> Skipping Caddy CA trust (--skip-ca-trust)"
+  echo "    Trust it later so the GUI can connect: ${TRUST_HELPER}"
+elif command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 && [[ -x "${TRUST_HELPER}" ]]; then
+  echo "==> Trusting Caddy's local root CA (needed for the GUI to reach https://localhost)"
+  if ! "${TRUST_HELPER}"; then
+    echo "WARN: could not trust the Caddy CA automatically." >&2
+    echo "      Run it yourself once the Backend is up: ${TRUST_HELPER}" >&2
+  fi
+else
+  echo "==> Docker not running now; skipping Caddy CA trust."
+  echo "    After first launch, trust it so the GUI can connect: ${TRUST_HELPER}"
 fi
 
 echo
