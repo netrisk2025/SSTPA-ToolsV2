@@ -24,6 +24,10 @@ Useful options:
 - `--version X.Y.Z`: override the package version.
 - `--out PATH`: override the output directory.
 
+When the host Tauri CLI cannot produce native bundles, `build-package.sh`
+falls back to `npm run build` plus `cargo build --release` and stages the
+release binaries under `payload/bundles/*/bin`.
+
 Output is written to `installer/out/` and ignored by Git.
 
 ## Install From A Package

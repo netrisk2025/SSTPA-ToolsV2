@@ -63,6 +63,23 @@ require_cmd() {
   fi
 }
 
+build_tauri_or_release() {
+  local app_dir="$1"
+  local label="$2"
+  shift 2
+
+  if (cd "${app_dir}" && "$@"); then
+    echo "${label}: Tauri bundle build completed."
+    return 0
+  fi
+
+  echo "${label}: Tauri bundle build failed; falling back to release binary build." >&2
+  if [[ -f "${app_dir}/package.json" ]]; then
+    (cd "${app_dir}" && npm run build)
+  fi
+  (cd "${app_dir}/src-tauri" && cargo build --release)
+}
+
 require_cmd tar
 require_cmd git
 
@@ -93,8 +110,8 @@ if [[ "${BUILD_TAURI}" -eq 1 ]]; then
   if [[ ! -d "${ROOT_DIR}/frontend/node_modules" ]]; then
     (cd "${ROOT_DIR}/frontend" && npm ci)
   fi
-  (cd "${ROOT_DIR}/frontend" && npx tauri build)
-  (cd "${ROOT_DIR}/startup" && "${ROOT_DIR}/frontend/node_modules/.bin/tauri" build)
+  build_tauri_or_release "${ROOT_DIR}/frontend" "Frontend" npx tauri build
+  build_tauri_or_release "${ROOT_DIR}/startup" "Startup" "${ROOT_DIR}/frontend/node_modules/.bin/tauri" build
 fi
 
 rm -rf "${PACKAGE_DIR}"
@@ -122,11 +139,17 @@ tar \
 if [[ -d "${ROOT_DIR}/frontend/src-tauri/target/release/bundle" ]]; then
   mkdir -p "${PACKAGE_DIR}/payload/bundles/frontend"
   tar -C "${ROOT_DIR}/frontend/src-tauri/target/release/bundle" -cf - . | tar -C "${PACKAGE_DIR}/payload/bundles/frontend" -xf -
+elif [[ -x "${ROOT_DIR}/frontend/src-tauri/target/release/sstpa-tools-gui" ]]; then
+  mkdir -p "${PACKAGE_DIR}/payload/bundles/frontend/bin"
+  cp "${ROOT_DIR}/frontend/src-tauri/target/release/sstpa-tools-gui" "${PACKAGE_DIR}/payload/bundles/frontend/bin/"
 fi
 
 if [[ -d "${ROOT_DIR}/startup/src-tauri/target/release/bundle" ]]; then
   mkdir -p "${PACKAGE_DIR}/payload/bundles/startup"
   tar -C "${ROOT_DIR}/startup/src-tauri/target/release/bundle" -cf - . | tar -C "${PACKAGE_DIR}/payload/bundles/startup" -xf -
+elif [[ -x "${ROOT_DIR}/startup/src-tauri/target/release/sstpa-startup" ]]; then
+  mkdir -p "${PACKAGE_DIR}/payload/bundles/startup/bin"
+  cp "${ROOT_DIR}/startup/src-tauri/target/release/sstpa-startup" "${PACKAGE_DIR}/payload/bundles/startup/bin/"
 fi
 
 install -m 0755 "${ROOT_DIR}/installer/templates/install.sh" "${PACKAGE_DIR}/install.sh"

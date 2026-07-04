@@ -119,14 +119,20 @@ SBOM impact: none. No software applications or libraries were added.
   build, optional Tauri bundle builds, optional Docker image archive capture,
   POSIX shell and Windows PowerShell install helpers, package manifests, and
   SHA-256 checksum generation.
+- Added Tauri project ignore files and installer fallback behavior so package
+  staging still emits release binaries on hosts where the Tauri CLI native
+  bundler panics before bundling.
 - Updated `FloorPlan.md` for the new installer subdirectories and documented the
   installer path in README and architecture notes.
 - Verified the lightweight package path with
   `./installer/scripts/build-package.sh --skip-tauri --skip-docker --version 0.1.0-test`.
+  Verified the Tauri-enabled package path with
+  `./installer/scripts/build-package.sh --skip-docker --version 0.1.0-tauri-smoke`.
 
 Verification:
 
 - `./installer/scripts/build-package.sh --skip-tauri --skip-docker --version 0.1.0-test`
+- `./installer/scripts/build-package.sh --skip-docker --version 0.1.0-tauri-smoke`
 
 SBOM impact: none. No software applications or libraries were added; container
 image tag entries were aligned to `deploy/docker-compose.yml`.
