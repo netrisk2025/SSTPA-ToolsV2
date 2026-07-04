@@ -397,6 +397,81 @@ func TestIntegrationMessagePerUserDelete(t *testing.T) {
 	}
 }
 
+// TestIntegrationModelTranslation covers §5.6.6.12: G2M projection of a live
+// SoI, the profile endpoint, and the M2G validate→commit property-edit loop.
+func TestIntegrationModelTranslation(t *testing.T) {
+	h := newHarness(t)
+	h.bootstrapOnce()
+
+	code, res := h.commit("it-root", "", []map[string]any{
+		{"op": "createNode", "tempId": "sys", "label": "System",
+			"properties": map[string]any{"Name": "IT Model System"}},
+	})
+	if code != http.StatusOK {
+		t.Fatalf("create system: %d %v", code, res)
+	}
+	sysHid := res["createdNodes"].(map[string]any)["sys"].(string)
+
+	// G2M: both languages emit and are deterministic.
+	get := func(path string) (int, string) {
+		req := httptest.NewRequest(http.MethodGet, path, nil)
+		req.Header.Set("Authorization", "Bearer "+h.tokens["it-root"])
+		w := httptest.NewRecorder()
+		h.router.ServeHTTP(w, req)
+		return w.Code, w.Body.String()
+	}
+	code1, sysml1 := get("/api/model/sysml?soi=" + sysHid)
+	code2, sysml2 := get("/api/model/sysml?soi=" + sysHid)
+	if code1 != http.StatusOK || code2 != http.StatusOK {
+		t.Fatalf("model sysml: %d/%d %s", code1, code2, sysml1)
+	}
+	if sysml1 != sysml2 {
+		t.Errorf("G2M output not deterministic (SRS §3.7.8)")
+	}
+	if !bytes.Contains([]byte(sysml1), []byte("IT Model System")) ||
+		!bytes.Contains([]byte(sysml1), []byte("#system")) {
+		t.Errorf("sysml missing system content: %s", sysml1)
+	}
+	codeK, kerml := get("/api/model/kerml?soi=" + sysHid)
+	if codeK != http.StatusOK || !bytes.Contains([]byte(kerml), []byte("Security Analysis")) {
+		t.Errorf("kerml: %d %s", codeK, kerml)
+	}
+	codeP, profile := get("/api/model/profile")
+	if codeP != http.StatusOK || !bytes.Contains([]byte(profile), []byte("SSTPA Profile")) {
+		t.Errorf("profile: %d", codeP)
+	}
+
+	// M2G: edit a property through model text, validate, then commit.
+	edited := fmt.Sprintf(`part <'%s'> 'IT Model System' #system {
+	doc Short /* edited via model text */
+}`, sysHid)
+	code, vres := h.call(http.MethodPost, "/api/model/validate", "it-root",
+		map[string]any{"text": edited, "soiHid": sysHid})
+	if code != http.StatusOK || vres["valid"] != true {
+		t.Fatalf("model validate: %d %v", code, vres)
+	}
+	changes := vres["changes"].([]any)
+	if len(changes) != 1 {
+		t.Fatalf("expected 1 staged change, got %v", changes)
+	}
+	code, cres := h.call(http.MethodPost, "/api/model/commit", "it-root",
+		map[string]any{"text": edited, "soiHid": sysHid})
+	if code != http.StatusOK {
+		t.Fatalf("model commit: %d %v", code, cres)
+	}
+	_, node := h.call(http.MethodGet, "/api/nodes/hid/"+sysHid, "it-root", nil)
+	if p := node["properties"].(map[string]any); p["ShortDescription"] != "edited via model text" {
+		t.Errorf("M2G commit did not persist: %v", p["ShortDescription"])
+	}
+
+	// Unknown HIDs are rejected with diagnostics, not created (§3.7.9 subset).
+	code, vres = h.call(http.MethodPost, "/api/model/validate", "it-root",
+		map[string]any{"text": "part <'SYS_999_0'> 'Ghost' #system;", "soiHid": sysHid})
+	if code != http.StatusOK || vres["valid"] != false {
+		t.Errorf("unknown-HID text should be invalid: %d %v", code, vres)
+	}
+}
+
 func TestIntegrationAdminLifecycle(t *testing.T) {
 	h := newHarness(t)
 	h.bootstrapOnce()

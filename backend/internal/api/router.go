@@ -143,6 +143,14 @@ func NewRouter(cfg config.Config, db *graph.DB, sch *schema.Schema, m *telemetry
 			r.Get("/schema/node-types", s.handleSchemaNodeTypes)
 			r.Get("/schema/node-types/{label}", s.handleSchemaNodeType)
 			r.Get("/schema/relationships", s.handleSchemaRelationships)
+
+			// Model Translation (SRS §5.6.6.12, §3.7): G2M projection, the
+			// SSTPA Profile Library, and M2G validate/commit.
+			r.Get("/model/sysml", s.handleModelText("sysml"))
+			r.Get("/model/kerml", s.handleModelText("kerml"))
+			r.Get("/model/profile", s.handleModelProfile)
+			r.Post("/model/validate", s.handleModelValidate)
+			r.Post("/model/commit", s.handleModelCommit)
 		})
 	})
 
@@ -184,6 +192,9 @@ func (s *Server) handleCapability(w http.ResponseWriter, r *http.Request) {
 			"loss.tree.read",
 			"loss.tree.auto-build",
 			"loss.paths.read",
+			"model.translate.read",
+			"model.translate.write",
+			"model.profile.read",
 		},
 		"config": map[string]any{
 			"httpAddr": s.cfg.HTTPAddr,
