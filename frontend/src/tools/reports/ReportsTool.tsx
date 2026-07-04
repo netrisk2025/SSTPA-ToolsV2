@@ -287,7 +287,7 @@ export default function ReportsTool({
               whiteSpace: "pre-wrap",
               fontFamily: "var(--sstpa-font-mono)",
               fontSize: "0.78rem",
-              background: "var(--sstpa-ivory-raised)",
+              background: "var(--sstpa-surface)",
               border: "var(--sstpa-border-soft)",
               borderRadius: 4,
               padding: "var(--sstpa-sp-4)",
@@ -296,7 +296,7 @@ export default function ReportsTool({
             {generated}
           </pre>
         ) : (
-          <p style={{ color: "var(--sstpa-navy-muted)" }}>
+          <p style={{ color: "var(--sstpa-muted)" }}>
             Choose a report and press Generate.
           </p>
         )}
@@ -675,10 +675,10 @@ function mdToHtml(md: string): string {
   if (inList) html += "</ul>";
   if (inPre) html += "</pre>";
   return `<!doctype html><html><head><meta charset="utf-8"><title>SSTPA Report</title>
-<style>body{font-family:Georgia,serif;color:#1b2a4a;max-width:900px;margin:2em auto;line-height:1.5}
-table{border-collapse:collapse;font-size:0.9em}th{background:#f0ece0}
-pre{font-family:monospace;background:#f4f1e8;padding:1em;overflow-x:auto;font-size:0.85em}
-code{font-family:monospace;background:#f4f1e8;padding:0 3px}</style></head><body>${html}</body></html>`;
+<style>body{font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;color:#1a1d23;max-width:900px;margin:2em auto;line-height:1.55}
+table{border-collapse:collapse;font-size:0.9em}th{background:#eceef1;text-align:left}th,td{border:1px solid #d9dce1;padding:4px 8px}
+pre{font-family:ui-monospace,monospace;background:#f4f5f7;padding:1em;overflow-x:auto;font-size:0.85em}
+code{font-family:ui-monospace,monospace;background:#f4f5f7;padding:0 3px}</style></head><body>${html}</body></html>`;
 
   function inline(s: string): string {
     return s

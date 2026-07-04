@@ -18,6 +18,29 @@ function ensureSvg() {
   }
 }
 
+/** Resolve a design token (e.g. "--sstpa-node-fill") to its computed value.
+ *  Cytoscape styles cannot reference CSS variables, so graph styling reads
+ *  the active style's tokens when the graph is built. */
+export function uiToken(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/** Common graph colors resolved from the active style's tokens. */
+export function graphTheme() {
+  return {
+    nodeFill: uiToken("--sstpa-node-fill"),
+    nodeStroke: uiToken("--sstpa-node-stroke"),
+    edge: uiToken("--sstpa-edge-stroke"),
+    label: uiToken("--sstpa-text"),
+    labelMuted: uiToken("--sstpa-muted"),
+    labelBg: uiToken("--sstpa-canvas"),
+    selected: uiToken("--sstpa-selected"),
+    valid: uiToken("--sstpa-valid"),
+    invalid: uiToken("--sstpa-invalid"),
+    inset: uiToken("--sstpa-inset"),
+  };
+}
+
 /** Export a cytoscape canvas as PNG (full graph or current viewport). */
 export function exportPng(cy: Core, filename: string, full = true) {
   const uri = cy.png({ full, scale: 2, bg: "#ffffff" });
@@ -77,8 +100,8 @@ export function ToolStatus({
 }) {
   if (needsSoI) {
     return (
-      <div style={{ padding: 24, color: "var(--sstpa-navy-muted)", textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--sstpa-font-brand)", fontSize: "1.05rem" }}>
+      <div style={{ padding: 24, color: "var(--sstpa-muted)", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--sstpa-font-ui)", fontSize: "1.05rem" }}>
           Select a System of Interest first
         </p>
         <p style={{ fontSize: "0.82rem" }}>
@@ -90,7 +113,7 @@ export function ToolStatus({
   }
   if (loading) {
     return (
-      <div style={{ padding: 24, color: "var(--sstpa-navy-muted)" }}>Loading…</div>
+      <div style={{ padding: 24, color: "var(--sstpa-muted)" }}>Loading…</div>
     );
   }
   if (error) {
@@ -113,7 +136,7 @@ export function ToolStatus({
   }
   if (empty) {
     return (
-      <div style={{ padding: 24, color: "var(--sstpa-navy-muted)", textAlign: "center" }}>
+      <div style={{ padding: 24, color: "var(--sstpa-muted)", textAlign: "center" }}>
         <p>{empty}</p>
         {emptyHint && <div style={{ fontSize: "0.82rem" }}>{emptyHint}</div>}
       </div>

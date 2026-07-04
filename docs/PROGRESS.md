@@ -3,6 +3,37 @@
 This file records implementation checkpoints and verification status while the
 application is completed against `SSTPA Tool SRS V7.md`.
 
+## 2026-07-04 — Complete UI redesign: the "Instrument" design system (`ui-redesign` branch)
+
+The Art Nouveau visual identity was removed end-to-end and replaced with a
+minimalist system (docs/DESIGN.md; deviation recorded as REQUIREMENTS-NOTES
+I-17). Highlights:
+
+- `sstpa-default.css` rewritten: semantic tokens (`--sstpa-bg/surface/text/
+  muted/accent/…`), Light + Dark styles, hairline-only elevation, no drafting
+  grid/double borders/gold ornament. Token renames swept through all 28
+  components/tools.
+- Typography: IBM Plex Sans 400/500/600 replaces Source Sans 3 + Cormorant SC;
+  JetBrains Mono retained for HIDs/model text. No display serif remains.
+- Iconography: emoji glyphs replaced by an inline SVG set
+  (`components/Icon.tsx`); tool manifests now reference glyph names. New
+  control-loop `Mark` replaces the logo in all chrome; the heritage logo now
+  appears only in the Product & License dialog.
+- Node-type categorical palette re-derived and validated for CVD separation
+  and surface contrast in both styles; `NodeTypeBadge` renders tinted chips.
+- Cytoscape graph styling (Navigator/Requirements/State/Flow) now resolves
+  design tokens at graph build time (`shared.uiToken()/graphTheme()`) — graphs
+  follow the active style.
+- New flat indigo control-loop app icon generated for both Tauri shells
+  (icns/ico/png) plus favicons; startup launcher UI restyled with
+  light/dark support.
+
+Verification: `npm run build` (tsc + vite) and `npm run lint` clean;
+`cargo check` clean for both shells; full stack exercised against the running
+Docker backend with Playwright — login, main window (sections, entity cards,
+badges, Data Drawer), Navigator/Requirements tool windows, gear menu, and the
+launcher captured in light and dark styles.
+
 ## 2026-07-04 — All 17 Add-on Tools upgraded to SRS conformance
 
 Every Add-on Tool was audited against its SRS section and rebuilt to production
@@ -257,46 +288,120 @@ SBOM impact: documented the Tauri CLI build tool version and the packaged
 Reference Data artifact versions; container image tag entries were aligned to
 `deploy/docker-compose.yml`.
 
-## 2026-07-04 — FireSat Example Data (SRS §3.6.1)
+## 2026-07-04 — SysML 2.0 / KerML 1.0 model display (G2M translator)
 
-- Created `Example_Data/` at the repository root: Example Data projects
-  managed outside the application (SRS §2, §3.6), tailorable and packageable
-  for deployment. No application code was modified.
-- Built the FireSat example project: 4 Tier-1 segments (Space, Command,
-  Aviation, Ground), 33 Systems decomposed to Tier 8 along the Space Segment
-  payload spine (Signal Processing Chain, `SYS_1.1.2.1.2.1.1.1_0`), 467 nodes
-  and 842 relationships. Every System carries Purpose, Environment, States
-  with transitions, Functions, Interfaces, Requirements, a System-Element,
-  and leaf Elements; 11 Connections model segment-typical communications
-  (Ka-band IPSec downlink, S-band TT&C, SATCOM tasking, P25 LMR, VHF
-  air-ground, microwave backhaul) with cross-SoI `PARTICIPATES_IN`
-  participants; an 8-link `(:Requirement)-[:PARENTS]->` chain flows from the
-  capability requirement to the Tier-8 system.
+New standing directive: every model-displaying Add-on Tool except the Message
+Center must display its model from SysML 2.0 / KerML 1.0-transformed data.
+
+- Implemented the G2M translator (`backend/internal/model`): Core Data Model
+  graph → SysML 2.0 / KerML 1.0 textual notation per §3.7.5/§3.7.6, plus the
+  SSTPA Profile Library (§3.7.3). Deterministic and idempotent (§3.7.8):
+  ordered by HID type-identifier then sequence; unrestricted names for HIDs
+  and reserved words.
+- Exposed `/api/model/sysml`, `/api/model/kerml`, `/api/model/profile`,
+  `/api/model/validate`, `/api/model/commit` (§5.6.6.12); capability discovery
+  advertises `model.translate.read` and `model.profile.read`.
+- Wired the Model Text Panel (§6.4.2) to live G2M with SysML/KerML keyword
+  highlighting. Verified in the running app (Requirements Tool shows the live
+  SysML projection of the SoI). SysML notation sourced from the SysML_Vault.
+- Corrected three tool manifests to match their SRS Model Text Panel sections
+  (Reports, Reference, Context) so all model tools declare SysML/KerML.
+- Fixed a pre-existing `handleRequirementsBySoI` Cypher bug (ORDER BY after an
+  aggregating RETURN) surfaced during verification.
+- Added G2M unit tests (determinism, SysML/KerML mappings, domain
+  classification, unrestricted names). `go test ./internal/model/` passes.
+- M2G text-commit deferred (read-only panel); recorded in REQUIREMENTS-NOTES
+  M-4. Editing remains on the canvas/Data Drawer staged-commit path.
+
+Verification:
+- `cd backend && go test ./internal/model/ ./internal/schema/`
+- Live G2M: `GET /api/model/sysml?scope=SOI&soi=SYS_1_0` returns valid SysML 2.0.
+- Playwright: Model Text Panel renders highlighted SysML in the Requirements Tool.
+
+SBOM impact: none (no new libraries; G2M is pure Go stdlib).
+
+## 2026-07-04 — FireSat example data (§3.6) + Help data (§3.5)
+
+- FireSat exemplar (`backend/internal/api/example.go`): a 3-tier-deep example
+  Project (FireSat Capability → FireSat → Satellite Bus → Infrared Sensor) with
+  environments, states + transitions, components, functions, interfaces, a
+  connection, primary + derived assets, trace relationships, a hazard→control→
+  countermeasure→attack chain, a Loss + root Goal, and requirements. Owned by
+  "SSTPA Tools" (immutable ownership); IsExampleData/ExampleProject markers.
+- Namespaced HID indices (FS1, FS1.1, FS1.1.1) partition the exemplar from the
+  working Capability; HID grammar relaxed to accept alphanumeric index segments
+  (REQUIREMENTS-NOTES I-13). Seeded on startup if absent.
+- Reset endpoint (`POST /api/examples/reset`) + `GET /api/examples`; wired to
+  the gear-menu "Reset FireSat example" action (§3.6).
+- Help Data (`backend/internal/api/help.go`): 24-entry SSTPA terminology/field/
+  tutorial catalog at `GET /api/help`, shown in the gear-menu "Hover help &
+  definitions" dialog (§3.5, REQUIREMENTS-NOTES I-14).
+- End-to-end verified on FireSat:
+  - Navigator renders the full 3-tier hierarchy (Playwright shot 11).
+  - G2M SysML/KerML projects every FireSat SoI including the deepest.
+  - Loss Tool auto-build on LOS_FS1_1 produced an 8-node attack tree, 1 path:
+    "Compromise FireSat Authenticity → Downlinking → Downlink Radio →
+    RF Alert Spoofing → Digital Signature of Alerts [BLOCKED]" — the full
+    trace→loss→attack-tree→path-analysis workflow working on real example data.
+
+Verification:
+- `cd backend && go test ./...` (all pass)
+- Live: startup seeds FireSat; `POST /api/examples/reset` reloads; `/api/help`
+  returns 24 entries; Loss auto-build + path enumeration succeed on FireSat.
+
+SBOM impact: none.
+
+## 2026-07-04 — External FireSat Example Data package (SRS §3.6.1)
+
+- Created `Example_Data/` at the repository root for example-data projects
+  managed outside the application (SRS §2, §3.6), with tailorable YAML source,
+  build/validate/package scripts, and deployable Cypher artifacts.
+- Built the packaged FireSat example project: 4 Tier-1 segments (Space,
+  Command, Aviation, Ground), 33 Systems decomposed to Tier 8 along the Space
+  Segment payload spine, 467 nodes, and 842 relationships. Every System carries
+  Purpose, Environment, States with transitions, Functions, Interfaces,
+  Requirements, a System-Element, and leaf Elements.
 - Source of truth is YAML under `Example_Data/FireSat/model/`;
-  `build_firesat.py` validates against `docs/schema/*.json` (relationship
-  legality, enums, HID rules per SRS §3.3.8) and emits an idempotent Cypher
-  artifact packaged like Reference Data (tar.gz + .sha256).
+  `build_firesat.py` validates against `docs/schema/*.json` and emits an
+  idempotent Cypher artifact packaged like Reference Data (`tar.gz` + SHA-256).
   `load-example-data.sh` mirrors `deploy/load-reference-data.sh` and guards
-  against HID collisions with user-owned Core data. FireSat root is `CAP__1`
-  (the Backend reserves `CAP__0` for the deployment's own Core project);
-  nodes are Owned/Created by "SSTPA Tools" per SRS §2.
+  against HID collisions with user-owned Core data.
 - `Example_Data/FireSat/FireSat-Hierarchy.md` documents the hierarchy,
   communications map, and requirements flow-down; `dist/hierarchy-tree.txt`
   regenerates each build. Assets/traces, Use Cases, Losses, Attack Trees,
-  Control Structures, and Countermeasures are intentionally left as tutorial
-  exercises on top of the structural model.
+  Control Structures, and Countermeasures remain tutorial exercises on top of
+  the structural package.
 
 Verification:
-
 - Loaded the artifact twice into a throwaway `neo4j:2026.05.0-community`
-  container: 467 nodes both runs (idempotent), zero duplicate HIDs, spine
-  path `CAP__1 → … → SYS_1.1.2.1.2.1.1.1_0` resolves via
-  `HAS_SYSTEM`/`HAS_ELEMENT`/`PARENTS`, all 11 Connections have ≥2
-  participating Interfaces, every System has Purpose/Environment/State/
-  Function/Interface/Element and reaches at least one Requirement.
+  container: 467 nodes both runs, zero duplicate HIDs, all 11 Connections have
+  at least two participating Interfaces, and every System reaches at least one
+  Requirement.
 - Loaded into the running deploy stack via
-  `Example_Data/FireSat/load-example-data.sh` (checksum verified, collision
-  guard passed, post-load count matches header).
+  `Example_Data/FireSat/load-example-data.sh` with checksum verification,
+  collision guard, and matching post-load count.
 
 SBOM impact: none (no new runtime dependencies; builder uses the existing
 sustainment Python environment).
+
+## 2026-07-04 — Final verification & SBOM audit pass
+
+- Ran full backend test suite (schema, model/G2M, api/loss) — all PASS; `go vet`
+  clean.
+- Comprehensive endpoint smoke: 20 API endpoint categories + `/metrics` +
+  Grafana health all return HTTP 200 against seeded FireSat data.
+- Telemetry confirmed live: Prometheus scrapes backend `/metrics`; Grafana
+  served through Caddy; SSTPA custom metrics recorded.
+- SBOM.md updated to audit grade: exact pinned versions for Go (8 direct, 92
+  total), npm (23 direct listed, 181 total), Rust (Frontend 455 / Startup 419
+  crates), Python, container images, fonts, and reference data sets; machine-
+  readable manifest locations documented for full transitive audit.
+- Added docs/VERIFICATION.md mapping each major SRS area to its verification
+  method and result, plus known deferrals.
+- All 12 build tasks complete. Application is functionally complete and running.
+
+Verification:
+- `cd backend && go vet ./... && go test ./...`
+- 20/20 endpoint categories return 200; telemetry endpoints healthy.
+
+SBOM impact: version detail expanded to audit grade; no new components.

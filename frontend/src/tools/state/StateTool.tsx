@@ -23,12 +23,14 @@ import type { SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, exportPng, exportSvg, ToolStatus, usePrompt } from "../shared";
+import { errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken, usePrompt } from "../shared";
 
-const KIND_COLOR: Record<string, string> = {
-  FUNCTIONAL: "#33567e",
-  COUNTERMEASURE_REQUIRED: "#8c2f2f",
-  BOTH: "#9a6b1f",
+/** Trace-kind colors as design-token names (resolved for Cytoscape,
+ *  var()-wrapped for JSX) matching the rel-kind-* classes. */
+const KIND_TOKEN: Record<string, string> = {
+  FUNCTIONAL: "--sstpa-status-info",
+  COUNTERMEASURE_REQUIRED: "--sstpa-status-error",
+  BOTH: "--sstpa-status-warn",
 };
 
 type Mode = "diagram" | "context" | "criteria";
@@ -438,7 +440,7 @@ export default function StateTool({
             </select>
           </label>
           {envFilter && (
-            <span style={{ color: "var(--sstpa-navy-muted)" }}>
+            <span style={{ color: "var(--sstpa-muted)" }}>
               States valid in {String(byHid.get(envFilter)?.properties.Name ?? envFilter)}, ordered
               by StateSequence.
             </span>
@@ -451,7 +453,7 @@ export default function StateTool({
             padding: "4px var(--sstpa-sp-3)",
             borderBottom: "var(--sstpa-border-soft)",
             fontSize: "0.74rem",
-            color: "var(--sstpa-navy-muted)",
+            color: "var(--sstpa-muted)",
           }}
         >
           Context: {contextFocusHid} — showing only States related to this{" "}
@@ -514,7 +516,7 @@ export default function StateTool({
             width: 330,
             borderLeft: "var(--sstpa-border)",
             overflow: "auto",
-            background: "var(--sstpa-ivory-raised)",
+            background: "var(--sstpa-surface)",
           }}
         >
           {selectedState && byHid.get(selectedState) && (
@@ -541,7 +543,7 @@ export default function StateTool({
             />
           )}
           {!selectedState && !selectedTransition && (
-            <p style={{ padding: 14, fontSize: "0.8rem", color: "var(--sstpa-navy-muted)" }}>
+            <p style={{ padding: 14, fontSize: "0.8rem", color: "var(--sstpa-muted)" }}>
               Select a State block or a transition edge. Press Escape to
               deselect.
               <br />
@@ -751,6 +753,12 @@ function StateCanvas({
   useEffect(() => {
     if (!containerRef.current) return;
     cyRef.current?.destroy();
+    const gt = graphTheme();
+    const stateColor = uiToken("--sstpa-node-state");
+    const envColor = uiToken("--sstpa-node-environment");
+    const hazardColor = uiToken("--sstpa-node-security");
+    const cmColor = uiToken("--sstpa-valid");
+    const kind = (k: string) => uiToken(KIND_TOKEN[k]);
     const cy = cytoscape({
       container: containerRef.current,
       elements,
@@ -759,9 +767,9 @@ function StateCanvas({
           selector: 'node[kind = "state"]',
           style: {
             shape: "round-rectangle",
-            "background-color": "#fcfaf2",
+            "background-color": gt.nodeFill,
             "border-width": 2,
-            "border-color": "#6d5a8e",
+            "border-color": stateColor,
             label: "data(label)",
             "text-wrap": "wrap",
             "text-valign": "center",
@@ -769,7 +777,7 @@ function StateCanvas({
             "font-family": "JetBrains Mono, monospace",
             width: 150,
             height: 54,
-            color: "#1b2a4a",
+            color: gt.label,
           },
         },
         {
@@ -777,59 +785,59 @@ function StateCanvas({
           // distinguished from unassigned States (§6.5.5.4).
           selector: "node[?envHi]",
           style: {
-            "border-color": "#567045",
+            "border-color": envColor,
             "border-width": 4,
-            "background-color": "#f2f4ee",
+            "background-color": gt.nodeFill,
           },
         },
         {
           selector: 'node[kind = "hazard"]',
           style: {
             shape: "diamond",
-            "background-color": "#fbeeee",
-            "border-color": "#8c2f2f",
+            "background-color": gt.nodeFill,
+            "border-color": hazardColor,
             "border-width": 1.5,
             label: "data(label)",
             "text-wrap": "wrap",
             "font-size": 8,
             width: 110,
             height: 60,
-            color: "#8c2f2f",
+            color: hazardColor,
           },
         },
         {
           selector: 'node[kind = "countermeasure"]',
           style: {
             shape: "hexagon",
-            "background-color": "#eef2ee",
-            "border-color": "#2e6b4f",
+            "background-color": gt.nodeFill,
+            "border-color": cmColor,
             "border-width": 1.5,
             label: "data(label)",
             "text-wrap": "wrap",
             "font-size": 8,
             width: 120,
             height: 56,
-            color: "#2e6b4f",
+            color: cmColor,
           },
         },
         {
           selector: 'node[kind = "environment"]',
           style: {
             shape: "ellipse",
-            "background-color": "#f2f4ee",
-            "border-color": "#567045",
+            "background-color": gt.nodeFill,
+            "border-color": envColor,
             "border-width": 1.5,
             label: "data(label)",
             "text-wrap": "wrap",
             "font-size": 8,
             width: 120,
             height: 54,
-            color: "#567045",
+            color: envColor,
           },
         },
         {
           selector: "node:selected",
-          style: { "border-color": "#a8853a", "border-width": 3.5 },
+          style: { "border-color": gt.selected, "border-width": 3.5 },
         },
         {
           selector: "edge",
@@ -840,33 +848,33 @@ function StateCanvas({
             label: "data(label)",
             "font-size": 7.5,
             "text-rotation": "autorotate",
-            "text-background-color": "#faf7ee",
+            "text-background-color": gt.labelBg,
             "text-background-opacity": 0.85,
-            color: "#22304c",
-            "line-color": "#33567e",
-            "target-arrow-color": "#33567e",
+            color: gt.label,
+            "line-color": kind("FUNCTIONAL"),
+            "target-arrow-color": kind("FUNCTIONAL"),
           },
         },
         {
           selector: 'edge[tkind = "COUNTERMEASURE_REQUIRED"]',
           style: {
-            "line-color": KIND_COLOR.COUNTERMEASURE_REQUIRED,
-            "target-arrow-color": KIND_COLOR.COUNTERMEASURE_REQUIRED,
+            "line-color": kind("COUNTERMEASURE_REQUIRED"),
+            "target-arrow-color": kind("COUNTERMEASURE_REQUIRED"),
             "line-style": "dashed",
           },
         },
         {
           selector: 'edge[tkind = "BOTH"]',
           style: {
-            "line-color": KIND_COLOR.BOTH,
-            "target-arrow-color": KIND_COLOR.BOTH,
+            "line-color": kind("BOTH"),
+            "target-arrow-color": kind("BOTH"),
             width: 2.4,
           },
         },
         {
           selector: "edge[?validIn]",
           style: {
-            "line-color": "#567045",
+            "line-color": envColor,
             "target-arrow-shape": "none",
             "line-style": "dotted",
             width: 1,
@@ -875,7 +883,7 @@ function StateCanvas({
         {
           selector: "edge[?overlay]",
           style: {
-            "line-color": "#9aa4b5",
+            "line-color": gt.edge,
             "target-arrow-shape": "vee",
             "line-style": "dotted",
             width: 1,
@@ -883,7 +891,7 @@ function StateCanvas({
         },
         {
           selector: "edge:selected",
-          style: { "line-color": "#a8853a", "target-arrow-color": "#a8853a", width: 3 },
+          style: { "line-color": gt.selected, "target-arrow-color": gt.selected, width: 3 },
         },
       ],
       layout:
@@ -992,11 +1000,17 @@ function StateCanvas({
           gap: 14,
         }}
       >
-        <span style={{ color: KIND_COLOR.FUNCTIONAL }}>— FUNCTIONAL</span>
-        <span style={{ color: KIND_COLOR.COUNTERMEASURE_REQUIRED }}>-- COUNTERMEASURE_REQUIRED</span>
-        <span style={{ color: KIND_COLOR.BOTH }}>▬ BOTH</span>
-        <span style={{ color: "#567045" }}>·· VALID_IN</span>
-        {envFocusHid && <span style={{ color: "#567045" }}>▣ valid in {envFocusHid}</span>}
+        <span style={{ color: `var(${KIND_TOKEN.FUNCTIONAL})` }}>— FUNCTIONAL</span>
+        <span style={{ color: `var(${KIND_TOKEN.COUNTERMEASURE_REQUIRED})` }}>
+          -- COUNTERMEASURE_REQUIRED
+        </span>
+        <span style={{ color: `var(${KIND_TOKEN.BOTH})` }}>▬ BOTH</span>
+        <span style={{ color: "var(--sstpa-node-environment)" }}>·· VALID_IN</span>
+        {envFocusHid && (
+          <span style={{ color: "var(--sstpa-node-environment)" }}>
+            ▣ valid in {envFocusHid}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -1110,14 +1124,14 @@ function StateDetailPanel({
             Commit
           </button>
         </span>
-        <span style={{ fontSize: "0.68rem", color: "var(--sstpa-navy-muted)" }}>
+        <span style={{ fontSize: "0.68rem", color: "var(--sstpa-muted)" }}>
           Used for SAND sequencing in the Loss Tool.
         </span>
       </label>
 
       {sectionH("Valid in Environments")}
       {validIn.length === 0 && (
-        <p style={{ color: "var(--sstpa-navy-muted)", fontSize: "0.74rem" }}>
+        <p style={{ color: "var(--sstpa-muted)", fontSize: "0.74rem" }}>
           No [:VALID_IN] assignments.
         </p>
       )}
@@ -1181,7 +1195,7 @@ function StateDetailPanel({
 
       {sectionH("Hazards")}
       {stateHazards.length === 0 && (
-        <p style={{ color: "var(--sstpa-navy-muted)", fontSize: "0.74rem" }}>
+        <p style={{ color: "var(--sstpa-muted)", fontSize: "0.74rem" }}>
           No [:HAS_HAZARD] associations.
         </p>
       )}
@@ -1260,7 +1274,7 @@ function StateDetailPanel({
 
       {sectionH("Countermeasures")}
       {applyingCms.length === 0 && (
-        <p style={{ color: "var(--sstpa-navy-muted)", fontSize: "0.74rem" }}>
+        <p style={{ color: "var(--sstpa-muted)", fontSize: "0.74rem" }}>
           No [:APPLIES_TO_STATE] associations.
         </p>
       )}
@@ -1356,7 +1370,7 @@ function StateDetailPanel({
 
       {sectionH("Requirements (via Countermeasure)")}
       {applyingCms.length === 0 ? (
-        <p style={{ color: "var(--sstpa-navy-muted)", fontSize: "0.74rem" }}>
+        <p style={{ color: "var(--sstpa-muted)", fontSize: "0.74rem" }}>
           Requirements associate through a requirement-bearing node — apply a
           Countermeasure to this State first (§6.5.5.12).
         </p>
