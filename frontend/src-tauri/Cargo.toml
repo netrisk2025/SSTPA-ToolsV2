@@ -1,9 +1,9 @@
 [package]
-name = "app"
+name = "sstpa-tools-gui"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
+description = "SSTPA Tools GUI (Frontend)"
+authors = ["Nicholas Triska"]
+license = "LicenseRef-Proprietary"
 repository = ""
 edition = "2021"
 rust-version = "1.77.2"

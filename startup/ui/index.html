@@ -1,0 +1,147 @@
+<!doctype html>
+<!--
+  SSTPA Tools Startup Software (SRS §4): authenticates the User, starts the
+  Backend, launches the Frontend, and assures clean shutdown.
+  2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SSTPA Tools — Startup</title>
+    <style>
+      :root {
+        --ivory: #f7f3e8;
+        --ivory-raised: #fcfaf2;
+        --navy: #1b2a4a;
+        --navy-muted: #44546e;
+        --gold: #a8853a;
+        --gold-soft: #c9b077;
+        --error: #8c2f2f;
+        --ok: #2e6b4f;
+        --line-soft: #b9c1cf;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+        color: var(--navy);
+        background-color: var(--ivory);
+        background-image: linear-gradient(rgba(27, 42, 74, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(27, 42, 74, 0.055) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .frame {
+        border: 3px double var(--navy);
+        border-radius: 6px;
+        position: relative;
+        background: var(--ivory-raised);
+        width: 400px;
+        padding: 28px;
+        text-align: center;
+      }
+      .frame::before {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border: 1px solid var(--gold-soft);
+        border-radius: 3px;
+        pointer-events: none;
+      }
+      /* Startup animation (SRS §4): gentle breathing logo */
+      img.logo {
+        max-width: 210px;
+        animation: breathe 2.6s ease-in-out infinite;
+      }
+      @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 0.92; }
+        50% { transform: scale(1.035); opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        img.logo { animation: none; }
+      }
+      h1 {
+        font-family: Georgia, serif;
+        font-variant: small-caps;
+        letter-spacing: 0.06em;
+        margin: 8px 0 2px;
+      }
+      .status {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--navy-muted);
+        min-height: 2.4em;
+        margin: 10px 0;
+        white-space: pre-line;
+      }
+      .status.ok { color: var(--ok); }
+      .status.error { color: var(--error); }
+      label {
+        display: block;
+        text-align: left;
+        font-size: 0.82rem;
+        margin-top: 10px;
+      }
+      input {
+        width: 100%;
+        font: inherit;
+        padding: 6px 9px;
+        border: 1px solid var(--line-soft);
+        border-radius: 3px;
+        margin-top: 3px;
+      }
+      input:focus {
+        border-color: var(--gold);
+        outline: none;
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        width: 100%;
+        margin-top: 14px;
+        padding: 8px;
+        border-radius: 3px;
+        border: 1px solid var(--navy);
+        background: var(--navy);
+        color: var(--ivory);
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      .copyright {
+        font-size: 0.62rem;
+        color: var(--navy-muted);
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <img class="logo" src="sstpa-logo-large.png" alt="SSTPA Tools" />
+      <h1>SSTPA Tools</h1>
+      <div id="status" class="status">Starting Backend…</div>
+      <form id="login" style="display: none">
+        <label>
+          User name
+          <input id="user" autocomplete="username" autofocus />
+        </label>
+        <label>
+          Password
+          <input id="pass" type="password" autocomplete="current-password" />
+        </label>
+        <button id="go" type="submit">Sign in &amp; launch SSTPA Tools</button>
+      </form>
+      <div class="copyright">
+        2025 Nicholas Triska. All rights reserved.
+      </div>
+    </div>
+    <script type="module" src="startup.js"></script>
+  </body>
+</html>

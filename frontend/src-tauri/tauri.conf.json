@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "SSTPA Tools",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "app.sstpa.tools",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
@@ -13,10 +13,13 @@
     "windows": [
       {
         "title": "SSTPA Tools",
-        "width": 800,
-        "height": 600,
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1080,
+        "minHeight": 700,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "center": true
       }
     ],
     "security": {
@@ -26,15 +29,16 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "Nicholas Triska",
+    "copyright": "2025 Nicholas Triska. All rights reserved.",
+    "shortDescription": "SSTPA Tools — Model-Based System Security Engineering",
+    "longDescription": "Systems Security-Theoretic Process Analysis (SSTPA) Tools: graph-based system security engineering for large hierarchical systems.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ],
-    "android": {
-      "debugApplicationIdSuffix": ".debug"
-    }
+    ]
   }
 }
