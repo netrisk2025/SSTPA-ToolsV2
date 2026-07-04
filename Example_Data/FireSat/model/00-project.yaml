@@ -1,0 +1,60 @@
+# FireSat Example Data — Project root (Capability, SRS §3.6.1).
+# Tailor freely: this file and the segment files it lists are the single
+# source of truth. Rebuild with build_firesat.py after editing.
+project:
+  name: FireSat
+  short: Integrated forest-fire detection and suppression capability.
+  long: >-
+    FireSat is the SSTPA Tools tutorial example project. It combines a
+    low-earth-orbit satellite constellation that detects forest fires, a
+    national command center that directs firefighting activities, an
+    aviation component that drops water and deploys fire jumpers, and a
+    ground component of forest watch stations and support vehicles. The
+    example is structurally comprehensive but intentionally not a viable
+    technical design.
+  mission:
+    action: detect forest fires early and direct their rapid suppression
+    means: >-
+      an integrated capability of low-earth-orbit detection satellites, a
+      national fire command center, firefighting aviation, and forest
+      ground assets
+    contribution: the protection of life, property, and national forest resources
+
+  # Capability-level requirements. Segment requirements flow down from
+  # these via derives_from (rendered as (:Requirement)-[:PARENTS]->).
+  requirements:
+    - key: firesat-detect
+      name: Capability Fire Detection
+      statement: >-
+        FireSat SHALL detect active forest fires within protected national
+        forests and report each detection to the Command Segment within 15
+        minutes of ignition.
+      method: Demonstration
+      verification: >-
+        End-to-end detection exercise against controlled test burns
+        observed by at least one satellite pass.
+    - key: firesat-direct
+      name: Capability Suppression Direction
+      statement: >-
+        FireSat SHALL direct aerial and ground suppression assets onto a
+        reported fire within 60 minutes of detection confirmation.
+      method: Demonstration
+      verification: >-
+        Command post exercise timing tasking messages from detection
+        confirmation to asset on-scene report.
+    - key: firesat-sustain
+      name: Capability Sustained Watch
+      statement: >-
+        FireSat SHALL sustain continuous fire-watch operations over all
+        protected national forests for the duration of each fire season.
+      method: Analysis
+      verification: >-
+        Availability analysis across the space, command, aviation, and
+        ground segments over a modeled 180-day fire season.
+
+# Tier-1 Systems, in SoI index order (SYS_1_0 ... SYS_4_0 by default).
+segments:
+  - 10-space-segment.yaml
+  - 20-command-segment.yaml
+  - 30-aviation-segment.yaml
+  - 40-ground-segment.yaml

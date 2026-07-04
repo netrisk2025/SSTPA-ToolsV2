@@ -1,0 +1,633 @@
+# FireSat Aviation Segment (Tier 1, SoI 3): air tankers that drop water,
+# smokejumper aircraft that deploy fire jumpers, and their operating base.
+system:
+  name: Aviation Segment
+  short: Firefighting aviation dropping water and deploying fire jumpers.
+  long: >-
+    The FireSat Aviation Segment flies air tankers that dump water and
+    retardant on detected fires and smokejumper aircraft that deploy fire
+    jumpers onto remote incidents, all tasked from the Command Segment
+    over SATCOM and coordinated with ground crews on tactical VHF.
+  mission:
+    action: suppress detected fires from the air
+    means: >-
+      air tankers, smokejumper aircraft, and an air operations base tasked
+      by the Command Segment
+    contribution: the FireSat suppression timeline for remote incidents
+  purpose:
+    name: Aerial Fire Suppression
+    short: Put water and jumpers onto fires fast.
+  environment:
+    name: Fire Traffic Area Environment
+    context: >-
+      Mountainous low-level flight environment over active fires with
+      smoke, turbulence, and dense fire traffic under temporary flight
+      restrictions.
+  states:
+    - name: Stand-Down
+      sequence: 0
+      transitions:
+        - {to: Alert, trigger: Fire season readiness posture set}
+    - name: Alert
+      sequence: 1
+      short: Crews and aircraft on tasking alert at the base.
+      transitions:
+        - {to: Committed, trigger: Tasking order accepted}
+    - name: Committed
+      sequence: 2
+      short: Aircraft airborne against tasked incidents.
+      transitions:
+        - {to: Alert, trigger: Tasking complete and aircraft recovered}
+
+  functions:
+    - key: receive-tasking
+      name: Receive Air Tasking
+      short: Accept and acknowledge tasking from the Command Segment.
+      allocated_to: air-base
+      flows_to: [dump-water, deploy-jumpers]
+    - key: dump-water
+      name: Dump Water On Fires
+      short: Deliver water and retardant drops onto tasked fires.
+      allocated_to: tanker-fleet
+    - key: deploy-jumpers
+      name: Deploy Fire Jumpers
+      short: Insert smokejumper teams onto remote incidents.
+      allocated_to: jumper-wing
+    - key: report-drops
+      name: Report Drop Effects
+      short: Report drop and deployment results to the Command Segment.
+      allocated_to: air-base
+      flows_to_interface: [segment-tasking-if]
+    - key: coordinate-ground
+      name: Coordinate With Ground Crews
+      short: Deconflict drops with crews on the tactical air-ground net.
+      allocated_to: tanker-fleet
+      flows_to_interface: [air-ground-if]
+
+  interfaces:
+    - key: segment-tasking-if
+      name: Aviation Segment Tasking Interface
+      short: Segment-level endpoint of the Command tasking link.
+      connects: [receive-tasking]
+      allocated_to: air-base
+      joins:
+        connection: cnn-aviation-tasking
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: Tasking messages over SATCOM IP
+        directionality: Bidirectional
+        security: Encrypted
+    - key: air-ground-if
+      name: Air-Ground Coordination Interface
+      short: Segment-level endpoint of the tactical air-ground net.
+      connects: [coordinate-ground]
+      allocated_to: tanker-fleet
+      joins:
+        connection: cnn-air-ground
+        nature: LOGICAL
+        layer: "Layer 1: Physical"
+        protocol: VHF-FM tactical voice
+        directionality: Multicast
+
+  connections:
+    - key: cnn-air-ground
+      name: Air-To-Ground Tactical Net
+      short: VHF-FM voice net deconflicting drops with ground crews.
+      rationale: >-
+        Direct coordination between aircraft over the fire and the crews
+        working beneath them.
+      type: Tactical voice net
+      osi_layer: 1
+      protocol: VHF-FM simplex voice
+      directionality: Multicast
+      timing: Real-time voice
+      payload: Drop clearances, crew positions, target talk-ons.
+      requirements:
+        - key: avn-cnn-clearance
+          name: Drop Clearance Voice
+          statement: >-
+            The Air-To-Ground Tactical Net SHALL carry a drop clearance
+            exchange between aircraft and ground crews before every drop.
+          method: Demonstration
+          verification: Exercise drops audited against net recordings.
+          derives_from: [firesat-direct]
+
+  requirements:
+    - key: avn-response
+      name: Aviation Launch Response
+      statement: >-
+        The Aviation Segment SHALL launch a tasked air tanker within 20
+        minutes of tasking acceptance during fire season alert.
+      method: Demonstration
+      verification: Timed launch exercises from alert posture.
+      derives_from: [firesat-direct]
+    - key: avn-jumpers
+      name: Jumper Deployment
+      statement: >-
+        The Aviation Segment SHALL deploy a smokejumper team onto a remote
+        incident within 90 minutes of tasking acceptance.
+      method: Demonstration
+      verification: Timed jump exercises onto a training incident.
+      derives_from: [firesat-direct]
+    - key: avn-sorties
+      name: Sustained Sortie Rate
+      statement: >-
+        The Aviation Segment SHALL sustain six tanker sorties per day per
+        active incident for five consecutive days.
+      method: Analysis
+      verification: Sortie generation model against fleet and base capacity.
+      derives_from: [firesat-sustain]
+
+  elements:
+    # ---- Tier 2 System: Air Tanker Fleet -------------------------------
+    - key: tanker-fleet
+      name: Air Tanker Fleet
+      short: Water and retardant drop aircraft with lead plane.
+      technology: Fixed-wing air tanker fleet
+      system:
+        name: Air Tanker Fleet
+        short: Delivers water and retardant drops on tasked fires.
+        mission:
+          action: put water and retardant on tasked fires
+          means: air tankers directed by a lead plane
+          contribution: aviation segment drop capacity
+        purpose:
+          name: Drop Delivery
+          short: Deliver accurate drops at the tasked sortie rate.
+        environment:
+          name: Drop Pattern Environment
+          context: Low-level smoke-obscured drop runs in mountain terrain.
+        states:
+          - name: Parked
+            sequence: 0
+            transitions:
+              - {to: Sortie, trigger: Launch order}
+          - name: Sortie
+            sequence: 1
+            short: Fleet aircraft flying tasked drop sorties.
+        functions:
+          - key: fly-drops
+            name: Fly Drop Sorties
+            short: Fly tasked drop profiles over assigned fires.
+            allocated_to: air-tanker
+          - key: lead-runs
+            name: Lead Drop Runs
+            short: Mark and lead tankers down the drop line.
+            allocated_to: lead-plane
+            flows_to: [fly-drops]
+        interfaces:
+          - key: fleet-common-if
+            name: Fleet Common Frequency Interface
+            short: Fleet air-to-air coordination on the tactical net.
+            connects: [fly-drops]
+            allocated_to: air-tanker
+            joins:
+              connection: cnn-air-ground
+              nature: LOGICAL
+              layer: "Layer 1: Physical"
+              protocol: VHF-FM tactical voice
+              directionality: Multicast
+        requirements:
+          - key: fleet-accuracy
+            name: Drop Accuracy
+            statement: >-
+              The Air Tanker Fleet SHALL place drops within 50 meters of the
+              lead plane mark.
+            method: Test
+            verification: Scored drops on an instrumented range.
+            derives_from: [avn-response]
+        elements:
+          # ---- Tier 3 System: Air Tanker -------------------------------
+          - key: air-tanker
+            name: Air Tanker
+            short: Water-dropping aircraft with tank and drop system.
+            technology: Converted transport airframe
+            system:
+              name: Air Tanker
+              short: One drop aircraft with tank, drop system, and avionics.
+              mission:
+                action: deliver a tasked water or retardant drop
+                means: a tanked airframe with a controlled drop system
+                contribution: fleet drop accuracy and sortie rate
+              purpose:
+                name: Single-Ship Drop
+                short: Fly the drop profile and release on the mark.
+              environment:
+                name: Drop Run Environment
+                context: Low airspeed, low altitude release in turbulence and smoke.
+              states:
+                - name: Loaded
+                  sequence: 0
+                  transitions:
+                    - {to: Drop Run, trigger: Cleared onto the drop line}
+                - name: Drop Run
+                  sequence: 1
+                  transitions:
+                    - {to: Empty Return, trigger: Load released}
+                - name: Empty Return
+                  sequence: 2
+              functions:
+                - key: fly-profile
+                  name: Fly Drop Profile
+                  short: Hold the drop run speed, height, and line.
+                  allocated_to: airframe
+                - key: release-load
+                  name: Release Water Load
+                  short: Open drop doors to pattern the load on target.
+                  allocated_to: drop-system
+                - key: talk-ground
+                  name: Talk With Ground Crews
+                  short: Exchange clearances on the tactical air-ground net.
+                  allocated_to: avionics
+                  flows_to_interface: [tanker-vhf-if]
+              interfaces:
+                - key: tanker-vhf-if
+                  name: Tanker VHF Interface
+                  short: Aircraft radio endpoint on the air-ground net.
+                  connects: [talk-ground]
+                  allocated_to: avionics
+                  joins:
+                    connection: cnn-air-ground
+                    nature: LOGICAL
+                    layer: "Layer 1: Physical"
+                    protocol: VHF-FM tactical voice
+                    directionality: Multicast
+                - key: tanker-drop-if
+                  name: Drop Command Interface
+                  short: Cockpit drop commanding into the drop system.
+                  connects: [release-load]
+                  allocated_to: drop-system
+                  joins:
+                    connection: cnn-avionics-bus
+                    nature: BOTH
+                    physical_type: ARINC 429 twisted pair
+                    layer: "Layer2: Data Link"
+                    protocol: ARINC 429
+                    directionality: Unidirectional
+              connections:
+                - key: cnn-avionics-bus
+                  name: Tanker Avionics Bus
+                  short: ARINC 429 bus linking avionics and drop system.
+                  rationale: Carries drop commands and system status in the aircraft.
+                  type: Avionics data bus
+                  osi_layer: 2
+                  protocol: ARINC 429
+                  directionality: Unidirectional
+                  timing: Real-time
+                  payload: Drop commands, door status, tank quantity.
+              requirements:
+                - key: tanker-release
+                  name: Release Reliability
+                  statement: >-
+                    The Air Tanker SHALL release the commanded load quantity
+                    on 99 percent of commanded drops.
+                  method: Test
+                  verification: Release audit across a drop test series.
+                  derives_from: [fleet-accuracy]
+              elements:
+                # ---- Tier 4 System: Water Drop System ------------------
+                - key: drop-system
+                  name: Water Drop System
+                  short: Tank, doors, and pumps metering the drop.
+                  technology: Constant-flow tank and door system
+                  system:
+                    name: Water Drop System
+                    short: Meters and patterns the released load.
+                    mission:
+                      action: release the commanded load in the commanded pattern
+                      means: tank doors and pumps under drop controller command
+                      contribution: air tanker release reliability
+                    purpose:
+                      name: Metered Release
+                      short: Pattern the load onto the fire line.
+                    environment:
+                      name: Drop System Environment
+                      context: High-flow water and retardant wetted hardware.
+                    states:
+                      - name: Sealed
+                        sequence: 0
+                        transitions:
+                          - {to: Releasing, trigger: Drop command}
+                      - name: Releasing
+                        sequence: 1
+                    functions:
+                      - key: meter-flow
+                        name: Meter Release Flow
+                        short: Sequence doors and pumps for the commanded coverage.
+                        allocated_to: drop-doors
+                    interfaces:
+                      - key: drop-bus-if
+                        name: Drop System Bus Interface
+                        short: Drop system endpoint of the avionics bus.
+                        connects: [meter-flow]
+                        allocated_to: drop-doors
+                        joins:
+                          connection: cnn-avionics-bus
+                          nature: BOTH
+                          physical_type: ARINC 429 twisted pair
+                          layer: "Layer2: Data Link"
+                          protocol: ARINC 429
+                          directionality: Unidirectional
+                    requirements:
+                      - key: drop-coverage
+                        name: Coverage Level Control
+                        statement: >-
+                          The Water Drop System SHALL deliver the selected
+                          coverage level across the drop pattern.
+                        method: Test
+                        verification: Cup-and-grid pattern test per coverage setting.
+                        derives_from: [tanker-release]
+                    elements:
+                      - key: tank
+                        name: Water Tank
+                        short: Internal tank holding the drop load.
+                        technology: Baffled internal tank
+                      - key: drop-doors
+                        name: Drop Doors
+                        short: Hydraulically sequenced release doors.
+                        technology: Hydraulic door actuators
+                      - key: pump
+                        name: Transfer Pump
+                        short: Ground fill and in-flight transfer pump.
+                        technology: Centrifugal transfer pump
+                # ---- Tier 4 System: Tanker Avionics --------------------
+                - key: avionics
+                  name: Tanker Avionics
+                  short: Radios, navigation, and surveillance equipment.
+                  technology: Retrofit avionics suite
+                  system:
+                    name: Tanker Avionics
+                    short: Communications and navigation for the drop mission.
+                    mission:
+                      action: keep the tanker connected and navigating
+                      means: VHF and SATCOM radios with GPS navigation
+                      contribution: tanker coordination and tasking reach
+                    purpose:
+                      name: Mission Connectivity
+                      short: Voice, data, and navigation for every sortie.
+                    environment:
+                      name: Cockpit Avionics Environment
+                      context: Certified airborne electronics bays and antennas.
+                    states:
+                      - name: Powered Down
+                        sequence: 0
+                        transitions:
+                          - {to: Mission Set, trigger: Avionics master on}
+                      - name: Mission Set
+                        sequence: 1
+                    functions:
+                      - key: radio-voice
+                        name: Provide Tactical Voice
+                        short: Tune and transmit on fire traffic frequencies.
+                        allocated_to: vhf-radio
+                      - key: satcom-data
+                        name: Provide SATCOM Data
+                        short: Exchange tasking data with the command center.
+                        allocated_to: satcom-transceiver
+                        flows_to_interface: [tanker-satcom-if]
+                      - key: navigate
+                        name: Navigate Drop Runs
+                        short: Provide guidance to the tasked drop point.
+                        allocated_to: nav-gps
+                    interfaces:
+                      - key: tanker-satcom-if
+                        name: Tanker SATCOM Interface
+                        short: Airborne endpoint of the aviation tasking link.
+                        connects: [satcom-data]
+                        allocated_to: satcom-transceiver
+                        joins:
+                          connection: cnn-aviation-tasking
+                          nature: LOGICAL
+                          layer: "Layer 3: Network"
+                          protocol: IP over SATCOM
+                          directionality: Bidirectional
+                          security: Encrypted
+                    requirements:
+                      - key: avionics-tasking
+                        name: Airborne Tasking Receipt
+                        statement: >-
+                          The Tanker Avionics SHALL receive and acknowledge
+                          tasking updates while airborne anywhere in the
+                          operating area.
+                        method: Test
+                        verification: Tasking exchange across the operating area.
+                        derives_from: [cmd-cnn-tasking]
+                    elements:
+                      - key: vhf-radio
+                        name: VHF Tactical Radio
+                        short: Fire traffic and air-ground voice radio.
+                        technology: VHF-AM/FM airborne radio
+                      - key: satcom-transceiver
+                        name: SATCOM Transceiver
+                        short: Airborne satellite data transceiver.
+                        technology: Airborne SATCOM transceiver
+                      - key: nav-gps
+                        name: GPS Navigator
+                        short: Navigation and drop point guidance receiver.
+                        technology: Certified GPS navigator
+                      - key: transponder
+                        name: Surveillance Transponder
+                        short: ADS-B out for fire traffic deconfliction.
+                        technology: ADS-B transponder
+                - key: airframe
+                  name: Tanker Airframe
+                  short: Converted transport aircraft structure and engines.
+                  technology: Converted transport airframe
+          - key: lead-plane
+            name: Lead Plane
+            short: Pathfinder aircraft marking drop lines for the tankers.
+            technology: Light twin lead aircraft
+
+    # ---- Tier 2 System: Smokejumper Wing -------------------------------
+    - key: jumper-wing
+      name: Smokejumper Wing
+      short: Jump aircraft and smokejumper teams for remote incidents.
+      technology: Smokejumper aircraft and teams
+      system:
+        name: Smokejumper Wing
+        short: Deploys fire jumper teams onto remote incidents.
+        mission:
+          action: put trained fire jumpers onto remote fires
+          means: jump aircraft carrying equipped smokejumper teams
+          contribution: aviation segment remote incident response
+        purpose:
+          name: Jumper Insertion
+          short: Deliver teams safely onto the jump spot.
+        environment:
+          name: Jump Operations Environment
+          context: Low-altitude paracargo and jump runs over mountain terrain.
+        states:
+          - name: Rigged
+            sequence: 0
+            transitions:
+              - {to: Jump Operations, trigger: Jump tasking accepted}
+          - name: Jump Operations
+            sequence: 1
+        functions:
+          - key: fly-jump-runs
+            name: Fly Jump Runs
+            short: Fly exit runs over the selected jump spot.
+            allocated_to: jump-aircraft
+          - key: insert-teams
+            name: Insert Jumper Teams
+            short: Exit jumpers and drop paracargo onto the incident.
+            allocated_to: jumper-teams
+        interfaces:
+          - key: wing-airground-if
+            name: Wing Air-Ground Interface
+            short: Jump aircraft endpoint on the tactical air-ground net.
+            connects: [fly-jump-runs]
+            allocated_to: jump-aircraft
+            joins:
+              connection: cnn-air-ground
+              nature: LOGICAL
+              layer: "Layer 1: Physical"
+              protocol: VHF-FM tactical voice
+              directionality: Multicast
+        requirements:
+          - key: wing-accuracy
+            name: Jump Spot Accuracy
+            statement: >-
+              The Smokejumper Wing SHALL place jumpers within 100 meters of
+              the selected jump spot.
+            method: Demonstration
+            verification: Scored training jumps onto marked spots.
+            derives_from: [avn-jumpers]
+        elements:
+          # ---- Tier 3 System: Jump Aircraft ----------------------------
+          - key: jump-aircraft
+            name: Jump Aircraft
+            short: Aircraft configured for jumper exit and paracargo.
+            technology: Turboprop jump ship
+            system:
+              name: Jump Aircraft
+              short: Carries and exits smokejumper teams over incidents.
+              mission:
+                action: exit jumpers safely over the jump spot
+                means: a jump-configured aircraft with spotter platform
+                contribution: wing jump spot accuracy
+              purpose:
+                name: Exit Platform
+                short: Stable, communicating exit platform over the spot.
+              environment:
+                name: Jump Run Environment
+                context: Door-open low-speed flight over drop terrain.
+              states:
+                - name: Cruise
+                  sequence: 0
+                  transitions:
+                    - {to: Jump Run, trigger: Spotter calls the run-in}
+                - name: Jump Run
+                  sequence: 1
+              functions:
+                - key: hold-run
+                  name: Hold Exit Run
+                  short: Hold run-in track and exit speed for the stick.
+                  allocated_to: jump-platform
+                - key: spot-talk
+                  name: Coordinate Spotter Calls
+                  short: Carry spotter and crew coordination voice.
+                  allocated_to: crew-radio
+              interfaces:
+                - key: jump-crew-if
+                  name: Jump Crew Interface
+                  short: Spotter and jumper intercom and signal station.
+                  connects: [spot-talk]
+                  allocated_to: crew-radio
+              requirements:
+                - key: jump-exit
+                  name: Exit Condition Control
+                  statement: >-
+                    The Jump Aircraft SHALL hold exit speed within 5 knots
+                    through each stick exit.
+                  method: Test
+                  verification: Flight data review across training exits.
+                  derives_from: [wing-accuracy]
+              elements:
+                - key: jump-platform
+                  name: Jump Platform
+                  short: Door, static line anchor, and exit step.
+                  technology: Jump door and anchor cable fit
+                - key: crew-radio
+                  name: Crew Radio
+                  short: Spotter intercom and tactical radio fit.
+                  technology: Intercom and VHF radio fit
+          - key: jumper-teams
+            name: Smokejumper Teams
+            short: Equipped jumper teams with paracargo kit.
+            technology: Jump kit and paracargo equipment cache
+
+    # ---- Tier 2 System: Air Operations Base ----------------------------
+    - key: air-base
+      name: Air Operations Base
+      short: Base with retardant plant, flight line, and base comms.
+      technology: Fire aviation operating base
+      deployment: Forward airfield within tanker range of protected forests
+      system:
+        name: Air Operations Base
+        short: Generates and sustains aviation sorties.
+        mission:
+          action: generate tasked sorties and turn aircraft quickly
+          means: a retardant plant, flight line services, and base comms
+          contribution: aviation segment sortie rate
+        purpose:
+          name: Sortie Generation
+          short: Launch, recover, reload, and relaunch aircraft.
+        environment:
+          name: Base Airfield Environment
+          context: Airfield operations with retardant loading pits.
+        states:
+          - name: Caretaker
+            sequence: 0
+            transitions:
+              - {to: Operating, trigger: Fire season activation}
+          - name: Operating
+            sequence: 1
+        functions:
+          - key: manage-tasking
+            name: Manage Base Tasking
+            short: Hold the tasking picture and assign aircraft.
+            allocated_to: base-comms
+          - key: reload-aircraft
+            name: Reload Aircraft
+            short: Reload water and retardant between sorties.
+            allocated_to: retardant-plant
+          - key: turn-aircraft
+            name: Turn Aircraft On The Line
+            short: Fuel, inspect, and relaunch aircraft.
+            allocated_to: flight-line
+        interfaces:
+          - key: base-satcom-if
+            name: Base SATCOM Interface
+            short: Base endpoint of the aviation tasking link.
+            connects: [manage-tasking]
+            allocated_to: base-comms
+            joins:
+              connection: cnn-aviation-tasking
+              nature: LOGICAL
+              layer: "Layer 3: Network"
+              protocol: IP over SATCOM
+              directionality: Bidirectional
+              security: Encrypted
+        requirements:
+          - key: base-turn
+            name: Aircraft Turn Time
+            statement: >-
+              The Air Operations Base SHALL turn a returning air tanker in
+              under 15 minutes.
+            method: Demonstration
+            verification: Timed pit operations during exercise surges.
+            derives_from: [avn-sorties]
+        elements:
+          - key: retardant-plant
+            name: Retardant Plant
+            short: Mixing and loading pits for water and retardant.
+            technology: Retardant batch plant
+          - key: flight-line
+            name: Flight Line Services
+            short: Fueling, parking, and turnaround services.
+            technology: Airfield line service equipment
+          - key: base-comms
+            name: Base Communications
+            short: Base radio room and SATCOM terminal.
+            technology: Base station radios and SATCOM

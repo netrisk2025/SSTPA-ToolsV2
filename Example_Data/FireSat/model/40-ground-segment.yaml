@@ -1,0 +1,504 @@
+# FireSat Ground Segment (Tier 1, SoI 4): forest watch stations that
+# detect fires from the ground and a vehicle fleet for firefighting and
+# logistics support.
+system:
+  name: Ground Segment
+  short: Forest watch stations and vehicle fleet for local fire response.
+  long: >-
+    The FireSat Ground Segment operates watch stations in national forests
+    that detect fires from the ground and direct local firefighting, plus
+    a fleet of fire engines and logistics vehicles that fight fires and
+    sustain crews, coordinated with the Command Segment over land mobile
+    radio and data backhaul.
+  mission:
+    action: detect fires from the ground and direct local firefighting
+    means: >-
+      forest watch stations, fire engines, and logistics vehicles on the
+      command coordination networks
+    contribution: ground-truth detection and local suppression for FireSat
+  purpose:
+    name: Ground Fire Watch And Response
+    short: See fires early from the ground and fight them locally.
+  environment:
+    name: National Forest Environment
+    context: >-
+      Remote forest terrain with limited grid power, seasonal access
+      roads, and radio propagation shaped by ridgelines.
+  states:
+    - name: Off-Season
+      sequence: 0
+      transitions:
+        - {to: Fire Watch, trigger: Fire season staffing complete}
+    - name: Fire Watch
+      sequence: 1
+      short: Watch stations staffed and fleet on standby.
+      transitions:
+        - {to: Local Response, trigger: Fire confirmed in the district}
+    - name: Local Response
+      sequence: 2
+      short: Crews and vehicles committed to a local incident.
+      transitions:
+        - {to: Fire Watch, trigger: Incident contained}
+
+  functions:
+    - key: watch-fires
+      name: Watch For Fires
+      short: Maintain visual watch across assigned forest districts.
+      allocated_to: watch-network
+      flows_to: [report-smoke]
+    - key: report-smoke
+      name: Report Smoke Sightings
+      short: Report bearings and locations of smoke to the Command Segment.
+      allocated_to: watch-network
+      flows_to_interface: [ground-lmr-if]
+    - key: direct-local
+      name: Direct Local Firefighting
+      short: Direct district crews and engines onto confirmed fires.
+      allocated_to: watch-network
+    - key: fight-fires
+      name: Fight Fires With Engines
+      short: Apply water and crews on the fire line.
+      allocated_to: vehicle-fleet
+    - key: sustain-crews
+      name: Sustain Crews And Vehicles
+      short: Move water, fuel, and supplies to committed crews.
+      allocated_to: vehicle-fleet
+      flows_to_interface: [fleet-logistics-if]
+
+  interfaces:
+    - key: ground-lmr-if
+      name: Ground Tactical Radio Interface
+      short: Segment-level endpoint on the ground coordination network.
+      connects: [report-smoke, direct-local]
+      allocated_to: watch-network
+      joins:
+        connection: cnn-ground-coordination
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: APCO P25 trunked voice and data
+        directionality: Multicast
+        security: AES voice encryption
+    - key: ground-airnet-if
+      name: Ground Air-Net Interface
+      short: Segment-level endpoint on the tactical air-ground net.
+      connects: [direct-local]
+      allocated_to: vehicle-fleet
+      joins:
+        connection: cnn-air-ground
+        nature: LOGICAL
+        layer: "Layer 1: Physical"
+        protocol: VHF-FM tactical voice
+        directionality: Multicast
+    - key: fleet-logistics-if
+      name: Fleet Logistics Interface
+      short: Segment-level endpoint of the logistics coordination link.
+      connects: [sustain-crews]
+      allocated_to: vehicle-fleet
+      joins:
+        connection: cnn-logistics
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: HTTPS over LTE and satellite backup
+        directionality: Bidirectional
+        security: TLS
+
+  connections:
+    - key: cnn-watch-backhaul
+      name: Watch Station Backhaul
+      short: Licensed microwave IP backhaul from watch stations to Command.
+      rationale: >-
+        Carries watch station imagery and reports where no terrestrial
+        network reaches the forest.
+      type: Microwave IP backhaul
+      osi_layer: 3
+      protocol: IP over licensed microwave
+      directionality: Bidirectional
+      timing: Interactive
+      payload: Spotting imagery, smoke reports, station status.
+      requirements:
+        - key: gnd-cnn-backhaul
+          name: Backhaul Availability
+          statement: >-
+            The Watch Station Backhaul SHALL be available at least 99
+            percent of fire season hours at every staffed station.
+          method: Analysis
+          verification: Link monitoring rollup across a fire season.
+          derives_from: [firesat-sustain]
+
+  requirements:
+    - key: gnd-report
+      name: Ground Smoke Reporting
+      statement: >-
+        The Ground Segment SHALL report a bearing and estimated location
+        for visible smoke within 5 minutes of sighting.
+      method: Demonstration
+      verification: Timed smoke reports against staged smoke sources.
+      derives_from: [firesat-detect]
+    - key: gnd-respond
+      name: Local Response Time
+      statement: >-
+        The Ground Segment SHALL put an engine crew on a confirmed fire
+        within its district within 45 minutes of dispatch.
+      method: Demonstration
+      verification: Timed district response exercises.
+      derives_from: [firesat-direct]
+    - key: gnd-sustain
+      name: Fleet Sustainment
+      statement: >-
+        The Ground Segment SHALL sustain committed crews with water, fuel,
+        and supplies for 14 consecutive incident days.
+      method: Analysis
+      verification: Logistics throughput model against fleet capacity.
+      derives_from: [firesat-sustain]
+
+  elements:
+    # ---- Tier 2 System: Watch Station Network --------------------------
+    - key: watch-network
+      name: Watch Station Network
+      short: Staffed watch stations netted across the national forests.
+      technology: Networked fire lookout stations
+      system:
+        name: Watch Station Network
+        short: Detects and localizes fires by ground observation.
+        mission:
+          action: detect and localize forest fires by ground watch
+          means: staffed watch stations with optical spotting and radio
+          contribution: ground segment smoke reporting timeline
+        purpose:
+          name: District Fire Watch
+          short: Keep every district under continuous daylight watch.
+        environment:
+          name: Lookout Network Environment
+          context: Ridge-top stations with microwave line-of-sight paths.
+        states:
+          - name: Unstaffed
+            sequence: 0
+            transitions:
+              - {to: Watching, trigger: Season staffing in place}
+          - name: Watching
+            sequence: 1
+        functions:
+          - key: scan-districts
+            name: Scan Assigned Districts
+            short: Sweep assigned sectors on the watch schedule.
+            allocated_to: watch-station
+          - key: cross-fix
+            name: Cross-Fix Smoke Bearings
+            short: Triangulate smoke location from multiple stations.
+            allocated_to: watch-station
+            flows_to_interface: [network-backhaul-if]
+        interfaces:
+          - key: network-backhaul-if
+            name: Network Backhaul Interface
+            short: Network-side aggregation of station backhaul links.
+            connects: [cross-fix]
+            allocated_to: backhaul-relay
+            joins:
+              connection: cnn-watch-backhaul
+              nature: LOGICAL
+              layer: "Layer 3: Network"
+              protocol: IP over licensed microwave
+              directionality: Bidirectional
+        requirements:
+          - key: wsn-fix
+            name: Cross-Fix Accuracy
+            statement: >-
+              The Watch Station Network SHALL localize smoke by cross-fix
+              to within 1 kilometer.
+            method: Demonstration
+            verification: Cross-fix exercises against surveyed smoke sources.
+            derives_from: [gnd-report]
+        elements:
+          # ---- Tier 3 System: Watch Station ----------------------------
+          - key: watch-station
+            name: Watch Station
+            short: Staffed lookout with tower, optics, and radio.
+            technology: Fire lookout station
+            system:
+              name: Watch Station
+              short: One staffed lookout covering its assigned sectors.
+              mission:
+                action: sight and report smoke in assigned sectors
+                means: an observation tower, optical spotting system, and radio
+                contribution: network cross-fix coverage
+              purpose:
+                name: Sector Watch
+                short: Continuous daylight watch over assigned sectors.
+              environment:
+                name: Lookout Site Environment
+                context: Exposed ridge-top site on solar and generator power.
+              states:
+                - name: Closed
+                  sequence: 0
+                  transitions:
+                    - {to: On Watch, trigger: Observer on station}
+                - name: On Watch
+                  sequence: 1
+              functions:
+                - key: observe
+                  name: Observe Assigned Sectors
+                  short: Sweep sectors visually and with the spotting system.
+                  allocated_to: spotting-system
+                  flows_to: [call-bearings]
+                - key: call-bearings
+                  name: Call Smoke Bearings
+                  short: Report azimuth and estimated range for smoke.
+                  allocated_to: station-radio
+                  flows_to_interface: [station-lmr-if]
+              interfaces:
+                - key: station-lmr-if
+                  name: Station Radio Interface
+                  short: Station endpoint on the ground coordination network.
+                  connects: [call-bearings]
+                  allocated_to: station-radio
+                  joins:
+                    connection: cnn-ground-coordination
+                    nature: LOGICAL
+                    layer: "Layer 7: Application"
+                    protocol: APCO P25 conventional voice
+                    directionality: Multicast
+                - key: station-backhaul-if
+                  name: Station Backhaul Interface
+                  short: Station endpoint of the microwave backhaul.
+                  connects: [observe]
+                  allocated_to: spotting-system
+                  joins:
+                    connection: cnn-watch-backhaul
+                    nature: LOGICAL
+                    layer: "Layer 3: Network"
+                    protocol: IP over licensed microwave
+                    directionality: Bidirectional
+              requirements:
+                - key: ws-bearing
+                  name: Bearing Accuracy
+                  statement: >-
+                    The Watch Station SHALL report smoke azimuths accurate
+                    to within 1 degree.
+                  method: Test
+                  verification: Bearing checks against surveyed landmarks.
+                  derives_from: [wsn-fix]
+              elements:
+                # ---- Tier 4 System: Optical Spotting System ------------
+                - key: spotting-system
+                  name: Optical Spotting System
+                  short: Camera and bearing head for smoke localization.
+                  technology: Long-range camera on calibrated bearing mount
+                  system:
+                    name: Optical Spotting System
+                    short: Measures calibrated bearings to observed smoke.
+                    mission:
+                      action: image and measure bearings to smoke columns
+                      means: a long-range camera on a calibrated pan-tilt head
+                      contribution: station bearing accuracy
+                    purpose:
+                      name: Calibrated Spotting
+                      short: Bearing-accurate imagery of candidate smoke.
+                    environment:
+                      name: Spotting Environment
+                      context: Heat shimmer, haze, and low sun angles over forest.
+                    states:
+                      - name: Stowed
+                        sequence: 0
+                        transitions:
+                          - {to: Scanning, trigger: Watch schedule start}
+                      - name: Scanning
+                        sequence: 1
+                    functions:
+                      - key: image-sectors
+                        name: Image Watch Sectors
+                        short: Capture sector imagery on the scan plan.
+                        allocated_to: camera
+                        flows_to: [measure-bearing]
+                      - key: measure-bearing
+                        name: Measure Smoke Bearing
+                        short: Read calibrated azimuth and elevation to target.
+                        allocated_to: pan-tilt
+                        flows_to_interface: [spot-data-if]
+                    interfaces:
+                      - key: spot-data-if
+                        name: Spotting Data Interface
+                        short: Imagery and bearing output to the station systems.
+                        connects: [measure-bearing]
+                        allocated_to: camera
+                    requirements:
+                      - key: spot-calibration
+                        name: Mount Calibration
+                        statement: >-
+                          The Optical Spotting System SHALL hold bearing
+                          calibration within 0.2 degrees between checks.
+                        method: Test
+                        verification: Repeatability runs against surveyed landmarks.
+                        derives_from: [ws-bearing]
+                    elements:
+                      - key: camera
+                        name: Spotting Camera
+                        short: Long-range zoom camera with low-light mode.
+                        technology: Long-range zoom camera
+                      - key: pan-tilt
+                        name: Calibrated Pan-Tilt Head
+                        short: Bearing-calibrated positioner and encoder set.
+                        technology: Precision pan-tilt positioner
+                - key: tower
+                  name: Observation Tower
+                  short: Elevated observation cab and site structure.
+                  technology: Steel lookout tower
+                - key: station-radio
+                  name: Station Radio
+                  short: P25 base station radio at the lookout.
+                  technology: P25 base station
+          - key: backhaul-relay
+            name: Backhaul Relay
+            short: Ridge-top microwave relay aggregating station links.
+            technology: Licensed microwave relay
+
+    # ---- Tier 2 System: Vehicle Fleet ----------------------------------
+    - key: vehicle-fleet
+      name: Vehicle Fleet
+      short: Fire engines and logistics vehicles supporting the districts.
+      technology: Wildland fire vehicle fleet
+      system:
+        name: Vehicle Fleet
+        short: Fights fires and sustains crews across the districts.
+        mission:
+          action: fight fires and move logistics in the districts
+          means: fire engines, logistics trucks, and fuel tenders
+          contribution: ground segment response and sustainment
+        purpose:
+          name: District Response Fleet
+          short: Engines on the fire line, supplies on the road.
+        environment:
+          name: Forest Road Environment
+          context: Unimproved forest roads, dust, grades, and river fords.
+        states:
+          - name: Motor Pool
+            sequence: 0
+            transitions:
+              - {to: Dispatched, trigger: District dispatch order}
+          - name: Dispatched
+            sequence: 1
+        functions:
+          - key: crew-engines
+            name: Crew And Position Engines
+            short: Stage crewed engines against district risk.
+            allocated_to: fire-engine
+          - key: run-logistics
+            name: Run Logistics Circuits
+            short: Deliver water, fuel, and supplies to committed crews.
+            allocated_to: logistics-truck
+            flows_to_interface: [fleet-data-if]
+        interfaces:
+          - key: fleet-data-if
+            name: Fleet Data Interface
+            short: Fleet tracking and resupply data endpoint.
+            connects: [run-logistics]
+            allocated_to: logistics-truck
+            joins:
+              connection: cnn-logistics
+              nature: LOGICAL
+              layer: "Layer 7: Application"
+              protocol: HTTPS over LTE and satellite backup
+              directionality: Bidirectional
+              security: TLS
+        requirements:
+          - key: fleet-readiness
+            name: Fleet Readiness
+            statement: >-
+              The Vehicle Fleet SHALL keep at least 90 percent of engines
+              mission-capable through fire season.
+            method: Analysis
+            verification: Maintenance readiness reporting rollup.
+            derives_from: [gnd-respond, gnd-sustain]
+        elements:
+          # ---- Tier 3 System: Fire Engine ------------------------------
+          - key: fire-engine
+            name: Fire Engine
+            short: Wildland engine with pump, tank, and crew.
+            technology: Type 3 wildland engine
+            system:
+              name: Fire Engine
+              short: One crewed engine applying water on the fire line.
+              mission:
+                action: apply water and crew work on the fire line
+                means: a pump-and-roll wildland engine with tactical radio
+                contribution: fleet district response
+              purpose:
+                name: Line Engine
+                short: First water on the fire and crew mobility.
+              environment:
+                name: Fire Line Environment
+                context: Heat, smoke, and grade operations near active fire.
+              states:
+                - name: Staged
+                  sequence: 0
+                  transitions:
+                    - {to: Pumping, trigger: On the line with water on}
+                - name: Pumping
+                  sequence: 1
+              functions:
+                - key: pump-water
+                  name: Pump And Roll Water
+                  short: Deliver pumped water while moving along the line.
+                  allocated_to: pump-module
+                - key: net-check
+                  name: Hold Tactical Net Check
+                  short: Keep the crew on the coordination and air nets.
+                  allocated_to: vehicle-radio
+                  flows_to_interface: [engine-lmr-if]
+              interfaces:
+                - key: engine-lmr-if
+                  name: Engine Radio Interface
+                  short: Engine endpoint on the ground coordination network.
+                  connects: [net-check]
+                  allocated_to: vehicle-radio
+                  joins:
+                    connection: cnn-ground-coordination
+                    nature: LOGICAL
+                    layer: "Layer 7: Application"
+                    protocol: APCO P25 conventional voice
+                    directionality: Multicast
+                - key: engine-airnet-if
+                  name: Engine Air-Net Interface
+                  short: Engine endpoint on the tactical air-ground net.
+                  connects: [net-check]
+                  allocated_to: vehicle-radio
+                  joins:
+                    connection: cnn-air-ground
+                    nature: LOGICAL
+                    layer: "Layer 1: Physical"
+                    protocol: VHF-FM tactical voice
+                    directionality: Multicast
+              requirements:
+                - key: engine-flow
+                  name: Engine Pump Flow
+                  statement: >-
+                    The Fire Engine SHALL sustain 150 gallons per minute
+                    while moving at crew walking pace.
+                  method: Test
+                  verification: Pump-and-roll flow test on grade.
+                  derives_from: [gnd-respond]
+              elements:
+                - key: pump-module
+                  name: Pump Module
+                  short: Engine-driven pump and plumbing.
+                  technology: PTO-driven centrifugal pump
+                - key: water-tank
+                  name: Water Tank
+                  short: On-board water tank and foam cell.
+                  technology: Baffled poly tank with foam cell
+                - key: vehicle-radio
+                  name: Vehicle Radio
+                  short: Mobile P25 and VHF tactical radio set.
+                  technology: Dual-band mobile radio
+          - key: logistics-truck
+            name: Logistics Truck
+            short: Supply truck running district resupply circuits.
+            technology: All-wheel-drive supply truck
+          - key: fuel-tender
+            name: Fuel Tender
+            short: Mobile fueling for engines and equipment.
+            technology: Wildland fuel tender
+
+    - key: crew-cache
+      name: Hand Crew Equipment Cache
+      short: Tool and equipment cache outfitting district hand crews.
+      technology: Fire cache container stock

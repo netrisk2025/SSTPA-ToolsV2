@@ -1,0 +1,667 @@
+# FireSat Command Segment (Tier 1, SoI 2): national fire command center,
+# its satellite ground station, and its communications reach into the
+# aviation and ground segments.
+system:
+  name: Command Segment
+  short: National command center directing forest-fire response.
+  long: >-
+    The FireSat Command Segment receives satellite fire detections at its
+    ground station, fuses them with watch station reports, and directs
+    aviation and ground firefighting activities over dedicated tasking and
+    coordination networks.
+  mission:
+    action: direct forest firefighting activities nationwide
+    means: >-
+      a satellite ground station, a fused fire operating picture, and
+      tasking networks to aviation and ground assets
+    contribution: the FireSat suppression direction timeline
+  purpose:
+    name: Fire Response Direction
+    short: Turn detections into directed suppression action.
+  environment:
+    name: National Operations Environment
+    context: >-
+      Hardened operations facility with satellite ground station, SATCOM,
+      land mobile radio, and terrestrial network connectivity.
+  states:
+    - name: 'Off'
+      sequence: 0
+      transitions:
+        - {to: Watch, trigger: Daily operations start}
+    - name: Watch
+      sequence: 1
+      short: Routine fire-season watch operations.
+      transitions:
+        - {to: Surge, trigger: Major fire incident declared}
+        - {to: Degraded, trigger: Loss of primary power or comms}
+    - name: Surge
+      sequence: 2
+      short: Multi-incident surge operations with full staffing.
+      transitions:
+        - {to: Watch, trigger: Incidents contained}
+    - name: Degraded
+      sequence: 3
+      short: Backup power and reduced communications operations.
+      transitions:
+        - {to: Watch, trigger: Primary services restored}
+
+  functions:
+    - key: receive-detections
+      name: Receive Satellite Detections
+      short: Capture and decrypt detection reports from the Space Segment.
+      allocated_to: ground-station
+      flows_to: [fuse-picture]
+    - key: fuse-picture
+      name: Fuse Fire Operating Picture
+      short: Merge satellite, watch station, and aviation reports.
+      allocated_to: ops-center
+      flows_to: [task-aviation, direct-ground]
+    - key: task-aviation
+      name: Task Aviation Assets
+      short: Issue drop and jump tasking to the Aviation Segment.
+      allocated_to: ops-center
+      flows_to_interface: [aviation-tasking-if]
+    - key: direct-ground
+      name: Direct Ground Response
+      short: Coordinate watch stations and vehicle crews on the ground net.
+      allocated_to: ops-center
+      flows_to_interface: [ground-coord-if]
+    - key: sustain-logistics
+      name: Coordinate Response Logistics
+      short: Match vehicle fleet logistics to active incidents.
+      allocated_to: ops-center
+      flows_to_interface: [logistics-if]
+
+  interfaces:
+    - key: sat-receive-if
+      name: Satellite Downlink Receive Interface
+      short: Segment-level receive endpoint of the Detection Downlink.
+      connects: [receive-detections]
+      allocated_to: ground-station
+      joins:
+        connection: cnn-detection-downlink
+        nature: LOGICAL
+        layer: "Layer 3: Network"
+        protocol: CCSDS AOS over Ka-band, ESP/IPSec
+        directionality: Unidirectional
+        security: Encrypted
+    - key: aviation-tasking-if
+      name: Aviation Tasking Interface
+      short: SATCOM tasking channel to the Aviation Segment.
+      connects: [task-aviation]
+      allocated_to: ops-center
+      joins:
+        connection: cnn-aviation-tasking
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: Tasking messages over SATCOM IP
+        directionality: Bidirectional
+        security: Encrypted
+    - key: ground-coord-if
+      name: Ground Coordination Interface
+      short: P25 land mobile radio net control station.
+      connects: [direct-ground]
+      allocated_to: ops-center
+      joins:
+        connection: cnn-ground-coordination
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: APCO P25 trunked voice and data
+        directionality: Multicast
+        security: AES voice encryption
+    - key: logistics-if
+      name: Logistics Coordination Interface
+      short: Data channel for vehicle fleet logistics coordination.
+      connects: [sustain-logistics]
+      allocated_to: ops-center
+      joins:
+        connection: cnn-logistics
+        nature: LOGICAL
+        layer: "Layer 7: Application"
+        protocol: HTTPS over LTE and satellite backup
+        directionality: Bidirectional
+        security: TLS
+    - key: watch-backhaul-if
+      name: Watch Station Backhaul Interface
+      short: Terminating point of the forest watch station backhaul.
+      connects: [fuse-picture]
+      allocated_to: ops-center
+      joins:
+        connection: cnn-watch-backhaul
+        nature: LOGICAL
+        layer: "Layer 3: Network"
+        protocol: IP over licensed microwave
+        directionality: Bidirectional
+
+  connections:
+    - key: cnn-aviation-tasking
+      name: Aviation Tasking Link
+      short: SATCOM channel carrying drop and jump tasking.
+      rationale: >-
+        Primary tasking path from the command center to airborne and based
+        aviation assets.
+      type: SATCOM data link
+      osi_layer: 7
+      protocol: Tasking messages over SATCOM IP
+      directionality: Bidirectional
+      timing: Near-real-time
+      security: Encrypted
+      payload: Air tasking orders, drop clearances, aircraft status reports.
+      requirements:
+        - key: cmd-cnn-tasking
+          name: Tasking Delivery
+          statement: >-
+            The Aviation Tasking Link SHALL deliver a tasking message to an
+            airborne asset within 60 seconds of release.
+          method: Test
+          verification: Timed tasking messages during a flight exercise.
+          derives_from: [firesat-direct]
+    - key: cnn-ground-coordination
+      name: Ground Coordination Network
+      short: P25 land mobile radio net for ground response direction.
+      rationale: >-
+        Voice and low-rate data coordination among the command center,
+        watch stations, and vehicle crews.
+      type: Land mobile radio network
+      osi_layer: 7
+      protocol: APCO P25 trunked voice and data
+      directionality: Multicast
+      timing: Real-time voice
+      security: AES voice encryption
+      payload: Tactical voice, unit status, and short data messages.
+    - key: cnn-logistics
+      name: Logistics Coordination Link
+      short: Data link matching fleet logistics to active incidents.
+      rationale: Sustains fuel, water, and crew resupply during incidents.
+      type: Terrestrial data link
+      osi_layer: 7
+      protocol: HTTPS over LTE with satellite backup
+      directionality: Bidirectional
+      timing: Transactional
+      security: TLS
+      payload: Resupply requests, fleet positions, incident logistics status.
+
+  requirements:
+    - key: cmd-receive
+      name: Command Detection Receipt
+      statement: >-
+        The Command Segment SHALL receive, decrypt, and display each
+        satellite detection within 2 minutes of ground station reception.
+      method: Test
+      verification: Timed injection of recorded downlink passes.
+      derives_from: [firesat-detect]
+    - key: cmd-task
+      name: Command Tasking Timeline
+      statement: >-
+        The Command Segment SHALL issue aviation and ground tasking within
+        15 minutes of detection confirmation.
+      method: Demonstration
+      verification: Command post exercise against scripted detections.
+      derives_from: [firesat-direct]
+    - key: cmd-continuity
+      name: Command Continuity
+      statement: >-
+        The Command Segment SHALL continue watch operations on backup power
+        for at least 72 hours.
+      method: Demonstration
+      verification: Facility endurance run on generator power.
+      derives_from: [firesat-sustain]
+
+  elements:
+    # ---- Tier 2 System: Ground Station ---------------------------------
+    - key: ground-station
+      name: Ground Station
+      short: Satellite receive and command site serving the constellation.
+      technology: Ka/S-band satellite ground station
+      deployment: Fixed site adjacent to the operations center
+      system:
+        name: Ground Station
+        short: Receives detection downlinks and commands the constellation.
+        mission:
+          action: exchange mission and TT&C traffic with the constellation
+          means: tracking antennas, receive chains, and an uplink exciter
+          contribution: command detection receipt timeline
+        purpose:
+          name: Space-Ground Gateway
+          short: Terminate the space-ground links for the capability.
+        environment:
+          name: Ground Station RF Environment
+          context: Licensed Ka/S-band site with clear horizon masks.
+        states:
+          - name: Idle
+            sequence: 0
+            transitions:
+              - {to: Tracking, trigger: Scheduled pass start}
+          - name: Tracking
+            sequence: 1
+            short: Antenna tracking a satellite pass.
+        functions:
+          - key: track-pass
+            name: Track Satellite Passes
+            short: Point antennas along scheduled pass geometry.
+            allocated_to: sat-receiver
+          - key: receive-downlink
+            name: Receive And Decrypt Downlink
+            short: Demodulate and decrypt detection downlink traffic.
+            allocated_to: sat-receiver
+            flows_to_interface: [station-lan-if]
+          - key: uplink-commands
+            name: Uplink Spacecraft Commands
+            short: Radiate authenticated TT&C uplink carriers.
+            allocated_to: uplink-exciter
+            flows_to_interface: [ttc-ground-if]
+        interfaces:
+          - key: ttc-ground-if
+            name: TT&C Ground Interface
+            short: Ground-side endpoint of the S-band TT&C link.
+            connects: [uplink-commands]
+            allocated_to: uplink-exciter
+            joins:
+              connection: cnn-ttc
+              nature: LOGICAL
+              layer: "Layer2: Data Link"
+              protocol: CCSDS TC/TM over S-band
+              directionality: Bidirectional
+              security: Authenticated commands
+          - key: station-lan-if
+            name: Station LAN Interface
+            short: Decrypted detection feed into the operations center.
+            connects: [receive-downlink]
+            allocated_to: station-network
+        requirements:
+          - key: gs-capture
+            name: Pass Capture Rate
+            statement: >-
+              The Ground Station SHALL successfully capture at least 98
+              percent of scheduled satellite passes.
+            method: Analysis
+            verification: Pass log statistics over one fire season.
+            derives_from: [cmd-receive]
+        elements:
+          # ---- Tier 3 System: Satellite Receiver -----------------------
+          - key: sat-receiver
+            name: Satellite Receiver
+            short: Ka-band receive chain from antenna to decrypted frames.
+            technology: Ka-band receive chain with IPSec gateway
+            system:
+              name: Satellite Receiver
+              short: Receives, demodulates, and decrypts the detection downlink.
+              mission:
+                action: recover detection reports from the downlink carrier
+                means: a tracking antenna, RF front end, and demodulator-crypto chain
+                contribution: ground station pass capture performance
+              purpose:
+                name: Downlink Recovery
+                short: Deliver decrypted detection frames to the station LAN.
+              environment:
+                name: Receive Chain Environment
+                context: Low-noise RF path from feed to demodulator in a shielded rack.
+              states:
+                - name: Standby
+                  sequence: 0
+                  transitions:
+                    - {to: Receiving, trigger: Carrier lock}
+                - name: Receiving
+                  sequence: 1
+              functions:
+                - key: amplify
+                  name: Amplify And Downconvert Carrier
+                  short: Recover an IF signal from the Ka-band carrier.
+                  allocated_to: rf-front-end
+                  flows_to: [demodulate]
+                - key: demodulate
+                  name: Demodulate And Decrypt Frames
+                  short: Recover and decrypt CCSDS frames from the IF signal.
+                  allocated_to: demod-crypto
+                  flows_to_interface: [ipsec-ground-if]
+              interfaces:
+                - key: ipsec-ground-if
+                  name: IPSec Ground Interface
+                  short: >-
+                    Ground-side IPSec endpoint of the Detection Downlink,
+                    peer of the satellite payload IPSec Downlink Interface.
+                  connects: [demodulate]
+                  allocated_to: demod-crypto
+                  joins:
+                    connection: cnn-detection-downlink
+                    nature: LOGICAL
+                    layer: "Layer 3: Network"
+                    protocol: ESP/IPSec over CCSDS AOS
+                    directionality: Unidirectional
+                    security: Encrypted
+                  requirements:
+                    - key: gsr-decrypt
+                      name: Ground Decryption
+                      statement: >-
+                        The IPSec Ground Interface SHALL decrypt detection
+                        traffic only with current mission keys.
+                      method: Test
+                      verification: Key rollover test across a live pass.
+                      derives_from: [sseg-if-encrypt]
+              requirements:
+                - key: gsr-sensitivity
+                  name: Receiver Sensitivity
+                  statement: >-
+                    The Satellite Receiver SHALL close the downlink at the
+                    minimum specified elevation angle.
+                  method: Test
+                  verification: Link margin measurement at horizon-mask elevation.
+                  derives_from: [gs-capture]
+              elements:
+                # ---- Tier 4 System: RF Front End -----------------------
+                - key: rf-front-end
+                  name: RF Front End
+                  short: Low-noise amplification and downconversion stage.
+                  technology: Cryogenic LNA and block downconverter
+                  system:
+                    name: RF Front End
+                    short: Sets the receive chain noise floor.
+                    mission:
+                      action: amplify the downlink carrier with minimum added noise
+                      means: a low-noise amplifier and block downconverter
+                      contribution: satellite receiver sensitivity
+                    purpose:
+                      name: Low-Noise Reception
+                      short: Preserve downlink signal-to-noise into the demodulator.
+                    environment:
+                      name: Front End Environment
+                      context: Feed-mounted electronics exposed to site weather.
+                    states:
+                      - name: Cold Standby
+                        sequence: 0
+                        transitions:
+                          - {to: Active, trigger: Receive chain enabled}
+                      - name: Active
+                        sequence: 1
+                    functions:
+                      - key: low-noise-amplify
+                        name: Amplify At Low Noise
+                        short: Amplify the received carrier at the feed point.
+                        allocated_to: lna
+                        flows_to: [downconvert]
+                      - key: downconvert
+                        name: Downconvert To IF
+                        short: Translate the Ka-band carrier to the IF band.
+                        allocated_to: downconverter
+                        flows_to_interface: [if-output-if]
+                    interfaces:
+                      - key: if-output-if
+                        name: IF Output Interface
+                        short: Intermediate-frequency output to the demodulator.
+                        connects: [downconvert]
+                        allocated_to: downconverter
+                    requirements:
+                      - key: rfe-noise
+                        name: Front End Noise Figure
+                        statement: >-
+                          The RF Front End SHALL achieve a system noise figure
+                          of 1.2 dB or better.
+                        method: Test
+                        verification: Y-factor noise measurement at the feed.
+                        derives_from: [gsr-sensitivity]
+                    elements:
+                      - key: lna
+                        name: Low-Noise Amplifier
+                        short: Feed-mounted first amplification stage.
+                        technology: Ka-band LNA
+                      - key: downconverter
+                        name: Block Downconverter
+                        short: Ka-band to IF frequency translation.
+                        technology: Block downconverter
+                - key: tracking-antenna
+                  name: Tracking Antenna
+                  short: Full-motion Ka/S-band reflector antenna.
+                  technology: 7-meter tracking reflector
+                - key: demod-crypto
+                  name: Demodulator And Crypto Gateway
+                  short: CCSDS demodulator with IPSec decryption gateway.
+                  technology: Software demodulator with IPSec gateway
+          - key: uplink-exciter
+            name: Uplink Exciter
+            short: S-band command uplink modulator and power amplifier.
+            technology: S-band exciter and SSPA
+          - key: station-network
+            name: Station Network
+            short: Ground station LAN and timing distribution.
+            technology: Redundant site LAN with GPS timing
+
+    # ---- Tier 2 System: Operations Center ------------------------------
+    - key: ops-center
+      name: Operations Center
+      short: Watch floor and processing systems directing fire response.
+      technology: 24/7 operations facility
+      deployment: Hardened national facility
+      system:
+        name: Operations Center
+        short: Fuses the fire picture and directs response assets.
+        mission:
+          action: build the fire operating picture and direct suppression
+          means: mission data processing, a watch floor, and a communications suite
+          contribution: command tasking timeline
+        purpose:
+          name: Fire Operations Direction
+          short: Direct aviation and ground assets from a fused picture.
+        environment:
+          name: Operations Floor Environment
+          context: Continuous watch operations with redundant power and HVAC.
+        states:
+          - name: Day Watch
+            sequence: 0
+            transitions:
+              - {to: Incident Response, trigger: Confirmed detection assigned}
+          - name: Incident Response
+            sequence: 1
+            short: Active direction of one or more incidents.
+            transitions:
+              - {to: Day Watch, trigger: Incident closed}
+        functions:
+          - key: process-detections
+            name: Process Detection Reports
+            short: Correlate, deduplicate, and confirm incoming detections.
+            allocated_to: mdp
+            flows_to: [present-picture]
+          - key: present-picture
+            name: Present Operating Picture
+            short: Display the fused fire picture to watch standers.
+            allocated_to: watch-floor
+          - key: relay-tasking
+            name: Relay Tasking Traffic
+            short: Bridge tasking decisions onto the segment radio networks.
+            allocated_to: comms-suite
+            flows_to_interface: [ops-lan-if]
+        interfaces:
+          - key: ops-lan-if
+            name: Operations LAN Interface
+            short: Comms suite attachment to the operations LAN.
+            connects: [relay-tasking]
+            allocated_to: comms-suite
+            joins:
+              connection: cnn-ops-lan
+              nature: LOGICAL
+              layer: "Layer 3: Network"
+              protocol: IP over switched Ethernet
+              directionality: Bidirectional
+          - key: mdp-feed-if
+            name: Mission Data Feed Interface
+            short: Detection feed from processing into the picture services.
+            connects: [process-detections]
+            allocated_to: mdp
+            joins:
+              connection: cnn-ops-lan
+              nature: LOGICAL
+              layer: "Layer 3: Network"
+              protocol: IP over switched Ethernet
+              directionality: Bidirectional
+        connections:
+          - key: cnn-ops-lan
+            name: Operations LAN
+            short: Switched LAN binding processing, consoles, and comms.
+            rationale: Internal data fabric of the operations center.
+            type: Local area network
+            osi_layer: 3
+            protocol: IP over switched Ethernet
+            directionality: Bidirectional
+            timing: Interactive
+            security: Enclave network
+            payload: Detection feeds, picture services, tasking traffic.
+        requirements:
+          - key: ops-confirm
+            name: Detection Confirmation
+            statement: >-
+              The Operations Center SHALL confirm or reject each candidate
+              detection within 5 minutes of receipt.
+            method: Demonstration
+            verification: Watch floor exercise with scripted detection load.
+            derives_from: [cmd-task]
+        elements:
+          # ---- Tier 3 System: Mission Data Processing ------------------
+          - key: mdp
+            name: Mission Data Processing
+            short: Servers that correlate detections into confirmed fires.
+            technology: Virtualized server cluster
+            system:
+              name: Mission Data Processing
+              short: Correlates all detection sources into confirmed fires.
+              mission:
+                action: turn detection reports into confirmed fire incidents
+                means: fusion software over a detection database
+                contribution: operations center confirmation timeline
+              purpose:
+                name: Detection Fusion
+                short: Maintain the authoritative confirmed-fire list.
+              environment:
+                name: Server Room Environment
+                context: Conditioned enclave server room on the operations LAN.
+              states:
+                - name: Maintenance
+                  sequence: 0
+                  transitions:
+                    - {to: Processing, trigger: Fusion services released}
+                - name: Processing
+                  sequence: 1
+              functions:
+                - key: correlate
+                  name: Correlate Detection Sources
+                  short: Match satellite, watch, and aviation reports by geometry.
+                  allocated_to: fusion-server
+                  flows_to: [persist]
+                - key: persist
+                  name: Persist Fire Records
+                  short: Maintain the incident and detection history database.
+                  allocated_to: detection-db
+              interfaces:
+                - key: fusion-api-if
+                  name: Fusion Service Interface
+                  short: Picture and confirmation services on the operations LAN.
+                  connects: [correlate]
+                  allocated_to: fusion-server
+              requirements:
+                - key: mdp-dedupe
+                  name: Duplicate Suppression
+                  statement: >-
+                    Mission Data Processing SHALL merge duplicate reports of
+                    the same fire from all sources into one incident.
+                  method: Test
+                  verification: Replay of overlapping multi-source reports.
+                  derives_from: [ops-confirm]
+              elements:
+                - key: fusion-server
+                  name: Fusion Server
+                  short: Detection correlation and scoring services.
+                  technology: Server cluster application
+                - key: detection-db
+                  name: Detection Database
+                  short: Incident and detection history store.
+                  technology: Replicated relational database
+          # ---- Tier 3 System: Communications Suite ---------------------
+          - key: comms-suite
+            name: Communications Suite
+            short: Radio, SATCOM, and telephony gateways of the center.
+            technology: Integrated communications rack row
+            system:
+              name: Communications Suite
+              short: Bridges the operations floor onto external networks.
+              mission:
+                action: connect watch standers to every response network
+                means: SATCOM terminals, LMR gateways, and telephony switches
+                contribution: command tasking and coordination reach
+              purpose:
+                name: Network Bridging
+                short: Keep every tasking and coordination path available.
+              environment:
+                name: Communications Room Environment
+                context: Racked gateways with antenna field and PSTN handoffs.
+              states:
+                - name: Reduced
+                  sequence: 0
+                  transitions:
+                    - {to: Full Service, trigger: All gateways verified}
+                - name: Full Service
+                  sequence: 1
+              functions:
+                - key: bridge-satcom
+                  name: Bridge SATCOM Tasking
+                  short: Carry tasking traffic over the SATCOM terminal.
+                  allocated_to: satcom-terminal
+                - key: bridge-lmr
+                  name: Bridge Land Mobile Radio
+                  short: Connect console positions to the P25 network.
+                  allocated_to: lmr-gateway
+                - key: switch-voice
+                  name: Switch Operational Voice
+                  short: Route telephony among positions and external agencies.
+                  allocated_to: voip-switch
+              interfaces:
+                - key: satcom-rf-if
+                  name: SATCOM Terminal Interface
+                  short: Terminal-side endpoint on the aviation tasking link.
+                  connects: [bridge-satcom]
+                  allocated_to: satcom-terminal
+                  joins:
+                    connection: cnn-aviation-tasking
+                    nature: LOGICAL
+                    layer: "Layer 3: Network"
+                    protocol: IP over SATCOM
+                    directionality: Bidirectional
+                - key: lmr-net-if
+                  name: LMR Network Interface
+                  short: Gateway endpoint on the ground coordination network.
+                  connects: [bridge-lmr]
+                  allocated_to: lmr-gateway
+                  joins:
+                    connection: cnn-ground-coordination
+                    nature: LOGICAL
+                    layer: "Layer 7: Application"
+                    protocol: APCO P25 ISSI
+                    directionality: Multicast
+              requirements:
+                - key: comms-availability
+                  name: Gateway Availability
+                  statement: >-
+                    The Communications Suite SHALL keep each external gateway
+                    available at least 99.5 percent of fire season hours.
+                  method: Analysis
+                  verification: Availability rollup from gateway monitoring.
+                  derives_from: [cmd-continuity]
+              elements:
+                - key: satcom-terminal
+                  name: SATCOM Terminal
+                  short: Satellite communications terminal for tasking traffic.
+                  technology: Ku-band SATCOM terminal
+                - key: lmr-gateway
+                  name: LMR Gateway
+                  short: P25 radio system gateway and dispatch consoles.
+                  technology: P25 ISSI gateway
+                - key: voip-switch
+                  name: VoIP Switch
+                  short: Operational telephony switch.
+                  technology: Enterprise VoIP switch
+          - key: watch-floor
+            name: Watch Floor Consoles
+            short: Watch stander console positions and display wall.
+            technology: Console positions with display wall
+
+    - key: backup-power
+      name: Backup Power Plant
+      short: Generators and UPS carrying the segment through outages.
+      technology: Diesel generators with UPS bridge

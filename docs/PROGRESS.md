@@ -256,3 +256,47 @@ Verification:
 SBOM impact: documented the Tauri CLI build tool version and the packaged
 Reference Data artifact versions; container image tag entries were aligned to
 `deploy/docker-compose.yml`.
+
+## 2026-07-04 — FireSat Example Data (SRS §3.6.1)
+
+- Created `Example_Data/` at the repository root: Example Data projects
+  managed outside the application (SRS §2, §3.6), tailorable and packageable
+  for deployment. No application code was modified.
+- Built the FireSat example project: 4 Tier-1 segments (Space, Command,
+  Aviation, Ground), 33 Systems decomposed to Tier 8 along the Space Segment
+  payload spine (Signal Processing Chain, `SYS_1.1.2.1.2.1.1.1_0`), 467 nodes
+  and 842 relationships. Every System carries Purpose, Environment, States
+  with transitions, Functions, Interfaces, Requirements, a System-Element,
+  and leaf Elements; 11 Connections model segment-typical communications
+  (Ka-band IPSec downlink, S-band TT&C, SATCOM tasking, P25 LMR, VHF
+  air-ground, microwave backhaul) with cross-SoI `PARTICIPATES_IN`
+  participants; an 8-link `(:Requirement)-[:PARENTS]->` chain flows from the
+  capability requirement to the Tier-8 system.
+- Source of truth is YAML under `Example_Data/FireSat/model/`;
+  `build_firesat.py` validates against `docs/schema/*.json` (relationship
+  legality, enums, HID rules per SRS §3.3.8) and emits an idempotent Cypher
+  artifact packaged like Reference Data (tar.gz + .sha256).
+  `load-example-data.sh` mirrors `deploy/load-reference-data.sh` and guards
+  against HID collisions with user-owned Core data. FireSat root is `CAP__1`
+  (the Backend reserves `CAP__0` for the deployment's own Core project);
+  nodes are Owned/Created by "SSTPA Tools" per SRS §2.
+- `Example_Data/FireSat/FireSat-Hierarchy.md` documents the hierarchy,
+  communications map, and requirements flow-down; `dist/hierarchy-tree.txt`
+  regenerates each build. Assets/traces, Use Cases, Losses, Attack Trees,
+  Control Structures, and Countermeasures are intentionally left as tutorial
+  exercises on top of the structural model.
+
+Verification:
+
+- Loaded the artifact twice into a throwaway `neo4j:2026.05.0-community`
+  container: 467 nodes both runs (idempotent), zero duplicate HIDs, spine
+  path `CAP__1 → … → SYS_1.1.2.1.2.1.1.1_0` resolves via
+  `HAS_SYSTEM`/`HAS_ELEMENT`/`PARENTS`, all 11 Connections have ≥2
+  participating Interfaces, every System has Purpose/Environment/State/
+  Function/Interface/Element and reaches at least one Requirement.
+- Loaded into the running deploy stack via
+  `Example_Data/FireSat/load-example-data.sh` (checksum verified, collision
+  guard passed, post-load count matches header).
+
+SBOM impact: none (no new runtime dependencies; builder uses the existing
+sustainment Python environment).

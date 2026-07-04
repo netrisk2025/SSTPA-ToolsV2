@@ -1,0 +1,984 @@
+# FireSat Space Segment (Tier 1, SoI 1). Carries the deep decomposition
+# spine: Satellite → Payload → IR Sensor Assembly → Focal Plane Unit →
+# Detector Array → Readout Electronics → Signal Processing Chain (Tier 8).
+system:
+  name: Space Segment
+  short: Low-earth-orbit satellite constellation that detects forest fires.
+  long: >-
+    A constellation of low-earth-orbit FireSat satellites that persistently
+    scans protected forests for thermal signatures of active fires and
+    downlinks detection reports to the Command Segment ground station.
+  mission:
+    action: detect forest fires from low earth orbit
+    means: a constellation of infrared-sensing FireSat satellites
+    contribution: early warning that drives the FireSat suppression timeline
+  purpose:
+    name: Orbital Fire Detection
+    short: Provide persistent orbital detection of forest fires.
+  environment:
+    name: Low Earth Orbit
+    context: >-
+      Sun-synchronous low earth orbit; space radiation and thermal-vacuum
+      environment; Ka-band and S-band space-to-ground RF environment.
+    short: LEO orbital and space-ground RF environment.
+  states:
+    - name: Pre-Launch
+      sequence: 0
+      short: Constellation assets integrated and awaiting launch.
+      transitions:
+        - {to: Commissioning, trigger: Launch and separation complete}
+    - name: Commissioning
+      sequence: 1
+      short: On-orbit checkout of newly launched satellites.
+      transitions:
+        - {to: Operational, trigger: On-orbit acceptance review passed}
+    - name: Operational
+      sequence: 2
+      short: Constellation performing fire-watch operations.
+      transitions:
+        - {to: Safe Hold, trigger: Spacecraft fault or ground command}
+    - name: Safe Hold
+      sequence: 3
+      short: Sun-safe attitude with payload off.
+      transitions:
+        - {to: Operational, trigger: Fault cleared and ground release}
+
+  functions:
+    - key: detect
+      name: Detect Forest Fires From Orbit
+      short: Scan protected forests for thermal fire signatures each pass.
+      allocated_to: satellite
+      flows_to: [downlink]
+    - key: downlink
+      name: Downlink Fire Detections
+      short: Deliver detection reports to the Command Segment ground station.
+      allocated_to: satellite
+      flows_to_interface: [ka-downlink-if]
+    - key: ttc
+      name: Receive Commands And Report Health
+      short: Execute ground commands and return spacecraft telemetry.
+      allocated_to: satellite
+      flows_to_interface: [ttc-if]
+    - key: maintain-orbit
+      name: Maintain Constellation Coverage
+      short: Keep constellation phasing that meets the revisit requirement.
+      allocated_to: satellite
+
+  interfaces:
+    - key: ka-downlink-if
+      name: Ka-Band Downlink Interface
+      short: Segment-level Ka-band space-to-ground detection downlink.
+      connects: [downlink]
+      allocated_to: satellite
+      joins:
+        connection: cnn-detection-downlink
+        nature: LOGICAL
+        layer: "Layer 3: Network"
+        protocol: CCSDS AOS over Ka-band, ESP/IPSec
+        directionality: Unidirectional
+        security: Encrypted
+      requirements:
+        - key: sseg-if-encrypt
+          name: Downlink Encryption
+          statement: >-
+            The Ka-Band Downlink Interface SHALL protect all detection
+            traffic in transit using IPSec.
+          method: Test
+          verification: Protocol capture shows only ESP-protected frames.
+          derives_from: [firesat-detect]
+    - key: ttc-if
+      name: S-Band TT&C Interface
+      short: Segment-level S-band telemetry, tracking and command interface.
+      connects: [ttc]
+      allocated_to: satellite
+      joins:
+        connection: cnn-ttc
+        nature: LOGICAL
+        layer: "Layer2: Data Link"
+        protocol: CCSDS TC/TM over S-band
+        directionality: Bidirectional
+        security: Authenticated commands
+
+  connections:
+    - key: cnn-detection-downlink
+      name: Detection Downlink
+      short: Ka-band space-to-ground link carrying fire detection reports.
+      rationale: >-
+        Primary mission data path: fire detection reports from the payload
+        to the Command Segment ground station.
+      type: RF space-to-ground link
+      osi_layer: 3
+      protocol: CCSDS AOS over Ka-band, ESP/IPSec
+      directionality: Unidirectional
+      timing: Near-real-time
+      security: Encrypted
+      payload: Geolocated fire detection messages and payload housekeeping.
+      requirements:
+        - key: sseg-cnn-latency
+          name: Downlink Latency
+          statement: >-
+            The Detection Downlink SHALL deliver a detection message from
+            satellite transmission to ground station reception in less than
+            60 seconds while a ground station is in view.
+          method: Test
+          verification: Timestamp comparison across a live pass.
+          derives_from: [firesat-detect]
+    - key: cnn-ttc
+      name: TT&C Link
+      short: S-band command uplink and telemetry downlink.
+      rationale: Spacecraft commanding and health monitoring.
+      type: RF space-to-ground link
+      osi_layer: 2
+      protocol: CCSDS TC/TM over S-band
+      directionality: Bidirectional
+      timing: Pass-scheduled
+      security: Authenticated commands
+      payload: Telecommands, spacecraft telemetry, orbit ephemerides.
+
+  requirements:
+    - key: sseg-revisit
+      name: Space Segment Revisit
+      statement: >-
+        The Space Segment SHALL revisit every protected forest area at
+        least once every 30 minutes during fire season.
+      method: Analysis
+      verification: Constellation coverage analysis over the mission orbit set.
+      derives_from: [firesat-detect, firesat-sustain]
+    - key: sseg-detect
+      name: Space Segment Detection Performance
+      statement: >-
+        The Space Segment SHALL detect an active fire of 4 hectares or
+        larger with at least 90 percent probability on each satellite pass.
+      method: Demonstration
+      verification: Controlled burn campaign scored against pass detections.
+      derives_from: [firesat-detect]
+    - key: sseg-downlink
+      name: Space Segment Reporting
+      statement: >-
+        The Space Segment SHALL deliver each detection report to the
+        Command Segment ground station within 5 minutes of on-board
+        detection.
+      method: Test
+      verification: End-to-end latency measurement over ten live passes.
+      derives_from: [firesat-detect]
+
+  elements:
+    # ---- Tier 2 System: the FireSat Satellite --------------------------
+    - key: satellite
+      name: FireSat Satellite
+      short: Low-earth-orbit fire detection satellite (constellation member).
+      technology: Small-satellite bus with infrared sensing payload
+      deployment: Sun-synchronous low earth orbit
+      system:
+        name: FireSat Satellite
+        short: One constellation member combining bus and fire detection payload.
+        mission:
+          action: detect and report forest fires along its ground track
+          means: an infrared fire detection payload carried on a small-satellite bus
+          contribution: Space Segment revisit and detection performance
+        purpose:
+          name: Satellite Fire Watch
+          short: Detect and report fires along the orbital ground track.
+        environment:
+          name: On-Orbit Environment
+          context: Orbital thermal-vacuum, radiation, and micrometeoroid environment.
+        states:
+          - name: 'Off'
+            sequence: 0
+            transitions:
+              - {to: Sun-Safe, trigger: Separation switch release}
+          - name: Sun-Safe
+            sequence: 1
+            short: Power-positive attitude with payload off.
+            transitions:
+              - {to: Nominal Operations, trigger: Ground release to operations}
+          - name: Nominal Operations
+            sequence: 2
+            short: Payload scanning and downlinking detections.
+            transitions:
+              - {to: Sun-Safe, trigger: Fault protection trip}
+        functions:
+          - key: generate-power
+            name: Generate And Store Power
+            short: Produce and store electrical power for bus and payload.
+            allocated_to: solar-arrays
+          - key: control-attitude
+            name: Point Sensor At Ground Track
+            short: Hold payload boresight on the commanded ground track.
+            allocated_to: bus
+          - key: sense-fires
+            name: Sense And Classify Fires
+            short: Run the payload detection chain over the imaged swath.
+            allocated_to: payload
+            flows_to: [route-data]
+          - key: route-data
+            name: Route Payload Data
+            short: Move detection reports from payload to the downlink chain.
+            allocated_to: bus
+            flows_to_interface: [payload-data-if]
+        interfaces:
+          - key: payload-data-if
+            name: Payload Data Interface
+            short: SpaceWire interface between payload and bus data handling.
+            connects: [route-data]
+            allocated_to: bus
+            joins:
+              connection: cnn-payload-bus
+              nature: BOTH
+              physical_type: SpaceWire cable harness
+              layer: "Layer2: Data Link"
+              protocol: SpaceWire
+              directionality: Bidirectional
+          - key: bus-telemetry-if
+            name: Bus Telemetry Interface
+            short: Telemetry collection points across bus subsystems.
+            connects: [control-attitude]
+            allocated_to: bus
+        connections:
+          - key: cnn-payload-bus
+            name: Payload-Bus Data Bus
+            short: SpaceWire bus linking payload and bus data handling.
+            rationale: Transfers detection reports and payload commands on board.
+            type: On-board data bus
+            osi_layer: 2
+            protocol: SpaceWire
+            directionality: Bidirectional
+            timing: Real-time
+            payload: Detection reports, payload commands, payload housekeeping.
+        requirements:
+          - key: sat-detect
+            name: Satellite Detection
+            statement: >-
+              The FireSat Satellite SHALL detect and geolocate thermal
+              anomalies within its imaged swath on every pass.
+            method: Demonstration
+            verification: On-orbit detection of calibrated ground thermal targets.
+            derives_from: [sseg-detect]
+          - key: sat-power
+            name: Satellite Power Margin
+            statement: >-
+              The FireSat Satellite SHALL maintain a positive power margin
+              through the eclipse portion of every orbit.
+            method: Analysis
+            verification: Energy balance analysis over worst-case orbit.
+          - key: sat-pointing
+            name: Satellite Pointing
+            statement: >-
+              The FireSat Satellite SHALL hold the payload boresight within
+              0.1 degrees of the commanded ground track.
+            method: Test
+            verification: Attitude telemetry statistics over ten passes.
+
+        elements:
+          # ---- Tier 3 System: Spacecraft Bus ----------------------------
+          - key: bus
+            name: Spacecraft Bus
+            short: Provides power, attitude, data handling, and TT&C services.
+            technology: Small-satellite bus
+            system:
+              name: Spacecraft Bus
+              short: Service module hosting the fire detection payload.
+              mission:
+                action: sustain and point the fire detection payload
+                means: power, attitude control, data handling, and TT&C subsystems
+                contribution: satellite availability and pointing performance
+              purpose:
+                name: Payload Support Services
+                short: Sustain and point the payload; move its data to ground.
+              environment:
+                name: Bus Internal Environment
+                context: Spacecraft internal thermal, power, and data-bus environment.
+              states:
+                - name: Idle
+                  sequence: 0
+                  transitions:
+                    - {to: Service, trigger: Payload support enabled}
+                - name: Service
+                  sequence: 1
+                  short: All bus services available to the payload.
+              functions:
+                - key: provide-power
+                  name: Distribute Regulated Power
+                  short: Distribute regulated power to bus and payload loads.
+                  allocated_to: eps
+                - key: determine-attitude
+                  name: Determine And Control Attitude
+                  short: Estimate attitude and command actuators to hold pointing.
+                  allocated_to: adcs
+                - key: handle-data
+                  name: Handle Commands And Data
+                  short: Execute commands, collect telemetry, route payload data.
+                  allocated_to: cdh
+                  flows_to_interface: [bus-ttc-if]
+                - key: transmit-ttc
+                  name: Transmit Telemetry
+                  short: Exchange TT&C traffic with the ground station.
+                  allocated_to: sband
+              interfaces:
+                - key: bus-ttc-if
+                  name: Bus TT&C RF Interface
+                  short: S-band transponder interface to the TT&C link.
+                  connects: [transmit-ttc]
+                  allocated_to: sband
+                  joins:
+                    connection: cnn-ttc
+                    nature: LOGICAL
+                    layer: "Layer2: Data Link"
+                    protocol: CCSDS TC/TM over S-band
+                    directionality: Bidirectional
+                - key: bus-data-if
+                  name: Bus Payload Data Interface
+                  short: Bus-side endpoint of the payload data bus.
+                  connects: [handle-data]
+                  allocated_to: cdh
+                  joins:
+                    connection: cnn-payload-bus
+                    nature: BOTH
+                    physical_type: SpaceWire cable harness
+                    layer: "Layer2: Data Link"
+                    protocol: SpaceWire
+                    directionality: Bidirectional
+              requirements:
+                - key: bus-power
+                  name: Bus Power Delivery
+                  statement: >-
+                    The Spacecraft Bus SHALL deliver 28 V regulated power to
+                    the payload at up to 300 W.
+                  method: Test
+                  verification: Power quality test at the payload interface.
+                  derives_from: [sat-power]
+                - key: bus-pointing
+                  name: Bus Pointing Control
+                  statement: >-
+                    The Spacecraft Bus SHALL control spacecraft attitude to
+                    within 0.05 degrees per axis during payload operations.
+                  method: Test
+                  verification: Closed-loop pointing test on the flatsat.
+                  derives_from: [sat-pointing]
+              elements:
+                # ---- Tier 4 System: ADCS --------------------------------
+                - key: adcs
+                  name: Attitude Determination And Control System
+                  short: Sensors and actuators that point the spacecraft.
+                  technology: Star tracker, IMU, reaction wheel attitude control
+                  system:
+                    name: Attitude Determination And Control System
+                    short: Determines attitude and drives actuators to hold pointing.
+                    mission:
+                      action: hold the commanded spacecraft attitude
+                      means: star tracker and IMU sensing driving reaction wheels
+                      contribution: bus pointing control performance
+                    purpose:
+                      name: Precision Pointing
+                      short: Keep the payload boresight on the commanded target.
+                    environment:
+                      name: ADCS Operating Environment
+                      context: Spacecraft dynamics, sensor fields of view, wheel momentum limits.
+                    states:
+                      - name: Coarse Pointing
+                        sequence: 0
+                        transitions:
+                          - {to: Fine Pointing, trigger: Star tracker lock acquired}
+                      - name: Fine Pointing
+                        sequence: 1
+                        short: Star-tracker-referenced fine attitude control.
+                    functions:
+                      - key: estimate-attitude
+                        name: Estimate Attitude
+                        short: Fuse star tracker and IMU data into an attitude estimate.
+                        allocated_to: star-tracker
+                        flows_to: [command-wheels]
+                      - key: command-wheels
+                        name: Command Reaction Wheels
+                        short: Convert attitude error into wheel torque commands.
+                        allocated_to: rwa
+                        flows_to_interface: [wheel-command-if]
+                    interfaces:
+                      - key: wheel-command-if
+                        name: Wheel Command Interface
+                        short: Torque command and wheel-speed telemetry interface.
+                        connects: [command-wheels]
+                        allocated_to: rwa
+                    requirements:
+                      - key: adcs-knowledge
+                        name: Attitude Knowledge
+                        statement: >-
+                          The ADCS SHALL determine spacecraft attitude to
+                          within 0.01 degrees per axis.
+                        method: Analysis
+                        verification: Sensor fusion error budget analysis.
+                        derives_from: [bus-pointing]
+                    elements:
+                      # ---- Tier 5 System: Reaction Wheel Assembly -------
+                      - key: rwa
+                        name: Reaction Wheel Assembly
+                        short: Four-wheel momentum exchange actuator set.
+                        technology: Brushless DC momentum wheels
+                        system:
+                          name: Reaction Wheel Assembly
+                          short: Generates control torque by exchanging momentum.
+                          mission:
+                            action: generate commanded control torque
+                            means: four skewed brushless momentum wheels
+                            contribution: ADCS fine pointing authority
+                          purpose:
+                            name: Torque Generation
+                            short: Deliver smooth commanded torque to the spacecraft.
+                          environment:
+                            name: Wheel Operating Environment
+                            context: Vacuum bearing operation across wheel speed range.
+                          states:
+                            - name: Spun Down
+                              sequence: 0
+                              transitions:
+                                - {to: Spinning, trigger: Wheel enable command}
+                            - name: Spinning
+                              sequence: 1
+                          functions:
+                            - key: exchange-momentum
+                              name: Exchange Momentum
+                              short: Accelerate wheels to torque the spacecraft body.
+                              allocated_to: wheel-modules
+                          interfaces:
+                            - key: wheel-drive-if
+                              name: Wheel Drive Interface
+                              short: Drive electronics command and telemetry port.
+                              connects: [exchange-momentum]
+                              allocated_to: drive-electronics
+                          requirements:
+                            - key: rwa-torque
+                              name: Wheel Torque Authority
+                              statement: >-
+                                The Reaction Wheel Assembly SHALL deliver at
+                                least 20 mNm of torque per axis.
+                              method: Test
+                              verification: Dynamometer torque measurement per wheel.
+                              derives_from: [adcs-knowledge]
+                          elements:
+                            - key: wheel-modules
+                              name: Wheel Modules
+                              short: Four skewed momentum wheel units.
+                              technology: Brushless DC wheel with vacuum bearings
+                            - key: drive-electronics
+                              name: Wheel Drive Electronics
+                              short: Motor drive and wheel-speed telemetry board.
+                              technology: Motor controller electronics
+                      - key: star-tracker
+                        name: Star Tracker
+                        short: Celestial attitude reference camera.
+                        technology: CMOS star camera
+                      - key: imu
+                        name: Inertial Measurement Unit
+                        short: Angular rate and acceleration sensing.
+                        technology: MEMS gyro and accelerometer triad
+                - key: eps
+                  name: Electrical Power Subsystem
+                  short: Battery, regulators, and power distribution.
+                  technology: Lithium-ion battery with regulated 28 V bus
+                - key: cdh
+                  name: Command And Data Handling Computer
+                  short: On-board computer executing bus flight software.
+                  technology: Radiation-tolerant flight computer
+                - key: sband
+                  name: S-Band Transponder
+                  short: TT&C radio for command uplink and telemetry downlink.
+                  technology: S-band transponder
+
+          # ---- Tier 3 System: Fire Detection Payload --------------------
+          - key: payload
+            name: Fire Detection Payload
+            short: Infrared sensing and detection processing package.
+            technology: Mid-wave infrared scanning sensor payload
+            system:
+              name: Fire Detection Payload
+              short: Senses, classifies, and reports forest fires.
+              mission:
+                action: detect and classify forest fires in the imaged swath
+                means: a mid-wave infrared sensor, detection processor, and downlink
+                contribution: satellite detection performance
+              purpose:
+                name: Fire Sensing And Reporting
+                short: Turn infrared radiance into geolocated fire reports.
+              environment:
+                name: Payload Operating Environment
+                context: Cryogenic sensor operation on a thermally stable platform.
+              states:
+                - name: Standby
+                  sequence: 0
+                  transitions:
+                    - {to: Imaging, trigger: Payload enable over lit ground track}
+                - name: Imaging
+                  sequence: 1
+                  short: Sensor scanning with detection processing active.
+              functions:
+                - key: collect-radiance
+                  name: Collect Infrared Radiance
+                  short: Gather scene radiance through the sensor chain.
+                  allocated_to: sensor
+                  flows_to: [classify]
+                - key: classify
+                  name: Classify Fire Detections
+                  short: Score thermal anomalies as fire or non-fire on board.
+                  allocated_to: processor
+                  flows_to: [report]
+                - key: report
+                  name: Format And Queue Detection Reports
+                  short: Build geolocated detection messages for downlink.
+                  allocated_to: comms
+                  flows_to_interface: [pld-downlink-feed-if]
+              interfaces:
+                - key: sensor-video-if
+                  name: Sensor Video Input Interface
+                  short: Digital video input from the IR sensor assembly.
+                  connects: [classify]
+                  allocated_to: processor
+                  joins:
+                    connection: cnn-sensor-video
+                    nature: BOTH
+                    physical_type: LVDS harness
+                    layer: "Layer 1: Physical"
+                    protocol: LVDS pixel video
+                    directionality: Unidirectional
+                - key: pld-downlink-feed-if
+                  name: Payload Downlink Feed Interface
+                  short: Detection report hand-off into the payload comms unit.
+                  connects: [report]
+                  allocated_to: comms
+              connections:
+                - key: cnn-sensor-video
+                  name: Sensor Video Link
+                  short: LVDS pixel video from signal chain to payload processor.
+                  rationale: Moves digitized sensor video into detection processing.
+                  type: On-board sensor link
+                  osi_layer: 1
+                  protocol: LVDS pixel video
+                  directionality: Unidirectional
+                  timing: Real-time
+                  payload: Digitized infrared pixel video stream.
+              requirements:
+                - key: pld-detect
+                  name: Payload Detection Chain
+                  statement: >-
+                    The Fire Detection Payload SHALL classify thermal
+                    anomalies as fire or non-fire before downlink.
+                  method: Demonstration
+                  verification: Replay of recorded scenes through the flight chain.
+                  derives_from: [sat-detect]
+                - key: pld-geolocate
+                  name: Payload Geolocation
+                  statement: >-
+                    The Fire Detection Payload SHALL geolocate each detection
+                    to within 500 meters.
+                  method: Test
+                  verification: Detection of surveyed ground calibration targets.
+                  derives_from: [sat-detect]
+              elements:
+                # ---- Tier 4 System: IR Sensor Assembly ------------------
+                - key: sensor
+                  name: IR Sensor Assembly
+                  short: Optics, focal plane, and cooling for infrared sensing.
+                  technology: Cryocooled mid-wave infrared scanner
+                  system:
+                    name: IR Sensor Assembly
+                    short: Converts scene radiance into digitized pixel video.
+                    mission:
+                      action: measure mid-wave infrared scene radiance
+                      means: telescope optics, a cooled focal plane, and readout
+                      contribution: payload detection sensitivity
+                    purpose:
+                      name: Radiance Measurement
+                      short: Deliver calibrated pixel video of the imaged swath.
+                    environment:
+                      name: Sensor Operating Environment
+                      context: Cryogenic focal plane behind passively cooled optics.
+                    states:
+                      - name: Warm
+                        sequence: 0
+                        transitions:
+                          - {to: Cooled, trigger: Cryocooler at setpoint}
+                      - name: Cooled
+                        sequence: 1
+                        short: Focal plane at operating temperature.
+                    functions:
+                      - key: form-image
+                        name: Form Scene Image
+                        short: Focus scene radiance onto the focal plane.
+                        allocated_to: telescope
+                        flows_to: [read-pixels]
+                      - key: read-pixels
+                        name: Read Out Pixel Video
+                        short: Convert focal plane charge into digitized video.
+                        allocated_to: fpu
+                        flows_to_interface: [sensor-video-out-if]
+                    interfaces:
+                      - key: sensor-video-out-if
+                        name: Sensor Video Output Interface
+                        short: Digitized pixel video output toward the processor.
+                        connects: [read-pixels]
+                        allocated_to: fpu
+                    requirements:
+                      - key: sen-radiance
+                        name: Sensor Radiance Measurement
+                        statement: >-
+                          The IR Sensor Assembly SHALL measure mid-wave
+                          infrared radiance across the full imaged swath.
+                        method: Test
+                        verification: Radiometric calibration against a blackbody source.
+                        derives_from: [pld-detect]
+                    elements:
+                      - key: telescope
+                        name: Telescope Optics
+                        short: Fore-optics forming the swath image.
+                        technology: Reflective telescope assembly
+                      # ---- Tier 5 System: Focal Plane Unit --------------
+                      - key: fpu
+                        name: Focal Plane Unit
+                        short: Cooled detector array with proximity electronics.
+                        technology: Cryocooled focal plane module
+                        system:
+                          name: Focal Plane Unit
+                          short: Senses infrared photons at cryogenic temperature.
+                          mission:
+                            action: convert scene photons into readable pixel signals
+                            means: a cooled detector array and its readout electronics
+                            contribution: sensor radiometric sensitivity
+                          purpose:
+                            name: Photon Sensing
+                            short: Produce low-noise pixel signals from scene photons.
+                          environment:
+                            name: Cryogenic Environment
+                            context: Focal plane held at 80 K by the cryocooler.
+                          states:
+                            - name: Unpowered
+                              sequence: 0
+                              transitions:
+                                - {to: Sensing, trigger: Bias enable at temperature}
+                            - name: Sensing
+                              sequence: 1
+                          functions:
+                            - key: sense-photons
+                              name: Sense Infrared Photons
+                              short: Integrate photon flux as pixel charge.
+                              allocated_to: detector-array
+                              flows_to: [regulate-temp]
+                            - key: regulate-temp
+                              name: Regulate Focal Plane Temperature
+                              short: Hold the array at its cryogenic setpoint.
+                              allocated_to: thermal-strap
+                          interfaces:
+                            - key: fpu-video-if
+                              name: FPU Video Interface
+                              short: Pixel signal output toward the readout chain.
+                              connects: [sense-photons]
+                              allocated_to: detector-array
+                          requirements:
+                            - key: fpu-sensitivity
+                              name: Focal Plane Sensitivity
+                              statement: >-
+                                The Focal Plane Unit SHALL resolve scene
+                                temperature differences of 2 K or better.
+                              method: Test
+                              verification: NEDT measurement at operating temperature.
+                              derives_from: [sen-radiance]
+                          elements:
+                            # ---- Tier 6 System: Detector Array ----------
+                            - key: detector-array
+                              name: Detector Array
+                              short: Mid-wave infrared photodetector matrix.
+                              technology: MCT photodiode array
+                              system:
+                                name: Detector Array
+                                short: Photodiode matrix with multiplexing readout.
+                                mission:
+                                  action: convert photons to calibrated pixel charge
+                                  means: a photodiode matrix read through a multiplexer
+                                  contribution: focal plane sensitivity
+                                purpose:
+                                  name: Photocurrent Generation
+                                  short: Produce pixel charge proportional to radiance.
+                                environment:
+                                  name: Array Environment
+                                  context: Cryogenic operation bonded to the readout circuit.
+                                states:
+                                  - name: Unbiased
+                                    sequence: 0
+                                    transitions:
+                                      - {to: Integrating, trigger: Detector bias applied}
+                                  - name: Integrating
+                                    sequence: 1
+                                functions:
+                                  - key: accumulate-charge
+                                    name: Accumulate Pixel Charge
+                                    short: Integrate photocurrent per pixel per frame.
+                                    allocated_to: substrate
+                                    flows_to: [multiplex]
+                                  - key: multiplex
+                                    name: Multiplex Pixel Outputs
+                                    short: Sequence pixel charge onto output taps.
+                                    allocated_to: readout
+                                    flows_to_interface: [array-tap-if]
+                                interfaces:
+                                  - key: array-tap-if
+                                    name: Array Output Tap Interface
+                                    short: Analog output taps toward readout electronics.
+                                    connects: [multiplex]
+                                    allocated_to: readout
+                                requirements:
+                                  - key: arr-charge
+                                    name: Array Responsivity
+                                    statement: >-
+                                      The Detector Array SHALL convert incident
+                                      infrared photons to pixel charge with
+                                      calibrated responsivity.
+                                    method: Test
+                                    verification: Per-pixel responsivity map under flood illumination.
+                                    derives_from: [fpu-sensitivity]
+                                elements:
+                                  # ---- Tier 7 System: Readout Electronics
+                                  - key: readout
+                                    name: Readout Electronics
+                                    short: Amplifies and digitizes the pixel outputs.
+                                    technology: Readout integrated circuit with video board
+                                    system:
+                                      name: Readout Electronics
+                                      short: Turns analog pixel taps into a digital stream.
+                                      mission:
+                                        action: digitize every pixel of every frame
+                                        means: a signal processing chain with stable biasing
+                                        contribution: array signal integrity
+                                      purpose:
+                                        name: Pixel Digitization
+                                        short: Deliver a lossless digital pixel stream.
+                                      environment:
+                                        name: Readout Environment
+                                        context: Low-noise analog electronics beside the cold array.
+                                      states:
+                                        - name: Held
+                                          sequence: 0
+                                          transitions:
+                                            - {to: Streaming, trigger: Frame clock started}
+                                        - name: Streaming
+                                          sequence: 1
+                                      functions:
+                                        - key: digitize
+                                          name: Digitize Pixel Video
+                                          short: Sample and convert each pixel tap.
+                                          allocated_to: signal-chain
+                                          flows_to_interface: [readout-video-if]
+                                      interfaces:
+                                        - key: readout-video-if
+                                          name: Readout Video Interface
+                                          short: Digital video output of the readout chain.
+                                          connects: [digitize]
+                                          allocated_to: signal-chain
+                                      requirements:
+                                        - key: ro-digitize
+                                          name: Lossless Digitization
+                                          statement: >-
+                                            The Readout Electronics SHALL digitize
+                                            every pixel of every frame without loss.
+                                          method: Test
+                                          verification: Frame counter audit over a soak run.
+                                          derives_from: [arr-charge]
+                                      elements:
+                                        # ---- Tier 8 System: Signal Processing Chain
+                                        - key: signal-chain
+                                          name: Signal Processing Chain
+                                          short: Analog conditioning and encoding chain.
+                                          technology: Preamplifier, video ADC, serializer chain
+                                          system:
+                                            name: Signal Processing Chain
+                                            short: Conditions, converts, and encodes pixel video.
+                                            mission:
+                                              action: condition and encode the pixel video stream
+                                              means: a preamplifier, video ADC, and output serializer
+                                              contribution: readout digitization fidelity
+                                            purpose:
+                                              name: Video Conditioning
+                                              short: Deliver encoded digital video to the payload.
+                                            environment:
+                                              name: Signal Chain Environment
+                                              context: Shielded analog signal path with a clean clock tree.
+                                            states:
+                                              - name: Muted
+                                                sequence: 0
+                                                transitions:
+                                                  - {to: Encoding, trigger: Video enable}
+                                              - name: Encoding
+                                                sequence: 1
+                                            functions:
+                                              - key: condition
+                                                name: Condition Analog Signal
+                                                short: Amplify and filter each pixel tap.
+                                                allocated_to: preamp
+                                                flows_to: [encode]
+                                              - key: encode
+                                                name: Encode Digital Stream
+                                                short: Convert and serialize pixel samples.
+                                                allocated_to: serializer
+                                                flows_to_interface: [chain-video-if]
+                                            interfaces:
+                                              - key: chain-video-if
+                                                name: Chain Video Output Interface
+                                                short: LVDS video output joining the sensor video link.
+                                                connects: [encode]
+                                                allocated_to: serializer
+                                                joins:
+                                                  connection: cnn-sensor-video
+                                                  nature: BOTH
+                                                  physical_type: LVDS harness
+                                                  layer: "Layer 1: Physical"
+                                                  protocol: LVDS pixel video
+                                                  directionality: Unidirectional
+                                            requirements:
+                                              - key: chain-encode
+                                                name: Chain Encoding Fidelity
+                                                statement: >-
+                                                  The Signal Processing Chain SHALL
+                                                  condition and encode the pixel video
+                                                  stream for transfer to the payload
+                                                  processor without adding more than one
+                                                  count of noise.
+                                                method: Test
+                                                verification: Noise floor measurement with shorted input.
+                                                derives_from: [ro-digitize]
+                                            elements:
+                                              - key: preamp
+                                                name: Preamplifier
+                                                short: Low-noise analog front end.
+                                                technology: Low-noise amplifier stage
+                                              - key: adc
+                                                name: Video ADC
+                                                short: 14-bit video analog-to-digital converter.
+                                                technology: Video ADC
+                                              - key: serializer
+                                                name: Output Serializer
+                                                short: LVDS output driver and framer.
+                                                technology: LVDS serializer
+                                        - key: bias-regulator
+                                          name: Bias Regulator
+                                          short: Precision detector bias supply.
+                                          technology: Precision voltage reference
+                                  - key: substrate
+                                    name: Detector Substrate
+                                    short: Photodiode matrix die and carrier.
+                                    technology: MCT photodiode die
+                            - key: thermal-strap
+                              name: FPA Thermal Strap
+                              short: Conductive link from array to cryocooler cold tip.
+                              technology: Flexible copper thermal strap
+                            - key: fpa-controller
+                              name: FPA Control Board
+                              short: Bias sequencing and temperature telemetry board.
+                              technology: Mixed-signal control board
+                      - key: cryocooler
+                        name: Cryocooler
+                        short: Closed-cycle cooler holding the focal plane at 80 K.
+                        technology: Pulse-tube cryocooler
+
+                # ---- Tier 4 System: Payload Communications Unit ---------
+                - key: comms
+                  name: Payload Communications Unit
+                  short: Encrypts and transmits detection reports to ground.
+                  technology: Ka-band transmitter with IPSec crypto module
+                  system:
+                    name: Payload Communications Unit
+                    short: Secure Ka-band downlink chain for detection reports.
+                    mission:
+                      action: deliver detection reports securely to the ground station
+                      means: an IPSec crypto module feeding a Ka-band transmitter
+                      contribution: space segment reporting timeline
+                    purpose:
+                      name: Secure Detection Downlink
+                      short: Encrypt and radiate detection reports each pass.
+                    environment:
+                      name: Downlink RF Environment
+                      context: Ka-band space-to-ground path through gimbaled antenna.
+                    states:
+                      - name: Radio Silent
+                        sequence: 0
+                        transitions:
+                          - {to: Transmitting, trigger: Ground station in view}
+                      - name: Transmitting
+                        sequence: 1
+                    functions:
+                      - key: encrypt
+                        name: Encrypt Detection Traffic
+                        short: Wrap detection reports in IPSec before transmission.
+                        allocated_to: crypto-module
+                        flows_to: [transmit]
+                      - key: transmit
+                        name: Transmit Downlink Carrier
+                        short: Modulate and radiate the Ka-band downlink.
+                        allocated_to: ka-transmitter
+                        flows_to_interface: [ipsec-downlink-if]
+                    interfaces:
+                      - key: ipsec-downlink-if
+                        name: IPSec Downlink Interface
+                        short: >-
+                          Payload-side IPSec endpoint of the Detection Downlink
+                          to the Command Segment ground station receiver.
+                        connects: [transmit]
+                        allocated_to: crypto-module
+                        joins:
+                          connection: cnn-detection-downlink
+                          nature: LOGICAL
+                          layer: "Layer 3: Network"
+                          protocol: ESP/IPSec over CCSDS AOS
+                          directionality: Unidirectional
+                          security: Encrypted
+                        requirements:
+                          - key: pldcom-encrypt
+                            name: Downlink Traffic Protection
+                            statement: >-
+                              The IPSec Downlink Interface SHALL encrypt all
+                              detection reports prior to transmission.
+                            method: Test
+                            verification: RF capture shows no plaintext report fields.
+                            derives_from: [sseg-if-encrypt]
+                    requirements:
+                      - key: pldcom-throughput
+                        name: Downlink Throughput
+                        statement: >-
+                          The Payload Communications Unit SHALL downlink a full
+                          pass detection backlog within one ground station contact.
+                        method: Analysis
+                        verification: Link budget and backlog timing analysis.
+                        derives_from: [sseg-downlink]
+                    elements:
+                      - key: ka-transmitter
+                        name: Ka-Band Transmitter
+                        short: Downlink modulator and power amplifier.
+                        technology: Ka-band transmitter
+                      - key: crypto-module
+                        name: Crypto Module
+                        short: IPSec encryption endpoint for detection traffic.
+                        technology: Embedded IPSec crypto module
+                      - key: antenna-gimbal
+                        name: Antenna Gimbal
+                        short: Two-axis gimbal pointing the downlink antenna.
+                        technology: Two-axis antenna gimbal
+
+                - key: processor
+                  name: Payload Processor
+                  short: On-board fire classification and report generation computer.
+                  technology: Radiation-tolerant payload computer
+
+          - key: solar-arrays
+            name: Solar Array Wings
+            short: Deployable photovoltaic wings generating primary power.
+            technology: Triple-junction photovoltaic panels
+          - key: structure
+            name: Structure And Harness
+            short: Primary structure, thermal control surfaces, and wiring.
+            technology: Aluminum honeycomb structure
+
+    # ---- Leaf Elements at Tier 2 ---------------------------------------
+    - key: launch-dispenser
+      name: Launch Dispenser
+      short: Multi-satellite dispenser mating the constellation to the launcher.
+      technology: Multi-payload launch dispenser
+    - key: spare-pool
+      name: On-Orbit Spare Pool
+      short: Stored spare satellites phased for constellation replenishment.
+      technology: Dormant spare satellites

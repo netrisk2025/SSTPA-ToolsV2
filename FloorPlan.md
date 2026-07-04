@@ -23,3 +23,5 @@ Schema: {path} - description - Access Rules
 /home/netrisk/Projects/SSTPA Tools/deploy - Docker Compose and service configs: Caddy, Neo4j, OTel, Prometheus, Tempo, Grafana (SRS §5.7) - Open for use
 
 /home/netrisk/Projects/SSTPA Tools/docs - Architecture, SBOM, requirements notes, machine-readable schema extracts from the SRS - Open for use
+
+/home/netrisk/Projects/SSTPA Tools/Example_Data - Example Data projects (SRS §3.6) managed outside the application: tailorable YAML models, build/validate/package scripts, deployable Cypher artifacts (FireSat) - Open for use
