@@ -1,7 +1,8 @@
 Directive for Example_Data:
 
 This directory holds SSTPA Tools Example Data (SRS §3.6) managed outside
-the application. Read README.md before working here.
+the application. Read Skills.md for the build/verify/load/reset
+procedures and README.md for reference detail before working here.
 
 Rules:
 
