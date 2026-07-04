@@ -50,6 +50,8 @@ services:
     restart: unless-stopped
     environment:
       NEO4J_AUTH: neo4j/${SSTPA_NEO4J_PASSWORD:?SSTPA_NEO4J_PASSWORD must be set in deploy/.env}
+      # Exposed to the healthcheck's cypher-shell probe (not read by Neo4j).
+      SSTPA_NEO4J_PASSWORD: ${SSTPA_NEO4J_PASSWORD}
       NEO4J_server_memory_heap_initial__size: 1G
       NEO4J_server_memory_heap_max__size: 2G
       NEO4J_server_memory_pagecache_size: 1G
@@ -60,9 +62,12 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 >/dev/null 2>&1 || exit 1"]
+      # Bolt-level readiness (what the backend actually connects to), not just
+      # the HTTP port being up, so the backend never starts against a DB that
+      # is not yet accepting queries.
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$$SSTPA_NEO4J_PASSWORD\" 'RETURN 1;' >/dev/null 2>&1 || exit 1"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 30
       start_period: 40s
 
