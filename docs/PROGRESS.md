@@ -151,3 +151,35 @@ Verification:
 SBOM impact: documented the Tauri CLI build tool version and the packaged
 Reference Data artifact versions; container image tag entries were aligned to
 `deploy/docker-compose.yml`.
+
+## 2026-07-04 — SysML 2.0 / KerML 1.0 model display (G2M translator)
+
+New standing directive: every model-displaying Add-on Tool except the Message
+Center must display its model from SysML 2.0 / KerML 1.0-transformed data.
+
+- Implemented the G2M translator (`backend/internal/model`): Core Data Model
+  graph → SysML 2.0 / KerML 1.0 textual notation per §3.7.5/§3.7.6, plus the
+  SSTPA Profile Library (§3.7.3). Deterministic and idempotent (§3.7.8):
+  ordered by HID type-identifier then sequence; unrestricted names for HIDs
+  and reserved words.
+- Exposed `/api/model/sysml`, `/api/model/kerml`, `/api/model/profile`,
+  `/api/model/validate`, `/api/model/commit` (§5.6.6.12); capability discovery
+  advertises `model.translate.read` and `model.profile.read`.
+- Wired the Model Text Panel (§6.4.2) to live G2M with SysML/KerML keyword
+  highlighting. Verified in the running app (Requirements Tool shows the live
+  SysML projection of the SoI). SysML notation sourced from the SysML_Vault.
+- Corrected three tool manifests to match their SRS Model Text Panel sections
+  (Reports, Reference, Context) so all model tools declare SysML/KerML.
+- Fixed a pre-existing `handleRequirementsBySoI` Cypher bug (ORDER BY after an
+  aggregating RETURN) surfaced during verification.
+- Added G2M unit tests (determinism, SysML/KerML mappings, domain
+  classification, unrestricted names). `go test ./internal/model/` passes.
+- M2G text-commit deferred (read-only panel); recorded in REQUIREMENTS-NOTES
+  M-4. Editing remains on the canvas/Data Drawer staged-commit path.
+
+Verification:
+- `cd backend && go test ./internal/model/ ./internal/schema/`
+- Live G2M: `GET /api/model/sysml?scope=SOI&soi=SYS_1_0` returns valid SysML 2.0.
+- Playwright: Model Text Panel renders highlighted SysML in the Requirements Tool.
+
+SBOM impact: none (no new libraries; G2M is pure Go stdlib).

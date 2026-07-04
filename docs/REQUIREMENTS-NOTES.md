@@ -32,3 +32,16 @@ file is that record. Items needing the owner's decision are marked **[NEEDS DECI
 ## Deferred items requiring permission (none yet)
 
 (Empty — any "Should" proposed for omission will be recorded here before deferral.)
+
+## Model-Display Directive (SysML 2.0 / KerML 1.0)
+
+Per the standing directive (2026-07-04): every model-displaying Add-on Tool
+except the Message Center SHALL display its model from SysML 2.0 / KerML 1.0
+transformed data.
+
+| # | Ref | Interpretation taken |
+|---|---|---|
+| M-1 | §3.7, §6.4.2 | Implemented the G2M translator (graph → SysML 2.0 / KerML 1.0 textual notation) and exposed it at `/api/model/{sysml,kerml,profile}`. Every tool whose manifest declares `ModelTextLanguages` renders live G2M output in its Model Text Panel (§6.4.2) with keyword highlighting. This is the concrete SysML/KerML model-display surface. The graph remains authoritative (§3.7.1); the panel is a read-only projection. |
+| M-2 | §6.5.3.9, §6.5.4.16, §6.5.8.16 | Corrected three tool manifests whose `ModelTextLanguages` did not match their SRS Model Text Panel sections: Reports → [SYSML, KERML], Reference → [KERML], Context → [SYSML, KERML]. All model tools now display SysML/KerML. |
+| M-3 | Navigator (§6.5.1), Admin (§6.5.15), Message Center (§6.5.14) | These declare no Model Text Panel: Navigator performs hierarchy navigation (not model display), Admin manages users, Message Center is explicitly exempt. No SysML/KerML surface required. |
+| M-4 | §3.7.9 M2G | M2G (text → staged graph mutations) text-commit is not enabled in this version; the Model Text Panel is read-only. Editing is performed through the tool canvases and Data Drawer, which is the authoritative staged-commit path. `/api/model/validate` returns an empty change set and `/api/model/commit` returns 501 so tools degrade gracefully. Recorded as a deferred capability. |
