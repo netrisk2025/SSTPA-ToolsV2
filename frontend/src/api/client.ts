@@ -21,11 +21,16 @@ import type {
 /** Base URL of the Backend API (SRS §5.4: Caddy reverse proxy on 443).
  *  Resolution order: ?backend= query → Startup-provided launch config
  *  (Tauri, SSTPA_BACKEND_URL) → Vite dev proxy (same-origin, browser dev)
- *  → https://localhost. */
-let apiBaseUrl =
-  import.meta.env.DEV && !("__TAURI_INTERNALS__" in window)
-    ? "" // same-origin: vite.config.ts proxies /api to the local Caddy edge
-    : "https://localhost";
+ *  → https://localhost.
+ *
+ *  In development (`npm run dev` / `tauri dev`) we always resolve to the
+ *  same-origin Vite proxy — the browser origin, or the Tauri devUrl
+ *  (http://localhost:5173). vite.config.ts proxies /api to the local Caddy
+ *  edge with `secure: false`, so Caddy's untrusted internal CA never has to be
+ *  validated by the webview. A production build (DEV === false) talks to
+ *  https://localhost directly, then defers to the Startup launch config; that
+ *  path requires the Caddy local root CA to be trusted on the host (installer). */
+let apiBaseUrl = import.meta.env.DEV ? "" : "https://localhost";
 
 {
   const fromQuery = new URLSearchParams(window.location.search).get("backend");
