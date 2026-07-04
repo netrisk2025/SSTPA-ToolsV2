@@ -2080,7 +2080,7 @@ function SandboxMode() {
           className="sstpa-button secondary"
           onClick={() => show("Sandbox Management")}
         >
-          🚧 Under Construction
+          Under construction
         </button>
       </div>
     </div>

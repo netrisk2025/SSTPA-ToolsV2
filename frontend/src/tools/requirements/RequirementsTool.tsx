@@ -12,9 +12,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/client";
 import type { SoINode, ValidateRelationshipResult } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
+import { Icon } from "../../components/Icon";
 import { useDrawer, useSession } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, exportPng, exportSvg, ToolStatus } from "../shared";
+import { errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken } from "../shared";
 
 interface ReqRecord {
   hid: string;
@@ -479,14 +480,14 @@ function AllocationView({
               </td>
               <td style={{ whiteSpace: "nowrap" }}>
                 <button className="icon-button" title="Hierarchy view" onClick={() => onFocus(r.hid)}>
-                  ⌘
+                  <Icon name="tree" size={14} />
                 </button>
                 <button
                   className="icon-button"
                   title="Edit in Data Drawer"
                   onClick={() => openDrawer({ mode: "edit", hid: r.hid })}
                 >
-                  ✎
+                  <Icon name="pencil" size={14} />
                 </button>
                 <button
                   className="icon-button"
@@ -500,7 +501,7 @@ function AllocationView({
                   title="Delete requirement (§6.5.2.13)"
                   onClick={() => setDeleting(r)}
                 >
-                  🗑
+                  <Icon name="trash" size={14} />
                 </button>
               </td>
             </tr>
@@ -690,6 +691,8 @@ function HierarchyView({
   useEffect(() => {
     if (!containerRef.current || elements.length === 0) return;
     cyRef.current?.destroy();
+    const gt = graphTheme();
+    const teal = uiToken("--sstpa-node-interface");
     const cy = cytoscape({
       container: containerRef.current,
       elements,
@@ -698,9 +701,9 @@ function HierarchyView({
           selector: "node",
           style: {
             shape: "rectangle",
-            "background-color": "#fcfaf2",
+            "background-color": gt.nodeFill,
             "border-width": 1.5,
-            "border-color": "#1b2a4a",
+            "border-color": gt.nodeStroke,
             label: "data(label)",
             "text-wrap": "wrap",
             "text-max-width": "180px",
@@ -709,20 +712,20 @@ function HierarchyView({
             "font-family": "JetBrains Mono, monospace",
             width: 200,
             height: 74,
-            color: "#1b2a4a",
+            color: gt.label,
           },
         },
-        { selector: "node[?focus]", style: { "border-width": 3, "border-color": "#a8853a" } },
+        { selector: "node[?focus]", style: { "border-width": 3, "border-color": gt.selected } },
         {
           selector: "node[?problem]",
-          style: { "border-color": "#8c2f2f", "border-style": "dashed" },
+          style: { "border-color": gt.invalid, "border-style": "dashed" },
         },
         {
           selector: "node[?bearer]",
           style: {
             shape: "round-rectangle",
-            "background-color": "#eef2ee",
-            "border-color": "#4a7a6f",
+            "background-color": gt.nodeFill,
+            "border-color": teal,
             width: 140,
             height: 44,
           },
@@ -731,22 +734,22 @@ function HierarchyView({
           selector: "edge",
           style: {
             width: 1.4,
-            "line-color": "#1b2a4a",
+            "line-color": gt.nodeStroke,
             "target-arrow-shape": "triangle",
-            "target-arrow-color": "#1b2a4a",
+            "target-arrow-color": gt.nodeStroke,
             "curve-style": "bezier",
           },
         },
         {
           selector: "edge[?assoc]",
           style: {
-            "line-color": "#4a7a6f",
-            "target-arrow-color": "#4a7a6f",
+            "line-color": teal,
+            "target-arrow-color": teal,
             "line-style": "dashed",
             label: "data(label)",
             "font-size": 7,
             "text-rotation": "autorotate",
-            color: "#4a7a6f",
+            color: teal,
           },
         },
       ],

@@ -15,7 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/client";
 import type { CommitOperation, SoINode } from "../../api/types";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { ToolStatus, errorText, exportPng, exportSvg, usePrompt } from "../shared";
+import { ToolStatus, errorText, exportPng, exportSvg, graphTheme, uiToken, usePrompt } from "../shared";
 
 type Mode = "functional" | "stpa";
 
@@ -1130,6 +1130,14 @@ function FlowCanvas({
   useEffect(() => {
     if (!containerRef.current) return;
     cyRef.current?.destroy();
+    const gt = graphTheme();
+    const fn = uiToken("--sstpa-node-function");
+    const iface = uiToken("--sstpa-node-interface");
+    const conn = uiToken("--sstpa-node-connection");
+    const env = uiToken("--sstpa-node-environment");
+    const state = uiToken("--sstpa-node-state");
+    const security = uiToken("--sstpa-node-security");
+    const asset = uiToken("--sstpa-node-asset");
     const cy = cytoscape({
       container: containerRef.current,
       elements,
@@ -1138,9 +1146,9 @@ function FlowCanvas({
           selector: "node",
           style: {
             shape: "round-rectangle",
-            "background-color": "#fcfaf2",
+            "background-color": gt.nodeFill,
             "border-width": 1.5,
-            "border-color": "#33567e",
+            "border-color": fn,
             label: "data(label)",
             "text-wrap": "wrap",
             "text-valign": "center",
@@ -1148,38 +1156,38 @@ function FlowCanvas({
             "font-family": "JetBrains Mono, monospace",
             width: 140,
             height: 48,
-            color: "#1b2a4a",
+            color: gt.label,
           },
         },
-        { selector: 'node[kind = "Interface"]', style: { shape: "ellipse", "border-color": "#4a7a6f" } },
-        { selector: 'node[kind = "Connection"]', style: { shape: "diamond", "border-color": "#3d6b7a" } },
-        { selector: 'node[kind = "ControlAlgorithm"]', style: { "border-width": 3, "border-color": "#1b2a4a" } },
-        { selector: 'node[kind = "ControlledProcess"]', style: { "border-color": "#567045", "border-width": 2.5 } },
-        { selector: 'node[kind = "ProcessModel"]', style: { shape: "round-hexagon", "border-color": "#6d5a8e" } },
-        { selector: 'node[kind = "ControlAction"]', style: { shape: "rectangle", "border-color": "#8c2f2f" } },
-        { selector: 'node[kind = "Feedback"]', style: { shape: "rectangle", "border-color": "#9a6b1f" } },
-        { selector: "node[?cmHit]", style: { "background-color": "#f3ead3" } },
-        { selector: "node:selected", style: { "border-color": "#a8853a", "border-width": 3.5 } },
+        { selector: 'node[kind = "Interface"]', style: { shape: "ellipse", "border-color": iface } },
+        { selector: 'node[kind = "Connection"]', style: { shape: "diamond", "border-color": conn } },
+        { selector: 'node[kind = "ControlAlgorithm"]', style: { "border-width": 3, "border-color": gt.nodeStroke } },
+        { selector: 'node[kind = "ControlledProcess"]', style: { "border-color": env, "border-width": 2.5 } },
+        { selector: 'node[kind = "ProcessModel"]', style: { shape: "round-hexagon", "border-color": state } },
+        { selector: 'node[kind = "ControlAction"]', style: { shape: "rectangle", "border-color": security } },
+        { selector: 'node[kind = "Feedback"]', style: { shape: "rectangle", "border-color": asset } },
+        { selector: "node[?cmHit]", style: { "background-color": gt.inset } },
+        { selector: "node:selected", style: { "border-color": gt.selected, "border-width": 3.5 } },
         {
           selector: "edge",
           style: {
             width: 1.5,
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
-            "line-color": "#33567e",
-            "target-arrow-color": "#33567e",
+            "line-color": fn,
+            "target-arrow-color": fn,
             label: "data(label)",
             "font-size": 6.5,
             "text-rotation": "autorotate",
-            "text-background-color": "#faf7ee",
+            "text-background-color": gt.labelBg,
             "text-background-opacity": 0.85,
-            color: "#44546e",
+            color: gt.labelMuted,
           },
         },
-        { selector: 'edge[rel = "PRODUCES"], edge[rel = "INFORMS"]', style: { "line-style": "dashed", "line-color": "#9a6b1f", "target-arrow-color": "#9a6b1f" } },
-        { selector: 'edge[rel = "IMPLEMENTS"]', style: { "line-style": "dotted", "line-color": "#6d5a8e", "target-arrow-color": "#6d5a8e" } },
-        { selector: 'edge[rel = "PARTICIPATES_IN"]', style: { "line-color": "#3d6b7a", "target-arrow-color": "#3d6b7a" } },
-        { selector: "edge:selected", style: { "line-color": "#a8853a", "target-arrow-color": "#a8853a", width: 3 } },
+        { selector: 'edge[rel = "PRODUCES"], edge[rel = "INFORMS"]', style: { "line-style": "dashed", "line-color": asset, "target-arrow-color": asset } },
+        { selector: 'edge[rel = "IMPLEMENTS"]', style: { "line-style": "dotted", "line-color": state, "target-arrow-color": state } },
+        { selector: 'edge[rel = "PARTICIPATES_IN"]', style: { "line-color": conn, "target-arrow-color": conn } },
+        { selector: "edge:selected", style: { "line-color": gt.selected, "target-arrow-color": gt.selected, width: 3 } },
       ],
       layout: hasPositions
         ? ({ name: "preset" } as cytoscape.LayoutOptions)

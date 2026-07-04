@@ -28,9 +28,9 @@ type RelType = "HOLDS" | "TRANSPORTS" | "USES";
 const TRACE_TYPES = ["HOLDS", "TRANSPORTS", "USES"];
 const CYCLE: (RelType | null)[] = [null, "HOLDS", "TRANSPORTS", "USES"];
 const REL_STYLE: Record<RelType, { label: string; color: string }> = {
-  HOLDS: { label: "H", color: "#33567e" },
-  TRANSPORTS: { label: "T", color: "#4a7a6f" },
-  USES: { label: "U", color: "#a8853a" },
+  HOLDS: { label: "H", color: "var(--sstpa-node-function)" },
+  TRANSPORTS: { label: "T", color: "var(--sstpa-node-interface)" },
+  USES: { label: "U", color: "var(--sstpa-node-asset)" },
 };
 const CRITICALITIES = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"] as const;
 const ASSURANCES = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"] as const;

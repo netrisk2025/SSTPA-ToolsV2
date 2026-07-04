@@ -30,7 +30,7 @@ const STATUS_COLOR: Record<string, string> = {
   AUTO_GENERATED: "var(--sstpa-status-info)",
   ANALYST_REFINED: "var(--sstpa-status-ok)",
   BASELINED: "var(--sstpa-accent)",
-  EXPORTED: "#6d5a8e",
+  EXPORTED: "var(--sstpa-node-state)",
   INVALIDATED: "var(--sstpa-status-error)",
 };
 

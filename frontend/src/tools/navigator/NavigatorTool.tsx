@@ -33,7 +33,7 @@ function token(name: string): string {
   const v = getComputedStyle(document.documentElement)
     .getPropertyValue(name)
     .trim();
-  return v || "#44546e";
+  return v || "#5f6b78";
 }
 
 function resolveColor(cssColor: string): string {

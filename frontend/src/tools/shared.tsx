@@ -18,6 +18,29 @@ function ensureSvg() {
   }
 }
 
+/** Resolve a design token (e.g. "--sstpa-node-fill") to its computed value.
+ *  Cytoscape styles cannot reference CSS variables, so graph styling reads
+ *  the active style's tokens when the graph is built. */
+export function uiToken(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+/** Common graph colors resolved from the active style's tokens. */
+export function graphTheme() {
+  return {
+    nodeFill: uiToken("--sstpa-node-fill"),
+    nodeStroke: uiToken("--sstpa-node-stroke"),
+    edge: uiToken("--sstpa-edge-stroke"),
+    label: uiToken("--sstpa-text"),
+    labelMuted: uiToken("--sstpa-muted"),
+    labelBg: uiToken("--sstpa-canvas"),
+    selected: uiToken("--sstpa-selected"),
+    valid: uiToken("--sstpa-valid"),
+    invalid: uiToken("--sstpa-invalid"),
+    inset: uiToken("--sstpa-inset"),
+  };
+}
+
 /** Export a cytoscape canvas as PNG (full graph or current viewport). */
 export function exportPng(cy: Core, filename: string, full = true) {
   const uri = cy.png({ full, scale: 2, bg: "#ffffff" });
