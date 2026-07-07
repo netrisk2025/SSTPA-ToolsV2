@@ -52,6 +52,31 @@ export function ToolWindowHost() {
   );
 }
 
+/** Restore a persisted window frame, clamped so the window always fits the
+ *  viewport — a window taller than the screen hides its bottom content and
+ *  its resize handles with it. */
+function initialFrame(toolId: string) {
+  const maxW = window.innerWidth - 24;
+  const maxH = window.innerHeight - 70;
+  let saved: { w?: number; h?: number; x?: number; y?: number } = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(`sstpa.toolwin.${toolId}`) ?? "{}");
+  } catch {
+    saved = {};
+  }
+  const w = Math.min(Math.max(420, saved.w ?? 900), maxW);
+  const h = Math.min(Math.max(300, saved.h ?? 620), maxH);
+  const x = Math.min(
+    Math.max(0, saved.x ?? (window.innerWidth - w) / 2),
+    Math.max(0, window.innerWidth - w - 8),
+  );
+  const y = Math.min(
+    Math.max(58, saved.y ?? (window.innerHeight - h) / 2),
+    Math.max(58, window.innerHeight - h - 8),
+  );
+  return { size: { w, h }, pos: { x, y } };
+}
+
 function ToolWindow({ toolId }: { toolId: string }) {
   const closeTool = useToolWindows((s) => s.closeTool);
   const manifest = manifestById(toolId);
@@ -59,12 +84,12 @@ function ToolWindow({ toolId }: { toolId: string }) {
   const soiHid = useSoI((s) => s.soiHid);
   const drawer = useDrawer();
 
-  // Resizable popup (§6.3.2): drag the bottom-right grip.
-  const [size, setSize] = useState({ w: 900, h: 620 });
-  const [pos, setPos] = useState({
-    x: Math.max(30, (window.innerWidth - 900) / 2),
-    y: Math.max(70, (window.innerHeight - 620) / 2),
-  });
+  // Resizable popup (§6.3.2): drag any edge or the bottom-right grip; the
+  // frame persists per tool per machine so windows reopen where the user
+  // left them.
+  const [initial] = useState(() => initialFrame(toolId));
+  const [size, setSize] = useState(initial.size);
+  const [pos, setPos] = useState(initial.pos);
   const [z, setZ] = useState(() => ++topZ);
 
   // Launch context (SRS §6.4): the invoking node (drawer or cross-tool
@@ -98,29 +123,48 @@ function ToolWindow({ toolId }: { toolId: string }) {
   if (!manifest) return null;
   const Tool = TOOL_COMPONENTS[toolId];
 
-  const startDrag = (e: React.MouseEvent, kind: "move" | "resize") => {
+  const startDrag = (
+    e: React.MouseEvent,
+    kind: "move" | "e" | "w" | "s" | "se",
+  ) => {
     e.preventDefault();
     const mouse = { x: e.clientX, y: e.clientY };
     const startPos = { ...pos };
     const startSize = { ...size };
+    const frame = { pos: startPos, size: startSize };
     const onMove = (ev: MouseEvent) => {
       const dx = ev.clientX - mouse.x;
       const dy = ev.clientY - mouse.y;
       if (kind === "move") {
-        setPos({
-          x: Math.max(0, startPos.x + dx),
-          y: Math.max(58, startPos.y + dy),
-        });
-      } else {
-        setSize({
-          w: Math.max(420, startSize.w + dx),
-          h: Math.max(300, startSize.h + dy),
-        });
+        // Keep the header reachable: never below the viewport, never fully
+        // off either side.
+        frame.pos = {
+          x: Math.min(Math.max(0, startPos.x + dx), window.innerWidth - 60),
+          y: Math.min(Math.max(58, startPos.y + dy), window.innerHeight - 40),
+        };
+        setPos(frame.pos);
+        return;
       }
+      let { w, h } = startSize;
+      let x = startPos.x;
+      if (kind === "e" || kind === "se") w = Math.max(420, startSize.w + dx);
+      if (kind === "s" || kind === "se") h = Math.max(300, startSize.h + dy);
+      if (kind === "w") {
+        w = Math.max(420, startSize.w - dx);
+        x = startPos.x + (startSize.w - w);
+      }
+      frame.size = { w, h };
+      frame.pos = { x, y: startPos.y };
+      setSize(frame.size);
+      if (kind === "w") setPos(frame.pos);
     };
     const onUp = () => {
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseup", onUp);
+      localStorage.setItem(
+        `sstpa.toolwin.${toolId}`,
+        JSON.stringify({ ...frame.size, ...frame.pos }),
+      );
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseup", onUp);
@@ -200,8 +244,45 @@ function ToolWindow({ toolId }: { toolId: string }) {
           />
         )}
       </div>
+      {/* Edge resize handles: grab any window edge to resize (§6.3.2). */}
       <div
-        onMouseDown={(e) => startDrag(e, "resize")}
+        onMouseDown={(e) => startDrag(e, "s")}
+        style={{
+          position: "absolute",
+          left: 16,
+          right: 16,
+          bottom: 0,
+          height: 7,
+          cursor: "ns-resize",
+        }}
+        title="Drag to resize height"
+      />
+      <div
+        onMouseDown={(e) => startDrag(e, "e")}
+        style={{
+          position: "absolute",
+          top: 16,
+          bottom: 16,
+          right: 0,
+          width: 7,
+          cursor: "ew-resize",
+        }}
+        title="Drag to resize width"
+      />
+      <div
+        onMouseDown={(e) => startDrag(e, "w")}
+        style={{
+          position: "absolute",
+          top: 16,
+          bottom: 16,
+          left: 0,
+          width: 7,
+          cursor: "ew-resize",
+        }}
+        title="Drag to resize width"
+      />
+      <div
+        onMouseDown={(e) => startDrag(e, "se")}
         style={{
           position: "absolute",
           right: 0,

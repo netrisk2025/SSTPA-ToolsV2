@@ -9,7 +9,7 @@ import { api } from "../../api/client";
 import type { CommitOperation, ReferenceSearchResult, SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
-import { downloadText, errorText, ToolStatus, usePrompt } from "../shared";
+import { ResizablePane, downloadText, errorText, ToolStatus, usePrompt } from "../shared";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 
 type Mode = "categorization" | "resilience" | "survivability" | "baseline" | "mapping" | "validation" | "export";
@@ -635,7 +635,7 @@ export default function ControlsTool({
  *  Tailored Out, Tailor Reason, Mapped Control, Requirement Count, Status. */
 function ControlsTable({ controls, selected, onSelect }: { controls: BaselineControl[]; selected: string; onSelect: (id: string) => void }) {
   return (
-    <aside style={{ width: 560, borderRight: "var(--sstpa-border)", overflow: "auto", background: "var(--sstpa-surface)" }}>
+    <ResizablePane dock="left" storageKey="controls.table" defaultWidth={560} minWidth={260} style={{ background: "var(--sstpa-surface)" }}>
       <table style={{ width: "100%", minWidth: 680, borderCollapse: "collapse", fontSize: "0.7rem" }}>
         <thead style={{ position: "sticky", top: 0, background: "var(--sstpa-surface)", zIndex: 1 }}>
           <tr>
@@ -677,7 +677,7 @@ function ControlsTable({ controls, selected, onSelect }: { controls: BaselineCon
         </tbody>
       </table>
       {controls.length === 0 && <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No controls in the current view.</p>}
-    </aside>
+    </ResizablePane>
   );
 }
 
@@ -1316,7 +1316,7 @@ function SummaryPanel({ baseline, artifact, findings, mappedNode, onOpenDrawer }
   const tailored = artifact.controls.filter((c) => c.TailoredOut).length;
   const errors = findings.filter((f) => f.severity === "ERROR").length;
   return (
-    <aside style={{ width: 310, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)" }}>
+    <ResizablePane dock="right" storageKey="controls.detail" defaultWidth={310} style={{ padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)" }}>
       <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>{baseline.hid}</div>
       <h3 style={{ margin: "4px 0 8px" }}>{String(baseline.properties.Name ?? "Controls Baseline")}</h3>
       <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
@@ -1346,7 +1346,7 @@ function SummaryPanel({ baseline, artifact, findings, mappedNode, onOpenDrawer }
           </button>
         </>
       )}
-    </aside>
+    </ResizablePane>
   );
 }
 

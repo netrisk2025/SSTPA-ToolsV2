@@ -20,7 +20,7 @@ import type {
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer, useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { downloadText, errorText, ToolStatus, usePrompt } from "../shared";
+import { ResizablePane, downloadText, errorText, ToolStatus, usePrompt } from "../shared";
 
 const CRITICALITIES = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"] as const;
 const ASSURANCES = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"] as const;
@@ -436,7 +436,7 @@ function EnvironmentDetail({
     <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
       {prompt.element}
       {/* Left: environment list (§6.5.8.2) */}
-      <div style={{ width: 280, borderRight: "var(--sstpa-border)", overflow: "auto", flexShrink: 0 }}>
+      <ResizablePane dock="left" storageKey="context.environments" defaultWidth={280}>
         <div style={{ padding: 8, display: "flex", gap: 6 }}>
           <input
             className="sstpa-input"
@@ -501,7 +501,7 @@ function EnvironmentDetail({
             No Environments yet — create one with “+”.
           </p>
         )}
-      </div>
+      </ResizablePane>
 
       {/* Right: selected environment detail */}
       <div style={{ flex: 1, overflow: "auto", padding: "var(--sstpa-sp-3)", fontSize: "0.8rem" }}>

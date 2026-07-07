@@ -16,7 +16,7 @@ import type {
 } from "../../api/types";
 import { useDrawer, useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { ToolStatus, downloadText, errorText, usePrompt } from "../shared";
+import { ResizablePane, ToolStatus, downloadText, errorText, usePrompt } from "../shared";
 
 const CRITICALITIES = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"] as const;
 const ASSURANCES = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"] as const;
@@ -492,7 +492,7 @@ function LossRoster({
   const assetForLoss = (lossHid: string) =>
     assets.find((a) => (a.relationships ?? []).some((r) => r.type === "HAS_LOSS" && r.targetHID === lossHid));
   return (
-    <div style={{ width: 280, borderRight: "var(--sstpa-border)", overflow: "auto" }}>
+    <ResizablePane dock="left" storageKey="loss.losses" defaultWidth={280}>
       {losses.map((l) => {
         const asset = assetForLoss(l.hid);
         const env = (l.relationships ?? []).find((r) => r.type === "HAS_ENVIRONMENT")?.targetHID;
@@ -543,7 +543,7 @@ function LossRoster({
       {losses.length === 0 && (
         <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No Loss nodes in this SoI.</p>
       )}
-    </div>
+    </ResizablePane>
   );
 }
 
@@ -1110,7 +1110,7 @@ function DetailPanel({
   notify: (kind: "success" | "error" | "info", text: string) => void;
 }) {
   return (
-    <div style={{ width: 320, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)" }}>
+    <ResizablePane dock="right" storageKey="loss.detail" defaultWidth={320} style={{ padding: "var(--sstpa-sp-3)" }}>
       {node && (
         <NodeDetail
           node={node}
@@ -1142,7 +1142,7 @@ function DetailPanel({
         />
       )}
       {!node && !edge && <p style={{ color: "var(--sstpa-muted)" }}>Select a node or edge.</p>}
-    </div>
+    </ResizablePane>
   );
 }
 

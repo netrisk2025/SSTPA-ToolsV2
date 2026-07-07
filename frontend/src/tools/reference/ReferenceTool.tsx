@@ -16,7 +16,7 @@ import { api } from "../../api/client";
 import type { ReferenceSearchResult } from "../../api/types";
 import { useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, ToolStatus } from "../shared";
+import { ResizablePane, errorText, ToolStatus } from "../shared";
 
 /** Authorized clone sources by Core node type (SRS §3.4.6.1). */
 const CLONE_SOURCES: Record<string, string[]> = {
@@ -472,14 +472,7 @@ export default function ReferenceTool({
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {/* Hierarchy pane (§6.5.4.9) */}
-        <div
-          style={{
-            width: 230,
-            overflow: "auto",
-            borderRight: "var(--sstpa-border-soft)",
-            padding: "var(--sstpa-sp-2)",
-          }}
-        >
+        <ResizablePane dock="left" storageKey="reference.hierarchy" defaultWidth={230} style={{ padding: "var(--sstpa-sp-2)" }}>
           <div
             style={{
               fontSize: "0.68rem",
@@ -499,7 +492,7 @@ export default function ReferenceTool({
               {[...hierarchy.values()].map((n) => renderHier(n, 0))}
             </ul>
           )}
-        </div>
+        </ResizablePane>
 
         {/* Results grid (§6.5.4.8): error state distinct from empty */}
         <div style={{ flex: 1, overflow: "auto", borderRight: "var(--sstpa-border-soft)" }}>
@@ -569,15 +562,7 @@ export default function ReferenceTool({
         </div>
 
         {/* Read-only inspector (§6.5.4.10) */}
-        <div
-          style={{
-            width: 380,
-            overflow: "auto",
-            padding: "var(--sstpa-sp-3)",
-            background: "var(--sstpa-surface)",
-            fontSize: "0.8rem",
-          }}
-        >
+        <ResizablePane dock="right" storageKey="reference.inspector" defaultWidth={380} style={{ padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)", fontSize: "0.8rem" }}>
           {!selected && <p style={{ color: "var(--sstpa-muted)" }}>Select a reference item.</p>}
           {selected && (
             <>
@@ -665,7 +650,7 @@ export default function ReferenceTool({
               )}
             </>
           )}
-        </div>
+        </ResizablePane>
       </div>
     </div>
   );

@@ -3,6 +3,56 @@
 This file records implementation checkpoints and verification status while the
 application is completed against `SSTPA Tool SRS V7.md`.
 
+## 2026-07-06 — Power-outage recovery check + Add-on Tool window/panel/layout fixes
+
+Power-outage assessment (an agent session was interrupted mid-work): the
+working tree held three uncommitted tracked changes — `CLAUDE.md` (replaced by
+the Agent.md pointer, per the new project-navigation convention),
+`frontend/src-tauri/src/lib.rs` (backend-URL auto-discovery from
+`deploy/.env` / `SSTPA_DEPLOY_DIR`), and `frontend/src/api/client.ts` (launch
+config attempted outside a detected Tauri shell; failures still resolve null).
+All three are internally complete and coherent — no truncated or corrupted
+files; `go build ./...`, `go test ./...`, `npm run build`, `oxlint`, and
+`cargo check` (frontend shell) all pass. The lib.rs/client.ts pair is retained
+as inherited work-in-progress.
+
+Add-on Tool window and panel fixes:
+
+- **Tool windows fit the viewport and resize from any edge** (`ToolShell.tsx`):
+  initial size/position now clamp to the viewport (previously a window taller
+  than the screen hid its bottom content with the only resize grip off-screen);
+  full-width bottom edge, left edge, and right edge are now draggable resize
+  handles alongside the bottom-right grip; window moves keep the header
+  reachable; the window frame persists per tool per machine
+  (`sstpa.toolwin.<toolId>`); the shell canvas keeps its scrollbar for content
+  taller than the window.
+- **All docked tool panels are width-adjustable**: new shared `ResizablePane`
+  (`tools/shared.tsx`) with a drag handle on the panel's inner edge and
+  per-panel persisted width (`sstpa.pane.<key>`). Replaced every fixed-width
+  side panel across Navigator, Requirements, State, Flow, Trace, Reference,
+  Context, Controls, Loss, Goal Keeper, Use-Case, Connection, Attack, and
+  Admin (the Model Text Panel was already resizable).
+- **Diagram layout persistence as views** (REQUIREMENTS-NOTES I-18): Navigator,
+  State, and Requirements canvases now persist the user's node arrangement —
+  new schema properties `NavigatorViewJSON` on `(:Project)` and
+  `StateViewJSON`/`RequirementsViewJSON` on `(:System)` (embedded + docs
+  schema mirrors), excluded from G2M translation (§3.7.2 tool-state JSON).
+  Each tool has a "Save layout" control; saved positions restore via preset
+  layout with a grid fallback for new nodes (same pattern as the Flow Tool).
+  Flow, Use-Case, and Goal Keeper already persisted their layouts.
+- **SysML/KerML → image direction verified** (no code change): every diagram
+  is rendered from Core Data Model graph data; the SysML 2.0 / KerML 1.0 text
+  is the G2M projection of that same graph. Model text is never derived from
+  images, and layout JSON is never semantic (schema constraints +
+  `model.go` `toolStateProps` exclusion verified).
+
+Verification: `cd backend && go build ./... && go test ./...` (all pass);
+`cd frontend && npm run build` (tsc + vite clean) and `npm run lint`
+(warning count identical to pre-change baseline); schema JSON diffs limited
+to the added Diagram Views property groups.
+
+SBOM impact: none. No software applications or libraries were added.
+
 ## 2026-07-04 — Complete UI redesign: the "Instrument" design system (`ui-redesign` branch)
 
 The Art Nouveau visual identity was removed end-to-end and replaced with a

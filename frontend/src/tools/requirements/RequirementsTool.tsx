@@ -6,7 +6,7 @@
 // (§6.5.2.1), editing via the Data Drawer, and PNG + SVG export (§6.5.2.16).
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import cytoscape from "cytoscape";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/client";
@@ -15,7 +15,7 @@ import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { Icon } from "../../components/Icon";
 import { useDrawer, useSession } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken } from "../shared";
+import { ResizablePane, errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken } from "../shared";
 
 interface ReqRecord {
   hid: string;
@@ -681,7 +681,93 @@ function HierarchyView({
     return els;
   }, [lineage.data]);
 
-  // Callback/data refs keep the graph effect's dependency list to [elements]
+  // Saved diagram view (REQUIREMENTS-NOTES I-18): the user's block
+  // arrangement persists on the SoI (:System) node's RequirementsViewJSON so
+  // the tool reopens with the saved layout. Presentation data only.
+  const savedPositions = useMemo(() => {
+    const raw = soiNodes.find((n) => n.hid === ctx.soiHid)?.properties
+      ?.RequirementsViewJSON;
+    if (typeof raw !== "string" || raw.trim() === "") return {};
+    try {
+      const doc = JSON.parse(raw) as {
+        positions?: Record<string, { x: number; y: number }>;
+      };
+      return doc.positions ?? {};
+    } catch {
+      return {};
+    }
+  }, [soiNodes, ctx.soiHid]);
+
+  // Preset positions where stored; new nodes drop into a grid below the
+  // saved bounding box so a partial preset never collapses at the origin.
+  const placed = useMemo(() => {
+    const nodeIds = elements
+      .filter((e) => !(e.data as { source?: string }).source)
+      .map((e) => (e.data as { id: string }).id);
+    if (!nodeIds.some((id) => savedPositions[id])) {
+      return { els: elements, hasPositions: false };
+    }
+    let maxY = Number.NEGATIVE_INFINITY;
+    let minX = Number.POSITIVE_INFINITY;
+    for (const id of nodeIds) {
+      const pos = savedPositions[id];
+      if (pos) {
+        if (pos.y > maxY) maxY = pos.y;
+        if (pos.x < minX) minX = pos.x;
+      }
+    }
+    let gi = 0;
+    const els = elements.map((e) => {
+      if ((e.data as { source?: string }).source) return e;
+      const pos = savedPositions[(e.data as { id: string }).id];
+      if (pos) return { ...e, position: { ...pos } };
+      const fallback = {
+        x: minX + (gi % 4) * 230,
+        y: maxY + 150 + Math.floor(gi / 4) * 120,
+      };
+      gi++;
+      return { ...e, position: fallback };
+    });
+    return { els, hasPositions: true };
+  }, [elements, savedPositions]);
+
+  // Save the current arrangement as the persisted Requirements view (I-18).
+  const saveLayout = useMutation({
+    mutationFn: () => {
+      const cy = cyRef.current;
+      if (!cy || !ctx.soiHid) return Promise.reject(new Error("No diagram to save."));
+      const positions: Record<string, { x: number; y: number }> = {};
+      cy.nodes().forEach((n) => {
+        positions[n.id()] = { x: n.position("x"), y: n.position("y") };
+      });
+      return api.commit({
+        soiHid: ctx.soiHid,
+        toolId: "sstpa.requirements",
+        operations: [
+          {
+            op: "updateNode",
+            hid: ctx.soiHid,
+            properties: {
+              RequirementsViewJSON: JSON.stringify({
+                schemaVersion: "1.0",
+                toolType: "sstpa.requirements",
+                soiHid: ctx.soiHid,
+                savedAt: new Date().toISOString(),
+                positions,
+              }),
+            },
+          },
+        ],
+      });
+    },
+    onSuccess: () => {
+      onNotice({ kind: "success", text: "Diagram layout saved — the Hierarchy View reopens with this arrangement." });
+      void qc.invalidateQueries({ queryKey: ["soi"] });
+    },
+    onError: (e) => onNotice({ kind: "error", text: errorText(e) }),
+  });
+
+  // Callback/data refs keep the graph effect's dependency list to [placed]
   // so parent re-renders do not rebuild and re-layout the diagram.
   const onFocusRef = useRef(onFocus);
   onFocusRef.current = onFocus;
@@ -689,13 +775,13 @@ function HierarchyView({
   lineageNodesRef.current = lineage.data?.nodes ?? [];
 
   useEffect(() => {
-    if (!containerRef.current || elements.length === 0) return;
+    if (!containerRef.current || placed.els.length === 0) return;
     cyRef.current?.destroy();
     const gt = graphTheme();
     const teal = uiToken("--sstpa-node-interface");
     const cy = cytoscape({
       container: containerRef.current,
-      elements,
+      elements: placed.els,
       style: [
         {
           selector: "node",
@@ -753,7 +839,9 @@ function HierarchyView({
           },
         },
       ],
-      layout: { name: "breadthfirst", directed: true, spacingFactor: 1.15, animate: false },
+      layout: placed.hasPositions
+        ? { name: "preset" }
+        : { name: "breadthfirst", directed: true, spacingFactor: 1.15, animate: false },
     });
     cy.on("select", "node", (ev) => {
       const hid = ev.target.id();
@@ -768,7 +856,7 @@ function HierarchyView({
       cy.destroy();
       cyRef.current = null;
     };
-  }, [elements]);
+  }, [placed]);
 
   const doExport = (full: boolean, asSvg: boolean) => {
     const cy = cyRef.current;
@@ -792,6 +880,14 @@ function HierarchyView({
           style={{ position: "absolute", inset: 0, background: "var(--sstpa-canvas)" }}
         />
         <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6 }}>
+          <button
+            className="icon-button"
+            title="Save the current arrangement as the persisted Requirements diagram view"
+            disabled={!ctx.soiHid || saveLayout.isPending}
+            onClick={() => saveLayout.mutate()}
+          >
+            Save layout
+          </button>
           <button className="icon-button" onClick={() => doExport(false, false)} title="Export current viewport">
             PNG (view)
           </button>
@@ -932,16 +1028,7 @@ function RequirementDetailPanel({
   };
 
   return (
-    <div
-      style={{
-        width: 290,
-        borderLeft: "var(--sstpa-border)",
-        padding: "var(--sstpa-sp-3)",
-        overflow: "auto",
-        background: "var(--sstpa-surface)",
-        fontSize: "0.8rem",
-      }}
-    >
+    <ResizablePane dock="right" storageKey="requirements.detail" defaultWidth={290} style={{ padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)", fontSize: "0.8rem" }}>
       <div className="mono" style={{ fontSize: "0.7rem" }}>
         {selected.hid}
       </div>
@@ -1137,6 +1224,6 @@ function RequirementDetailPanel({
           }}
         />
       )}
-    </div>
+    </ResizablePane>
   );
 }

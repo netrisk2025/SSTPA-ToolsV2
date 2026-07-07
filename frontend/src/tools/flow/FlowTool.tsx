@@ -15,7 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/client";
 import type { CommitOperation, SoINode } from "../../api/types";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { ToolStatus, errorText, exportPng, exportSvg, graphTheme, uiToken, usePrompt } from "../shared";
+import { ResizablePane, ToolStatus, errorText, exportPng, exportSvg, graphTheme, uiToken, usePrompt } from "../shared";
 
 type Mode = "functional" | "stpa";
 
@@ -797,16 +797,7 @@ export default function FlowTool({
             onBackgroundTap={() => setSelection(null)}
             onLayoutSave={saveLayout}
           />
-          <aside
-            style={{
-              width: 300,
-              borderLeft: "var(--sstpa-border)",
-              overflow: "auto",
-              background: "var(--sstpa-surface)",
-              padding: "var(--sstpa-sp-3)",
-              fontSize: "0.8rem",
-            }}
-          >
+          <ResizablePane dock="right" storageKey="flow.detail" defaultWidth={300} style={{ background: "var(--sstpa-surface)", padding: "var(--sstpa-sp-3)", fontSize: "0.8rem" }}>
             {selection?.kind === "edge" ? (
               <EdgePanel
                 key={`${selection.edge.sourceHid}-${selection.edge.type}-${selection.edge.targetHid}`}
@@ -895,7 +886,7 @@ export default function FlowTool({
                 and flow membership persist to {layoutProp} on Commit layout.
               </p>
             )}
-          </aside>
+          </ResizablePane>
         </div>
       )}
       {prompt.element}

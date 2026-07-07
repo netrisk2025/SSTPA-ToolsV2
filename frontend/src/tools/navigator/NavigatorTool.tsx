@@ -21,7 +21,7 @@ import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { displayName, nodeTypeColor } from "../../components/NodeTypeBadge";
 import { useSoI } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, exportPng, exportSvg, ToolStatus } from "../shared";
+import { ResizablePane, errorText, exportPng, exportSvg, ToolStatus } from "../shared";
 
 cytoscape.use(fcose);
 
@@ -122,6 +122,32 @@ export default function NavigatorTool({
     () => hierarchy.data?.entries ?? [],
     [hierarchy.data],
   );
+
+  // Persisted diagram layout (REQUIREMENTS-NOTES I-18): the user's node
+  // arrangement is saved as a view on the Project node (NavigatorViewJSON)
+  // so the tool reopens with the saved layout. Positions are presentation
+  // data only — the graph remains the semantic source of truth.
+  const projectHid = useMemo(
+    () => entries.find((e) => e.typeName === "Project")?.hid ?? null,
+    [entries],
+  );
+  const savedLayout = useQuery({
+    queryKey: ["navigator-layout", projectHid],
+    queryFn: async () => {
+      const node = await api.nodeByHid(projectHid!);
+      try {
+        const doc = JSON.parse(String(node.properties.NavigatorViewJSON ?? "")) as {
+          positions?: Record<string, { x: number; y: number }>;
+        };
+        return doc.positions ?? {};
+      } catch {
+        return {} as Record<string, { x: number; y: number }>;
+      }
+    },
+    enabled: !!projectHid,
+  });
+  const savedPositionsRef = useRef<Record<string, { x: number; y: number }>>({});
+  savedPositionsRef.current = savedLayout.data ?? {};
 
   // ---- Graph element construction (Project + Systems by default, §6.5.1.6;
   // Components are never shown as hierarchy intermediaries) ----
@@ -363,29 +389,55 @@ export default function NavigatorTool({
       });
     });
     if (structural && cy.elements().length > 0) {
-      // A hierarchy view is tree-shaped: a breadthfirst layout is
-      // deterministic and robust for small graphs (fcose degenerates on a
-      // couple of nodes). Expanded SoI contents use fcose for their denser
-      // relationship webs.
-      const dense = cy.edges("[kind='relationship']").length > 0;
-      const layout = cy.layout(
-        (dense
-          ? {
-              name: "fcose",
-              animate: false,
-              randomize: true,
-              idealEdgeLength: () => 90,
-              nodeSeparation: 120,
-            }
-          : {
-              name: "breadthfirst",
-              directed: true,
-              spacingFactor: 1.3,
-              padding: 30,
-              animate: false,
-            }) as never,
-      );
-      layout.run();
+      const saved = savedPositionsRef.current;
+      if (cy.nodes().toArray().some((n) => !!saved[n.id()])) {
+        // Saved view (I-18): restore the user's arrangement; nodes without a
+        // stored position drop into a grid below the saved bounding box so a
+        // partial preset never collapses at the origin.
+        let maxY = Number.NEGATIVE_INFINITY;
+        let minX = Number.POSITIVE_INFINITY;
+        for (const p of Object.values(saved)) {
+          if (p.y > maxY) maxY = p.y;
+          if (p.x < minX) minX = p.x;
+        }
+        let gi = 0;
+        cy.nodes().forEach((n) => {
+          const p = saved[n.id()];
+          if (p) {
+            n.position({ ...p });
+          } else {
+            n.position({
+              x: minX + (gi % 6) * 130,
+              y: maxY + 120 + Math.floor(gi / 6) * 100,
+            });
+            gi++;
+          }
+        });
+      } else {
+        // A hierarchy view is tree-shaped: a breadthfirst layout is
+        // deterministic and robust for small graphs (fcose degenerates on a
+        // couple of nodes). Expanded SoI contents use fcose for their denser
+        // relationship webs.
+        const dense = cy.edges("[kind='relationship']").length > 0;
+        const layout = cy.layout(
+          (dense
+            ? {
+                name: "fcose",
+                animate: false,
+                randomize: true,
+                idealEdgeLength: () => 90,
+                nodeSeparation: 120,
+              }
+            : {
+                name: "breadthfirst",
+                directed: true,
+                spacingFactor: 1.3,
+                padding: 30,
+                animate: false,
+              }) as never,
+        );
+        layout.run();
+      }
       cy.fit(undefined, 45);
       // Center on the current SoI on first population (§6.5.1.7).
       if (soiHid && cy.getElementById(soiHid).length > 0) {
@@ -393,6 +445,24 @@ export default function NavigatorTool({
       }
     }
   }, [elements, soiHid]);
+
+  // The saved view usually arrives after the first structural layout pass:
+  // re-apply stored positions once loaded so reopening the tool lands on the
+  // user's saved arrangement.
+  useEffect(() => {
+    const cy = cyRef.current;
+    const saved = savedLayout.data;
+    if (!cy || !saved || Object.keys(saved).length === 0) return;
+    let applied = 0;
+    cy.nodes().forEach((n) => {
+      const p = saved[n.id()];
+      if (p) {
+        n.position({ ...p });
+        applied++;
+      }
+    });
+    if (applied > 0) cy.fit(undefined, 45);
+  }, [savedLayout.data]);
 
   // Clone flow state.
   const cloneParentPick = useRef(false);
@@ -601,6 +671,44 @@ export default function NavigatorTool({
     return out;
   }, [selected, relSchema.data, currentSoINodes.data]);
 
+  // Save the current arrangement as the persisted Navigator view (I-18).
+  const saveLayout = useMutation({
+    mutationFn: () => {
+      const cy = cyRef.current;
+      if (!cy || !projectHid) return Promise.reject(new Error("No diagram to save."));
+      const positions: Record<string, { x: number; y: number }> = {};
+      cy.nodes().forEach((n) => {
+        positions[n.id()] = { x: n.position("x"), y: n.position("y") };
+      });
+      const doc = {
+        schemaVersion: "1.0",
+        toolType: "sstpa.navigator",
+        projectHid,
+        savedAt: new Date().toISOString(),
+        viewport: { pan: cy.pan(), zoom: cy.zoom() },
+        positions,
+      };
+      return api.commit({
+        toolId: "sstpa.navigator",
+        operations: [
+          {
+            op: "updateNode",
+            hid: projectHid,
+            properties: { NavigatorViewJSON: JSON.stringify(doc) },
+          },
+        ],
+      });
+    },
+    onSuccess: () => {
+      setNotice({
+        kind: "ok",
+        text: "Diagram layout saved — the Navigator reopens with this arrangement.",
+      });
+      void qc.invalidateQueries({ queryKey: ["navigator-layout"] });
+    },
+    onError: (e) => setNotice({ kind: "warn", text: errorText(e) }),
+  });
+
   const associate = useMutation({
     mutationFn: () => {
       const [sourceHid, type] = assocPick.split("|");
@@ -705,15 +813,7 @@ export default function NavigatorTool({
   return (
     <div style={{ display: "flex", height: "100%", minHeight: 0 }}>
       {/* Left: modes, search, legend */}
-      <div
-        style={{
-          width: 250,
-          borderRight: "var(--sstpa-border-soft)",
-          display: "flex",
-          flexDirection: "column",
-          minHeight: 0,
-        }}
-      >
+      <ResizablePane dock="left" storageKey="navigator.side" defaultWidth={250} style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
         <div style={{ padding: 8, display: "flex", gap: 4, flexWrap: "wrap" }}>
           {modeTab("soi", "SoI", "SoI Selection Mode (§6.5.1.5a)")}
           {modeTab("associate", "Associate", "Association Selection Mode (§6.5.1.5b)")}
@@ -801,7 +901,7 @@ export default function NavigatorTool({
             </div>
           )}
         </div>
-      </div>
+      </ResizablePane>
 
       {/* Center: canvas + controls */}
       <div style={{ flex: 1, position: "relative", minWidth: 0 }}>
@@ -866,6 +966,14 @@ export default function NavigatorTool({
             <option value="name">Name only</option>
             <option value="none">No labels</option>
           </select>
+          <button
+            className="icon-button"
+            title="Save the current node arrangement as the persisted Navigator view"
+            disabled={!projectHid || saveLayout.isPending}
+            onClick={() => saveLayout.mutate()}
+          >
+            ⬒ Save layout
+          </button>
           <div style={{ position: "relative" }}>
             <button
               className="icon-button"
@@ -927,17 +1035,7 @@ export default function NavigatorTool({
       </div>
 
       {/* Right: detail panel (§6.5.1.21) + mode actions */}
-      <div
-        style={{
-          width: 265,
-          borderLeft: "var(--sstpa-border-soft)",
-          overflow: "auto",
-          padding: 10,
-          display: "flex",
-          flexDirection: "column",
-          gap: 8,
-        }}
-      >
+      <ResizablePane dock="right" storageKey="navigator.detail" defaultWidth={265} style={{ padding: 10, display: "flex", flexDirection: "column", gap: 8 }}>
         {!selected && (
           <p style={{ fontSize: "0.8rem", color: "var(--sstpa-muted)" }}>
             Select a node on the canvas or from the search results.
@@ -1189,7 +1287,7 @@ export default function NavigatorTool({
             )}
           </>
         )}
-      </div>
+      </ResizablePane>
 
       {confirmSoI && (
         <ConfirmDialog

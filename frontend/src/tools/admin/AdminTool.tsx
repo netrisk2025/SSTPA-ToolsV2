@@ -11,7 +11,7 @@ import { api, apiBase } from "../../api/client";
 import type { MessageSummary } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useSession, useUnderConstruction } from "../../state/stores";
-import { downloadText, errorText, ToolStatus, usePrompt } from "../shared";
+import { ResizablePane, downloadText, errorText, ToolStatus, usePrompt } from "../shared";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 
 type RosterUser = Awaited<ReturnType<typeof api.listUsers>>["users"][number];
@@ -324,17 +324,14 @@ export default function AdminTool({ ctx }: { ctx: ToolLaunchContext; manifest: T
 
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
         {/* Left panel: function navigation (SRS §6.5.15.2). */}
+        <ResizablePane dock="left" storageKey="admin.nav" defaultWidth={190} minWidth={120}>
         <nav
           aria-label="Admin functions"
           style={{
-            width: 190,
-            flexShrink: 0,
-            borderRight: "var(--sstpa-border-soft)",
             padding: "var(--sstpa-sp-2)",
             display: "flex",
             flexDirection: "column",
             gap: 4,
-            overflow: "auto",
           }}
         >
           {NAV.map((n) => (
@@ -349,6 +346,7 @@ export default function AdminTool({ ctx }: { ctx: ToolLaunchContext; manifest: T
             </button>
           ))}
         </nav>
+        </ResizablePane>
 
         {/* Right panel: work area (SRS §6.5.15.5). */}
         <div

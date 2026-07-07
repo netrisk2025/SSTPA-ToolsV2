@@ -7,7 +7,7 @@ import type { Core } from "cytoscape";
 import cytoscape from "cytoscape";
 // @ts-expect-error cytoscape-svg ships no type declarations
 import svg from "cytoscape-svg";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ApiError } from "../api/client";
 
 let svgRegistered = false;
@@ -143,6 +143,83 @@ export function ToolStatus({
     );
   }
   return null;
+}
+
+/** Side panel with a draggable width handle on its inner edge. Every docked
+ *  tool panel uses this instead of a fixed pixel width so users can widen or
+ *  narrow panels as needed; the width persists per panel per machine.
+ *  `dock` names the window edge the panel sits against — the drag handle is
+ *  rendered on the opposite (inner) edge and doubles as the panel border. */
+export function ResizablePane({
+  dock,
+  storageKey,
+  defaultWidth,
+  minWidth = 160,
+  style,
+  children,
+}: {
+  dock: "left" | "right";
+  storageKey: string;
+  defaultWidth: number;
+  minWidth?: number;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  const key = `sstpa.pane.${storageKey}`;
+  const [width, setWidth] = useState(
+    () => Number(localStorage.getItem(key)) || defaultWidth,
+  );
+  const widthRef = useRef(width);
+  widthRef.current = width;
+
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = widthRef.current;
+    const onMove = (ev: MouseEvent) => {
+      const dx = ev.clientX - startX;
+      setWidth(Math.max(minWidth, dock === "left" ? startW + dx : startW - dx));
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      localStorage.setItem(key, String(widthRef.current));
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  };
+
+  const handleSide = dock === "left" ? "right" : "left";
+  return (
+    <div
+      style={{
+        width,
+        flexShrink: 0,
+        position: "relative",
+        display: "flex",
+        [dock === "left" ? "borderRight" : "borderLeft"]: "var(--sstpa-border)",
+      }}
+    >
+      {/* Content scrolls in its own box so the drag handle stays pinned to
+          the pane edge regardless of scroll position. */}
+      <div style={{ flex: 1, minWidth: 0, overflow: "auto", ...style }}>
+        {children}
+      </div>
+      <div
+        onMouseDown={startResize}
+        title="Drag to resize panel"
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          [handleSide]: 0,
+          width: 6,
+          cursor: "col-resize",
+          zIndex: 3,
+        }}
+      />
+    </div>
+  );
 }
 
 /** Styled replacement for window.prompt: a small modal with one text input.

@@ -102,7 +102,7 @@
     "Ownership change SHALL be treated as a node modification for notification purposes.",
     "Relationship changes involving a node SHALL be treated as changes to that node for notification purposes.",
     "For a relationship between two existing nodes with different owners, the change SHALL be considered to affect both endpoint nodes.",
-    "If the current user commits a change to a node or relationship and the current user is not the Owner of the affected node, the system SHALL generate a message to the Owner\u2019s mailbox describing the change.",
+    "If the current user commits a change to a node or relationship and the current user is not the Owner of the affected node, the system SHALL generate a message to the Owner’s mailbox describing the change.",
     "Message generation SHALL occur within the same transaction as the committed data change.",
     "Failure to create required ownership-notification messages SHALL cause the overall commit transaction to fail."
    ]
@@ -158,6 +158,22 @@
        "default": null
       }
      ]
+    },
+    {
+     "groupName": "Diagram Views",
+     "properties": [
+      {
+       "name": "NavigatorViewJSON",
+       "displayName": "Navigator Diagram Layout:",
+       "type": "JSON",
+       "edit": "fixed",
+       "default": "N/A",
+       "ambiguity": "Not defined by the SRS. Added per REQUIREMENTS-NOTES I-18: persisted visual layout (node positions, viewport) for the Navigator Tool graph of this System's SoI, following the ControlStructureJSON / UseCaseDiagramJSON pattern until a common (:DiagramView) node is defined (SRS Goal Keeper notes)."
+      }
+     ],
+     "constraints": [
+      "The Backend graph is the sole authoritative source for semantic structure; these properties store visual layout and display state only and are never translated by G2M (SRS 3.7.2 tool-state JSON)."
+     ]
     }
    ],
    "srsHeading": "Capability"
@@ -190,6 +206,30 @@
        "edit": "edit",
        "default": null
       }
+     ]
+    },
+    {
+     "groupName": "Diagram Views",
+     "properties": [
+      {
+       "name": "StateViewJSON",
+       "displayName": "State Diagram Layout:",
+       "type": "JSON",
+       "edit": "fixed",
+       "default": "N/A",
+       "ambiguity": "Not defined by the SRS. Added per REQUIREMENTS-NOTES I-18: persisted visual layout for the State Tool diagram of this System."
+      },
+      {
+       "name": "RequirementsViewJSON",
+       "displayName": "Requirements Diagram Layout:",
+       "type": "JSON",
+       "edit": "fixed",
+       "default": "N/A",
+       "ambiguity": "Not defined by the SRS. Added per REQUIREMENTS-NOTES I-18: persisted visual layout for the Requirements Tool lineage graph of this System's SoI."
+      }
+     ],
+     "constraints": [
+      "The Backend graph is the sole authoritative source for semantic structure; these properties store visual layout and display state only and are never translated by G2M (SRS 3.7.2 tool-state JSON)."
      ]
     }
    ],
@@ -1127,7 +1167,7 @@
   },
   "Purpose": {
    "srsLines": "2000-2002",
-   "description": "None \u2014 type-unique properties are defined on the (:UseCase) node type, which is the primary subordinate of (:Purpose).  See Section 3.3.10.34 for (:UseCase) type-unique properties.",
+   "description": "None — type-unique properties are defined on the (:UseCase) node type, which is the primary subordinate of (:Purpose).  See Section 3.3.10.34 for (:UseCase) type-unique properties.",
    "propertyGroups": [],
    "srsHeading": "Purpose"
   },
@@ -2763,7 +2803,7 @@
       "[:INCLUDES] has no additional properties beyond the standard relationship.",
       "[:INVOLVES] has no additional properties beyond the standard relationship.",
       "[:EXTENDS] SHALL carry the following property: ExtensionPoint.",
-      "Extension point identifies the named location in the base (:UseCase) at which the extending (:UseCase) inserts behavior, ExtensionPoint identifies the named location in the base (:UseCase) at which the extending (:UseCase) inserts behavior. SysML 2.0 does not define an extend relationship; see Section 3.3.4.7 and Section 3.7.6 for the standard translation ([:EXTENDS] \u2192 use case specialization annotated #extend with an extensionPoint metadata attribute).",
+      "Extension point identifies the named location in the base (:UseCase) at which the extending (:UseCase) inserts behavior, ExtensionPoint identifies the named location in the base (:UseCase) at which the extending (:UseCase) inserts behavior. SysML 2.0 does not define an extend relationship; see Section 3.3.4.7 and Section 3.7.6 for the standard translation ([:EXTENDS] → use case specialization annotated #extend with an extensionPoint metadata attribute).",
       "[:INCLUDES_UC] has no additional properties beyond the standard relationship."
      ]
     }

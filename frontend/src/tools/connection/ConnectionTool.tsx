@@ -8,6 +8,7 @@ import { api } from "../../api/client";
 import type { CommitOperation, SoINode, SoIRelationship } from "../../api/types";
 import { useDrawer } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
+import { ResizablePane } from "../shared";
 
 type Mode = "selection" | "filtering" | "display" | "export";
 
@@ -246,7 +247,7 @@ function ConnectionList({
   onSelect: (hid: string) => void;
 }) {
   return (
-    <aside style={{ width: 300, borderRight: "var(--sstpa-border)", overflow: "auto", background: "var(--sstpa-surface)" }}>
+    <ResizablePane dock="left" storageKey="connection.list" defaultWidth={300} style={{ background: "var(--sstpa-surface)" }}>
       {connections.map((connection) => {
         const participants = participantInterfaces(connection.hid, interfaces);
         const owner = ownerMap.get(connection.hid);
@@ -278,7 +279,7 @@ function ConnectionList({
         );
       })}
       {connections.length === 0 && <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No Connections match the current filters.</p>}
-    </aside>
+    </ResizablePane>
   );
 }
 
@@ -531,14 +532,14 @@ function ConnectionDetail({
   }, [connection, owner?.hid, participants]);
 
   if (!connection) {
-    return <aside style={{ width: 380, borderLeft: "var(--sstpa-border)", padding: "var(--sstpa-sp-3)" }}>Select a Connection.</aside>;
+    return <ResizablePane dock="right" storageKey="connection.detail" defaultWidth={390} style={{ padding: "var(--sstpa-sp-3)" }}>Select a Connection.</ResizablePane>;
   }
 
   const availableInterfaces = interfaces.filter((i) => !participants.some((p) => p.hid === i.hid));
   const connectionRequirements = relatedNodes(connection, "HAS_REQUIREMENT", new Map(requirements.map((r) => [r.hid, r])));
 
   return (
-    <aside style={{ width: 390, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)" }}>
+    <ResizablePane dock="right" storageKey="connection.detail" defaultWidth={390} style={{ padding: "var(--sstpa-sp-3)", background: "var(--sstpa-surface)" }}>
       <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>{connection.hid}</div>
       <h3 style={{ margin: "4px 0 8px" }}>{String(connection.properties.Name ?? "")}</h3>
       <button className="sstpa-button" disabled={drawerOpen} onClick={() => onOpenDrawer(connection.hid)}>Open Drawer</button>
@@ -712,7 +713,7 @@ function ConnectionDetail({
       >
         New Requirement
       </button>
-    </aside>
+    </ResizablePane>
   );
 }
 

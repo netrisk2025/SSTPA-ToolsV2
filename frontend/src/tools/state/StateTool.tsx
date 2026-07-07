@@ -23,7 +23,7 @@ import type { SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken, usePrompt } from "../shared";
+import { ResizablePane, errorText, exportPng, exportSvg, graphTheme, ToolStatus, uiToken, usePrompt } from "../shared";
 
 /** Trace-kind colors as design-token names (resolved for Cytoscape,
  *  var()-wrapped for JSX) matching the rel-kind-* classes. */
@@ -244,6 +244,50 @@ export default function StateTool({
       }),
     onSuccess: (res) => {
       setNotice({ kind: "success", text: `State ${res.createdNodes.st} created.` });
+      refresh();
+    },
+    onError: (e) => setNotice({ kind: "error", text: errorText(e) }),
+  });
+
+  // Saved diagram view (REQUIREMENTS-NOTES I-18): the user's state-block
+  // arrangement persists on the SoI (:System) node's StateViewJSON so the
+  // tool reopens with the saved layout. Presentation data only.
+  const savedPositions = useMemo(() => {
+    const raw = byHid.get(ctx.soiHid ?? "")?.properties?.StateViewJSON;
+    if (typeof raw !== "string" || raw.trim() === "") return {};
+    try {
+      const doc = JSON.parse(raw) as {
+        positions?: Record<string, { x: number; y: number }>;
+      };
+      return doc.positions ?? {};
+    } catch {
+      return {};
+    }
+  }, [byHid, ctx.soiHid]);
+
+  const saveLayout = useMutation({
+    mutationFn: (positions: Record<string, { x: number; y: number }>) =>
+      api.commit({
+        soiHid: ctx.soiHid ?? undefined,
+        toolId: "sstpa.state",
+        operations: [
+          {
+            op: "updateNode",
+            hid: ctx.soiHid!,
+            properties: {
+              StateViewJSON: JSON.stringify({
+                schemaVersion: "1.0",
+                toolType: "sstpa.state",
+                soiHid: ctx.soiHid,
+                savedAt: new Date().toISOString(),
+                positions,
+              }),
+            },
+          },
+        ],
+      }),
+    onSuccess: () => {
+      setNotice({ kind: "success", text: "Diagram layout saved — the State Tool reopens with this arrangement." });
       refresh();
     },
     onError: (e) => setNotice({ kind: "error", text: errorText(e) }),
@@ -482,6 +526,8 @@ export default function StateTool({
           <StateCanvas
             nodes={nodes}
             mode={mode}
+            savedPositions={savedPositions}
+            onSaveLayout={(positions) => saveLayout.mutate(positions)}
             kindFilter={kindFilter}
             showCriteria={showCriteria}
             showOverlays={showOverlays}
@@ -511,14 +557,7 @@ export default function StateTool({
             }}
           />
         )}
-        <aside
-          style={{
-            width: 330,
-            borderLeft: "var(--sstpa-border)",
-            overflow: "auto",
-            background: "var(--sstpa-surface)",
-          }}
-        >
+        <ResizablePane dock="right" storageKey="state.detail" defaultWidth={330} style={{ background: "var(--sstpa-surface)" }}>
           {selectedState && byHid.get(selectedState) && (
             <StateDetailPanel
               key={selectedState}
@@ -556,7 +595,7 @@ export default function StateTool({
               )}
             </p>
           )}
-        </aside>
+        </ResizablePane>
       </div>
 
       {creatingTransition?.source && creatingTransition.target && (
@@ -582,6 +621,8 @@ export default function StateTool({
 function StateCanvas({
   nodes,
   mode,
+  savedPositions,
+  onSaveLayout,
   kindFilter,
   showCriteria,
   showOverlays,
@@ -597,6 +638,8 @@ function StateCanvas({
 }: {
   nodes: SoINode[];
   mode: Mode;
+  savedPositions: Record<string, { x: number; y: number }>;
+  onSaveLayout: (positions: Record<string, { x: number; y: number }>) => void;
   kindFilter: string;
   showCriteria: boolean;
   showOverlays: boolean;
@@ -750,6 +793,40 @@ function StateCanvas({
     );
   }, [nodes, kindFilter, showCriteria, showOverlays, visibleStates, envFocusHid]);
 
+  // Apply the saved view (I-18): preset positions where stored; new nodes
+  // drop into a grid below the saved bounding box so a partial preset never
+  // collapses at the origin.
+  const placed = useMemo(() => {
+    const nodeIds = elements
+      .filter((e) => !(e.data as { source?: string }).source)
+      .map((e) => (e.data as { id: string }).id);
+    if (!nodeIds.some((id) => savedPositions[id])) {
+      return { els: elements, hasPositions: false };
+    }
+    let maxY = Number.NEGATIVE_INFINITY;
+    let minX = Number.POSITIVE_INFINITY;
+    for (const id of nodeIds) {
+      const pos = savedPositions[id];
+      if (pos) {
+        if (pos.y > maxY) maxY = pos.y;
+        if (pos.x < minX) minX = pos.x;
+      }
+    }
+    let gi = 0;
+    const els = elements.map((e) => {
+      if ((e.data as { source?: string }).source) return e;
+      const pos = savedPositions[(e.data as { id: string }).id];
+      if (pos) return { ...e, position: { ...pos } };
+      const fallback = {
+        x: minX + (gi % 4) * 190,
+        y: maxY + 140 + Math.floor(gi / 4) * 110,
+      };
+      gi++;
+      return { ...e, position: fallback };
+    });
+    return { els, hasPositions: true };
+  }, [elements, savedPositions]);
+
   useEffect(() => {
     if (!containerRef.current) return;
     cyRef.current?.destroy();
@@ -761,7 +838,7 @@ function StateCanvas({
     const kind = (k: string) => uiToken(KIND_TOKEN[k]);
     const cy = cytoscape({
       container: containerRef.current,
-      elements,
+      elements: placed.els,
       style: [
         {
           selector: 'node[kind = "state"]',
@@ -894,8 +971,9 @@ function StateCanvas({
           style: { "line-color": gt.selected, "target-arrow-color": gt.selected, width: 3 },
         },
       ],
-      layout:
-        mode === "criteria"
+      layout: placed.hasPositions
+        ? ({ name: "preset" } as cytoscape.LayoutOptions)
+        : mode === "criteria"
           ? orderBySequence
             ? ({
                 name: "grid",
@@ -936,7 +1014,7 @@ function StateCanvas({
       cy.destroy();
       cyRef.current = null;
     };
-  }, [elements, mode, orderBySequence]);
+  }, [placed, mode, orderBySequence]);
 
   // Selected-state changes re-center without rebuilding the graph
   // (§6.5.5.9 animated centering; §6.5.5.19 layout stability).
@@ -974,6 +1052,21 @@ function StateCanvas({
         style={{ position: "absolute", inset: 0, background: "var(--sstpa-canvas)" }}
       />
       <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6 }}>
+        <button
+          className="icon-button"
+          title="Save the current arrangement as the persisted State diagram view"
+          onClick={() => {
+            const cy = cyRef.current;
+            if (!cy) return;
+            const positions: Record<string, { x: number; y: number }> = {};
+            cy.nodes().forEach((n) => {
+              positions[n.id()] = { x: n.position("x"), y: n.position("y") };
+            });
+            onSaveLayout(positions);
+          }}
+        >
+          Save layout
+        </button>
         <button className="icon-button" onClick={() => doExport(false, false)}>
           PNG (view)
         </button>

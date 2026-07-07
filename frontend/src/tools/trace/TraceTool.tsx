@@ -22,7 +22,7 @@ import type { CommitOperation, SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer, useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { downloadText, errorText, ToolStatus } from "../shared";
+import { ResizablePane, downloadText, errorText, ToolStatus } from "../shared";
 
 type RelType = "HOLDS" | "TRANSPORTS" | "USES";
 const TRACE_TYPES = ["HOLDS", "TRANSPORTS", "USES"];
@@ -1154,17 +1154,7 @@ export default function TraceTool({
           </div>
 
           {/* Right detail panel (§6.5.9.2) */}
-          <aside
-            style={{
-              width: 280,
-              borderLeft: "var(--sstpa-border)",
-              overflow: "auto",
-              background: "var(--sstpa-surface)",
-              padding: "var(--sstpa-sp-3)",
-              fontSize: "0.78rem",
-              flexShrink: 0,
-            }}
-          >
+          <ResizablePane dock="right" storageKey="trace.detail" defaultWidth={280} style={{ background: "var(--sstpa-surface)", padding: "var(--sstpa-sp-3)", fontSize: "0.78rem" }}>
             <h4 style={{ margin: "0 0 4px" }}>Asset</h4>
             <div className="mono" style={{ fontSize: "0.68rem" }}>
               {asset?.hid}
@@ -1223,7 +1213,7 @@ export default function TraceTool({
                 … and {staged.size - 20} more
               </div>
             )}
-          </aside>
+          </ResizablePane>
         </div>
       )}
 

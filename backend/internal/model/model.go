@@ -189,6 +189,7 @@ var toolStateProps = map[string]bool{
 	"AttackTreeJSON": true, "UseCaseDiagramJSON": true,
 	"ControlStructureJSON": true, "FunctionalFlowJSON": true,
 	"GoalStructure": true, "MetricCacheJSON": true,
+	"NavigatorViewJSON": true, "StateViewJSON": true, "RequirementsViewJSON": true,
 }
 
 // emitProps returns the deterministic attribute lines for a node, omitting

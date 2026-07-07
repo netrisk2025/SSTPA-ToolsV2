@@ -14,7 +14,7 @@ import type {
 } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
-import { downloadText, errorText, ToolStatus, usePrompt } from "../shared";
+import { ResizablePane, downloadText, errorText, ToolStatus, usePrompt } from "../shared";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 
 type AttackLevel = "STRATEGY" | "TACTIC" | "PROCEDURE";
@@ -656,7 +656,7 @@ function EntityRoster({
   onSelect: (hid: string) => void;
 }) {
   return (
-    <div style={{ width: 300, borderRight: "var(--sstpa-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <ResizablePane dock="left" storageKey="attack.entities" defaultWidth={300} style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{ padding: 8, display: "grid", gap: 6 }}>
         <input className="sstpa-input" value={query} onChange={(e) => onQuery(e.target.value)} placeholder="Search entities" />
         <div style={{ display: "flex", gap: 6 }}>
@@ -707,7 +707,7 @@ function EntityRoster({
           </p>
         )}
       </div>
-    </div>
+    </ResizablePane>
   );
 }
 
@@ -848,7 +848,7 @@ function HierarchyView({
         ))}
         {attacks.length === 0 && <p style={{ color: "var(--sstpa-muted)" }}>No Attack nodes match the current scope.</p>}
       </div>
-      <div style={{ width: 260, borderLeft: "var(--sstpa-border-soft)", padding: "var(--sstpa-sp-3)" }}>
+      <ResizablePane dock="right" storageKey="attack.hierarchy" defaultWidth={260} style={{ padding: "var(--sstpa-sp-3)" }}>
         <h3 style={{ marginTop: 0 }}>Parent</h3>
         <select className="sstpa-input" value={selectedAttack ?? ""} onChange={(e) => onSelectAttack(e.target.value)}>
           <option value="">Select child Attack</option>
@@ -860,7 +860,7 @@ function HierarchyView({
             <option key={a.hid} value={a.hid}>{a.hid} - {String(a.properties.Name ?? "")}</option>
           ))}
         </select>
-      </div>
+      </ResizablePane>
     </div>
   );
 }
@@ -993,9 +993,9 @@ function AttackDetail({
 
   if (!attack) {
     return (
-      <div style={{ width: 330, borderLeft: "var(--sstpa-border)", padding: "var(--sstpa-sp-3)" }}>
+      <ResizablePane dock="right" storageKey="attack.detail" defaultWidth={330} style={{ padding: "var(--sstpa-sp-3)" }}>
         <p style={{ color: "var(--sstpa-muted)" }}>Select an Attack.</p>
-      </div>
+      </ResizablePane>
     );
   }
 
@@ -1024,7 +1024,7 @@ function AttackDetail({
   };
 
   return (
-    <div style={{ width: 330, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)" }}>
+    <ResizablePane dock="right" storageKey="attack.detail" defaultWidth={330} style={{ padding: "var(--sstpa-sp-3)" }}>
       <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>{attack.hid}</div>
       <h3 style={{ margin: "4px 0 8px" }}>{String(attack.properties.Name ?? "")}</h3>
       {entities.length === 0 && (
@@ -1099,7 +1099,7 @@ function AttackDetail({
           Add
         </button>
       </div>
-    </div>
+    </ResizablePane>
   );
 }
 

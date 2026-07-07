@@ -9,7 +9,7 @@ import type { CommitOperation, SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { ToolStatus, downloadText, errorText } from "../shared";
+import { ResizablePane, ToolStatus, downloadText, errorText } from "../shared";
 
 type Mode = "structure" | "evidence" | "validation" | "export";
 type GsnLabel = "GsnGoal" | "GsnStrategy" | "GsnContext" | "GsnJustification" | "GsnAssumption" | "GsnSolution";
@@ -235,7 +235,7 @@ function StructureList({
   onSelect: (hid: string) => void;
 }) {
   return (
-    <div style={{ width: 280, borderRight: "var(--sstpa-border)", overflow: "auto" }}>
+    <ResizablePane dock="left" storageKey="goalkeeper.structures" defaultWidth={280}>
       {structures.map((s) => (
         <button
           key={s.root.hid}
@@ -255,7 +255,7 @@ function StructureList({
         </button>
       ))}
       {structures.length === 0 && <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No root Goals in this SoI.</p>}
-    </div>
+    </ResizablePane>
   );
 }
 
@@ -518,7 +518,11 @@ function DetailPanel({
   }, [node]);
 
   if (!node) {
-    return <div style={{ width: 330, borderLeft: "var(--sstpa-border)", padding: "var(--sstpa-sp-3)" }}><p>Select a GSN node.</p></div>;
+    return (
+      <ResizablePane dock="right" storageKey="goalkeeper.detail" defaultWidth={330} style={{ padding: "var(--sstpa-sp-3)" }}>
+        <p>Select a GSN node.</p>
+      </ResizablePane>
+    );
   }
 
   const canSupport = node.typeName === "GsnGoal" || node.typeName === "GsnStrategy";
@@ -572,7 +576,7 @@ function DetailPanel({
   };
 
   return (
-    <div style={{ width: 330, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)" }}>
+    <ResizablePane dock="right" storageKey="goalkeeper.detail" defaultWidth={330} style={{ padding: "var(--sstpa-sp-3)" }}>
       <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>{node.hid}</div>
       <h3 style={{ margin: "4px 0 8px" }}>{String(node.properties.Name ?? "")}</h3>
       <GsnBadge typeName={node.typeName} />
@@ -679,7 +683,7 @@ function DetailPanel({
           <p>{confirm.body}</p>
         </ConfirmDialog>
       )}
-    </div>
+    </ResizablePane>
   );
 }
 

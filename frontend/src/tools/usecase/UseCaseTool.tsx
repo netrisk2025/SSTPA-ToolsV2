@@ -10,7 +10,7 @@ import type { CommitOperation, CommitResponse, SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
 import { useDrawer } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
-import { ToolStatus, downloadText, errorText } from "../shared";
+import { ResizablePane, ToolStatus, downloadText, errorText } from "../shared";
 
 type Mode = "diagram" | "validation" | "export";
 type ActorType = "Human" | "System" | "ExternalSystem" | "Device" | "Organization";
@@ -336,7 +336,7 @@ function UseCaseList({
   onSelect: (hid: string) => void;
 }) {
   return (
-    <div style={{ width: 285, borderRight: "var(--sstpa-border)", overflow: "auto" }}>
+    <ResizablePane dock="left" storageKey="usecase.list" defaultWidth={285}>
       {useCases.map((u) => {
         const actors = parseActors(u.properties.ActorList);
         const interfaces = relatedNodes(u, "INVOLVES", byHid);
@@ -365,7 +365,7 @@ function UseCaseList({
         );
       })}
       {useCases.length === 0 && <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No Use Cases in this SoI.</p>}
-    </div>
+    </ResizablePane>
   );
 }
 
@@ -643,7 +643,7 @@ function DetailPanel({
   }, [useCase]);
 
   if (!useCase) {
-    return <div style={{ width: 340, borderLeft: "var(--sstpa-border)", padding: "var(--sstpa-sp-3)" }}>Select a Use Case.</div>;
+    return <ResizablePane dock="right" storageKey="usecase.detail" defaultWidth={360} style={{ padding: "var(--sstpa-sp-3)" }}>Select a Use Case.</ResizablePane>;
   }
 
   const availableInterfaces = interfaces.filter((n) => !participantInterfaces.some((p) => p.hid === n.hid));
@@ -671,7 +671,7 @@ function DetailPanel({
   };
 
   return (
-    <div style={{ width: 360, borderLeft: "var(--sstpa-border)", overflow: "auto", padding: "var(--sstpa-sp-3)" }}>
+    <ResizablePane dock="right" storageKey="usecase.detail" defaultWidth={360} style={{ padding: "var(--sstpa-sp-3)" }}>
       <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>{selectedElement?.hid ?? useCase.hid}</div>
       <h3 style={{ margin: "4px 0 8px" }}>{String((selectedElement ?? useCase).properties.Name ?? "")}</h3>
       <button className="sstpa-button" disabled={drawerOpen} onClick={() => onOpenDrawer((selectedElement ?? useCase).hid)}>Open Drawer</button>
@@ -968,7 +968,7 @@ function DetailPanel({
           <p>{confirm.body}</p>
         </ConfirmDialog>
       )}
-    </div>
+    </ResizablePane>
   );
 }
 
