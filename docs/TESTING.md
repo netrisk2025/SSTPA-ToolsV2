@@ -164,12 +164,15 @@ Each step maps to an SRS area. "Expected" is what a correct system shows.
    Try **Gap Analysis** (computes & commits Orphan/Barren), **Controls List**,
    and the **HTML (Word)** / **Print / PDF** export buttons.
 
-### 3.10 Help & Reset (§3.5, §3.6)
+### 3.10 Help & Example Data (§3.5, §3.6)
 
 1. Click the **gear icon** (top right) → **Hover help & definitions** →
    **Expected:** a searchable catalog of SSTPA terms (Asset, Loss, HID, RV…).
-2. Gear → **Reset FireSat example** → **Expected:** "FireSat example reset to
-   defaults." Any edits you made to FireSat are reverted.
+2. Example Data is managed outside the application (`Example_Data/`). To
+   reset the FireSat example to its shipped state, re-run the idempotent
+   loader: `cd "Example_Data/FireSat" && ./load-example-data.sh
+   dist/sstpa-example-firesat-<date>-v<n>.tar.gz` (see Example_Data/Skills.md,
+   Skill 5, for full reset/removal).
 
 ### 3.11 Under-construction & shutdown (§6.3.2)
 
@@ -306,7 +309,7 @@ proxy.
 | GUI shows DISCONNECTED | Visit `https://localhost:8543/` and accept the cert (step 1). |
 | Login fails | Confirm `docker compose ps` shows backend Up and neo4j healthy. |
 | Port already in use | Ports are set in `deploy/.env` (8880/8543 to avoid clashing with an older stack). Change and `docker compose up -d`. |
-| Reset FireSat / clean slate | Gear → Reset FireSat, or `docker compose down -v && docker compose up -d` for a full wipe (re-seeds FireSat, but you must reload reference data via `deploy/load-reference-data.sh`). |
+| Reset FireSat / clean slate | Re-run `Example_Data/FireSat/load-example-data.sh` (idempotent), or `docker compose down -v && docker compose up -d` for a full wipe (then reload reference data via `deploy/load-reference-data.sh` and example data via the loader). |
 | Reference searches empty | Reload: `cd sustainment/artifacts && ../../deploy/load-reference-data.sh sstpa-ref-data-*.tar.gz`. |
 
 ---
@@ -323,4 +326,4 @@ proxy.
 - [ ] Grafana dashboard populates; SSTPA metrics present.
 - [ ] Invalid relationships rejected with SRS-cited reasons.
 - [ ] `go test ./...` and `npm run build` pass.
-- [ ] Gear → Reset FireSat restores defaults.
+- [ ] Re-running the Example_Data loader restores FireSat defaults.

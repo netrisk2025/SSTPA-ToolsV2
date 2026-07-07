@@ -313,18 +313,6 @@ export const api = {
       "/api/help",
     ),
 
-  examples: () =>
-    request<{ examples: { hid: string; name: string; description: string }[] | null }>(
-      "GET",
-      "/api/examples",
-    ),
-
-  resetExample: (project = "FireSat") =>
-    request<{ status: string; project: string }>(
-      "POST",
-      `/api/examples/reset?project=${encodeURIComponent(project)}`,
-      {},
-    ),
 
   referenceFrameworks: () =>
     request<{ frameworks: Record<string, unknown>[] | null }>(

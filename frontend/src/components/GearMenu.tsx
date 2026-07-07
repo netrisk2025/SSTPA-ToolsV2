@@ -1,8 +1,9 @@
 // Gear menu (SRS §6.3.1, §3.1): style selection, product/license info,
-// example-data reset.
+// hover help. (Example Data is managed and reset outside the application —
+// Example_Data/<example>/load-example-data.sh; see REQUIREMENTS-NOTES I-13.)
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../api/client";
 import {
@@ -16,18 +17,6 @@ export function GearMenu({ onClose }: { onClose: () => void }) {
   const [showProduct, setShowProduct] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [style, setStyle] = useState<StyleName>(activeStyle());
-  const [resetMsg, setResetMsg] = useState<string | null>(null);
-  const qc = useQueryClient();
-
-  const reset = useMutation({
-    mutationFn: () => api.resetExample("FireSat"),
-    onSuccess: () => {
-      setResetMsg("FireSat example reset to defaults.");
-      void qc.invalidateQueries();
-    },
-    onError: (e) => setResetMsg(`Reset failed: ${String(e)}`),
-  });
-
   const item = (label: string, onClick: () => void) => (
     <button
       className="icon-button"
@@ -89,15 +78,6 @@ export function GearMenu({ onClose }: { onClose: () => void }) {
         {item("Hover help & definitions…", () => {
           setShowHelp(true);
         })}
-        {item(
-          reset.isPending ? "Resetting FireSat…" : "Reset FireSat example",
-          () => reset.mutate(),
-        )}
-        {resetMsg && (
-          <div className="sstpa-alert-warning" style={{ marginTop: 6, fontSize: "0.72rem" }}>
-            {resetMsg}
-          </div>
-        )}
       </div>
       {showHelp && (
         <HelpDialog

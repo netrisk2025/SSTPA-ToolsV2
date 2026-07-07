@@ -3,6 +3,38 @@
 This file records implementation checkpoints and verification status while the
 application is completed against `SSTPA Tool SRS V7.md`.
 
+## 2026-07-06 — Example Data: external FireSat package is now the only example; embedded exemplar removed
+
+Populated the deployment with the external FireSat Example Data package and
+removed the old embedded exemplar (product-owner directive):
+
+- Re-ran `Example_Data/FireSat/load-example-data.sh` against the running
+  stack (checksum-verified, collision-guarded, MERGE-idempotent): 467 nodes,
+  33 Systems to Tier 8 under `CAP__1`. Acceptance queries green — zero
+  duplicate HIDs, every System complete (Purpose/Environment/State/Function/
+  Interface/Element) and reaching a Requirement, every Connection with ≥ 2
+  participating Interfaces.
+- Removed the embedded FS-namespaced exemplar from the application:
+  `internal/api/example.go` deleted; startup seeding call removed from
+  `cmd/sstpa-backend/main.go`; `GET /api/examples` and
+  `POST /api/examples/reset` routes removed; gear-menu "Reset FireSat
+  example" action and `api.examples`/`api.resetExample` client methods
+  removed. Reset/reload is now performed outside the application with the
+  idempotent loader (Example_Data/Skills.md Skills 4–5). I-13 amended;
+  TESTING.md procedures updated.
+- Deleted the 46 old exemplar nodes (`IsExampleData: true`, FS HID space)
+  from the deployment database. One user-created node inside the FS space
+  (`CM_FS1_2` "Standby_Timer", Creator boss, a 2026-07-04 verification
+  leftover attached only to a deleted exemplar State) was preserved per
+  Example_Data/Skills.md Skill 5 and flagged to the owner.
+
+Verification: `go build ./... && go vet ./... && go test ./...` green;
+`npm run build` clean; backend image rebuilt and restarted — no re-seed
+after restart (0 IsExampleData nodes); live `/api/hierarchy` serves exactly
+one example root (`CAP__1` FireSat, 33 Systems); `/api/examples` returns 404.
+
+SBOM impact: none. No software applications or libraries were added.
+
 ## 2026-07-06 — Power-outage recovery check + Add-on Tool window/panel/layout fixes
 
 Power-outage assessment (an agent session was interrupted mid-work): the
