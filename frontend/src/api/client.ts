@@ -51,7 +51,6 @@ export interface LaunchConfig {
  *  (SRS §4): backend URL and pre-authenticated session. Resolves to null
  *  outside Tauri (browser dev). Must run before the first API call. */
 export async function initLaunchConfig(): Promise<LaunchConfig | null> {
-  if (!("__TAURI_INTERNALS__" in window)) return null;
   try {
     const { invoke } = await import("@tauri-apps/api/core");
     const cfg = await invoke<{

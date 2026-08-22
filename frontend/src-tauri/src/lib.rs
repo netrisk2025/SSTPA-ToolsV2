@@ -3,6 +3,8 @@
 //
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 
+use std::path::PathBuf;
+
 /// Shutdown command invoked by the GUI's red Shutdown icon (SRS §6.3.2).
 /// The Frontend process exits; the Startup Software observes child-process
 /// exit and stops the Backend cleanly (SRS §4).
@@ -21,11 +23,57 @@ struct LaunchConfig {
     user_name: Option<String>,
 }
 
+fn deploy_dir() -> Option<PathBuf> {
+    if let Ok(dir) = std::env::var("SSTPA_DEPLOY_DIR") {
+        let path = PathBuf::from(dir);
+        if path.join("docker-compose.yml").exists() {
+            return Some(path);
+        }
+    }
+
+    let exe = std::env::current_exe().ok()?;
+    let mut dir = exe.parent()?.to_path_buf();
+    for _ in 0..8 {
+        let candidate = dir.join("deploy");
+        if candidate.join("docker-compose.yml").exists() {
+            return Some(candidate);
+        }
+        if !dir.pop() {
+            break;
+        }
+    }
+    None
+}
+
+fn backend_url() -> String {
+    if let Ok(url) = std::env::var("SSTPA_BACKEND_URL") {
+        let url = url.trim().trim_end_matches('/');
+        if !url.is_empty() {
+            return url.to_string();
+        }
+    }
+
+    if let Some(dir) = deploy_dir() {
+        if let Ok(contents) = std::fs::read_to_string(dir.join(".env")) {
+            for line in contents.lines() {
+                if let Some(port) = line.trim().strip_prefix("SSTPA_HTTPS_PORT=") {
+                    let port = port.trim();
+                    if !port.is_empty() && port != "443" {
+                        return format!("https://localhost:{port}");
+                    }
+                }
+            }
+        }
+    }
+
+    "https://localhost".to_string()
+}
+
 #[tauri::command]
 fn launch_config() -> LaunchConfig {
     let read = |k: &str| std::env::var(k).ok().filter(|v| !v.is_empty());
     LaunchConfig {
-        backend_url: read("SSTPA_BACKEND_URL"),
+        backend_url: Some(backend_url()),
         token: read("SSTPA_SESSION_TOKEN"),
         user_name: read("SSTPA_USER_NAME"),
     }
