@@ -108,8 +108,9 @@ none of them. Neo4j access is via the Apache-2.0 Bolt driver.
 
 | Font | Source | License | Use | Status |
 |---|---|---|---|---|
-| IBM Plex Sans | https://github.com/IBM/plex | OFL-1.1 | Primary UI text & headings | integrated |
+| IBM Plex Sans | https://github.com/IBM/plex | OFL-1.1 | Primary UI text | integrated |
 | JetBrains Mono | https://github.com/JetBrains/JetBrainsMono | OFL-1.1 | Technical identifiers, model text | integrated |
+| Libre Baskerville | https://github.com/impallari/Libre-Baskerville | OFL-1.1 | Display wordmark / major headings only | integrated |
 
 Fonts are bundled with the application for air-gapped deployment.
 

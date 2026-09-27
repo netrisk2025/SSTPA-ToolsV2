@@ -487,3 +487,32 @@ Verification:
 - 20/20 endpoint categories return 200; telemetry endpoints healthy.
 
 SBOM impact: version detail expanded to audit grade; no new components.
+
+## 2026-09-27 — Theme retune: Portfolio craft (parchment Light / bluish-grey Dark)
+
+Product-owner redirect: keep dual Light/Dark (gear menu; `nocturne` stored
+name) but restyle away from cool white/black "Instrument" toward a
+turn-of-the-19th-century architect's portfolio.
+
+Changes:
+- `frontend/src/styles/sstpa-default.css`: retuned `:root` and
+  `:root[data-sstpa-style="nocturne"]` surface/ink/accent/canvas tokens
+  (Light parchment `#E8DCC8` / Dark bluish-grey `#1A2330`); warmer shadows;
+  slightly softer radius (5/8); subtle inset double-line on `.sstpa-frame`.
+- Bundled Libre Baskerville 400/700 (OFL-1.1) under
+  `frontend/src/assets/fonts/`; `--sstpa-font-display` applied to branding
+  wordmark, drawer/tool titles, dialog h2, login wordmark only. UI body
+  remains IBM Plex Sans; HID mono unchanged. No Google Fonts CDN.
+- `startup/ui/index.html`: aligned inline tokens with the same palette
+  (trivial share).
+- Docs: `DESIGN.md` rewritten for Portfolio identity; `REQUIREMENTS-NOTES`
+  I-17 annotated with the 2026-09-27 redirect; `SBOM.md` lists Libre
+  Baskerville; `Agent.md` design-language pointer updated.
+- Demo screenshots (no git commit): parchment + bluish-grey chrome captures
+  under `/tmp/sstpa-theme-demo/` (and box `/workspace/sstpa-theme-demo/`).
+
+Verification:
+- `cd frontend && npm run build` (and lint if run).
+- Gear-menu Light/Dark switch still toggles `data-sstpa-style`.
+
+SBOM impact: added Libre Baskerville (OFL-1.1, bundled woff2).

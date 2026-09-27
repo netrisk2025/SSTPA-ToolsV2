@@ -2,10 +2,12 @@
  * sstpa-default.css — the single UI stylesheet for the SSTPA Tools GUI and
  * all Add-on Tool shells (SRS §6.2.2).
  *
- * Visual identity: the "Instrument" design system (docs/DESIGN.md;
- * REQUIREMENTS-NOTES.md I-17). One unified minimalist language: cool neutral
- * surfaces, hairline separation, ink-colored controls, a single indigo accent
- * reserved for selection/focus/active state, and the HID set in mono chips.
+ * Visual identity: Portfolio craft — turn-of-the-19th-century architect's
+ * portfolio (docs/DESIGN.md; REQUIREMENTS-NOTES.md I-17). Light is parchment /
+ * dark cream (not white); Dark is bluish-grey slate (not black). Hairline
+ * separation, ink-colored controls, a single deep ink-blue / steel accent for
+ * selection/focus/active state, HID in mono chips, display serif on wordmark
+ * and major headings only.
  *
  * 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
  */
@@ -47,29 +49,44 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Libre Baskerville";
+  src: url("../assets/fonts/libre-baskerville-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Libre Baskerville";
+  src: url("../assets/fonts/libre-baskerville-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ---------------------- Design tokens (SRS §6.2.2) ---------------------- */
 :root {
-  /* Surfaces & ink */
-  --sstpa-bg: #f4f5f7;
-  --sstpa-surface: #ffffff;
-  --sstpa-inset: #eceef1;
-  --sstpa-text: #1a1d23;
-  --sstpa-text-strong: #0e1013;
-  --sstpa-muted: #5d6674;
-  --sstpa-line: #d9dce1;
-  --sstpa-line-soft: #e9ebee;
+  /* Surfaces & ink — parchment / cream paper portfolio (not white) */
+  --sstpa-bg: #e8dcc8;
+  --sstpa-surface: #f3ebdd;
+  --sstpa-inset: #dfd2bc;
+  --sstpa-text: #2c2416;
+  --sstpa-text-strong: #1f1810;
+  --sstpa-muted: #6b5e4e;
+  --sstpa-line: #c9bba6;
+  --sstpa-line-soft: #ddd0ba;
 
-  /* Accent — selection, focus, the active thing. Nothing else. */
-  --sstpa-accent: #3b4fd8;
-  --sstpa-accent-soft: #aab5ee;
-  --sstpa-accent-alt: #0f8577;
+  /* Accent — deep ink-blue for focus/selection; brass-adjacent secondary */
+  --sstpa-accent: #3d5a7a;
+  --sstpa-accent-soft: #b7c4d4;
+  --sstpa-accent-alt: #8a6b3e;
 
-  /* Status */
-  --sstpa-status-ok: #1b7f4b;
-  --sstpa-status-warn: #9a6700;
-  --sstpa-status-error: #be3536;
-  --sstpa-status-info: #2270c4;
-  --sstpa-connection: #1b7f4b;
+  /* Status — slightly warmed for parchment contrast */
+  --sstpa-status-ok: #2a6b45;
+  --sstpa-status-warn: #8a5a12;
+  --sstpa-status-error: #a63c3c;
+  --sstpa-status-info: #2f5f8f;
+  --sstpa-connection: #2a6b45;
 
   /* Node type visualization tokens (SRS §6.2.2, §6.4.1) — categorical set
      validated for CVD separation and surface contrast (docs/DESIGN.md). */
@@ -83,21 +100,22 @@
   --sstpa-node-purpose: #a0446e;
   --sstpa-node-environment: #5a7a28;
   --sstpa-node-connection: #1e7cab;
-  --sstpa-node-muted: #8b94a1;
+  --sstpa-node-muted: #8b7f6e;
 
-  /* Graph/diagram tokens */
-  --sstpa-canvas: #fafbfc;
-  --sstpa-node-fill: #ffffff;
-  --sstpa-node-stroke: #444c59;
-  --sstpa-edge-stroke: #b4bac4;
-  --sstpa-selected: #3b4fd8;
-  --sstpa-hover: #aab5ee;
-  --sstpa-valid: #1b7f4b;
-  --sstpa-invalid: #be3536;
+  /* Graph/diagram tokens — follow parchment surfaces */
+  --sstpa-canvas: #ede4d4;
+  --sstpa-node-fill: #f7f1e6;
+  --sstpa-node-stroke: #4a3f30;
+  --sstpa-edge-stroke: #b5a890;
+  --sstpa-selected: #3d5a7a;
+  --sstpa-hover: #b7c4d4;
+  --sstpa-valid: #2a6b45;
+  --sstpa-invalid: #a63c3c;
 
   /* Typography */
   --sstpa-font-ui: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
   --sstpa-font-mono: "JetBrains Mono", ui-monospace, "Courier New", monospace;
+  --sstpa-font-display: "Libre Baskerville", "Palatino Linotype", "Book Antiqua", Georgia, serif;
 
   /* Spacing scale */
   --sstpa-sp-1: 0.25rem;
@@ -107,17 +125,17 @@
   --sstpa-sp-6: 1.5rem;
   --sstpa-sp-8: 2rem;
 
-  /* Borders & radius */
+  /* Borders & radius — slightly softer portfolio geometry */
   --sstpa-border: 1px solid var(--sstpa-line);
   --sstpa-border-soft: 1px solid var(--sstpa-line-soft);
-  --sstpa-radius: 6px;
-  --sstpa-radius-lg: 10px;
+  --sstpa-radius: 5px;
+  --sstpa-radius-lg: 8px;
 
-  /* Shadow — overlays only; resting surfaces separate by hairline */
+  /* Shadow — warmer sepia; overlays only; resting surfaces use hairline */
   --sstpa-shadow-card: none;
-  --sstpa-shadow-drawer: -12px 0 32px rgba(14, 16, 19, 0.1);
-  --sstpa-shadow-popup: 0 12px 40px rgba(14, 16, 19, 0.16),
-    0 2px 8px rgba(14, 16, 19, 0.08);
+  --sstpa-shadow-drawer: -12px 0 32px rgba(44, 36, 22, 0.14);
+  --sstpa-shadow-popup: 0 12px 40px rgba(44, 36, 22, 0.18),
+    0 2px 8px rgba(44, 36, 22, 0.1);
 
   /* Motion */
   --sstpa-motion-fast: 140ms;
@@ -132,27 +150,28 @@
 }
 
 /* ------------------------- Dark style (SRS §6.2.1) ----------------------
-   Alternate style selected from the gear menu: the same system on layered
-   cool-gray surfaces. Stored style name "nocturne" is kept for continuity. */
+   Alternate style selected from the gear menu: the same portfolio system on
+   bluish-grey slate (not pure black). Stored style name "nocturne" is kept
+   for continuity with the gear-menu Light/Dark switch. */
 :root[data-sstpa-style="nocturne"] {
-  --sstpa-bg: #14161a;
-  --sstpa-surface: #1d2026;
-  --sstpa-inset: #101216;
-  --sstpa-text: #e6e8ec;
-  --sstpa-text-strong: #ffffff;
-  --sstpa-muted: #9aa3b0;
-  --sstpa-line: #333842;
-  --sstpa-line-soft: #262a31;
+  --sstpa-bg: #1a2330;
+  --sstpa-surface: #232d3c;
+  --sstpa-inset: #151c28;
+  --sstpa-text: #e8e2d6;
+  --sstpa-text-strong: #f5f0e6;
+  --sstpa-muted: #a09b8e;
+  --sstpa-line: #3a4556;
+  --sstpa-line-soft: #2a3444;
 
-  --sstpa-accent: #7c90f0;
-  --sstpa-accent-soft: #3a4467;
-  --sstpa-accent-alt: #3fb3a2;
+  --sstpa-accent: #7b9bb5;
+  --sstpa-accent-soft: #3a4e62;
+  --sstpa-accent-alt: #b8975a;
 
-  --sstpa-status-ok: #4cc38a;
-  --sstpa-status-warn: #d9a54a;
-  --sstpa-status-error: #e5726b;
-  --sstpa-status-info: #6ca9e8;
-  --sstpa-connection: #4cc38a;
+  --sstpa-status-ok: #5aa87a;
+  --sstpa-status-warn: #d0a45a;
+  --sstpa-status-error: #d47a72;
+  --sstpa-status-info: #7aabd4;
+  --sstpa-connection: #5aa87a;
 
   --sstpa-node-system: #94a5ce;
   --sstpa-node-element: #94a0ad;
@@ -164,21 +183,22 @@
   --sstpa-node-purpose: #ce6e9c;
   --sstpa-node-environment: #7ca13c;
   --sstpa-node-connection: #3e97ca;
-  --sstpa-node-muted: #6b7683;
+  --sstpa-node-muted: #7a7368;
 
-  --sstpa-canvas: #17191e;
-  --sstpa-node-fill: #23262d;
-  --sstpa-node-stroke: #c9cfd8;
-  --sstpa-edge-stroke: #4a515c;
-  --sstpa-selected: #7c90f0;
-  --sstpa-hover: #3a4467;
-  --sstpa-valid: #4cc38a;
-  --sstpa-invalid: #e5726b;
+  --sstpa-canvas: #171f2b;
+  --sstpa-node-fill: #283344;
+  --sstpa-node-stroke: #d4cdc0;
+  --sstpa-edge-stroke: #4a5568;
+  --sstpa-selected: #7b9bb5;
+  --sstpa-hover: #3a4e62;
+  --sstpa-valid: #5aa87a;
+  --sstpa-invalid: #d47a72;
 
-  --sstpa-shadow-drawer: -12px 0 32px rgba(0, 0, 0, 0.45);
-  --sstpa-shadow-popup: 0 12px 40px rgba(0, 0, 0, 0.55),
-    0 2px 8px rgba(0, 0, 0, 0.35);
+  --sstpa-shadow-drawer: -12px 0 32px rgba(8, 12, 20, 0.5);
+  --sstpa-shadow-popup: 0 12px 40px rgba(8, 12, 20, 0.55),
+    0 2px 8px rgba(8, 12, 20, 0.35);
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   :root {
@@ -229,6 +249,7 @@ body {
   border: var(--sstpa-border);
   border-radius: var(--sstpa-radius-lg);
   background: var(--sstpa-surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sstpa-line-soft) 80%, transparent);
 }
 
 /* ------------------------------ Panels --------------------------------- */
@@ -246,8 +267,9 @@ body {
   padding: 0 var(--sstpa-sp-4);
 }
 .branding-title {
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-family: var(--sstpa-font-display);
+  font-weight: 700;
+  font-size: 1rem;
   letter-spacing: 0.01em;
   color: var(--sstpa-text-strong);
 }
@@ -535,7 +557,7 @@ body {
 .drawer-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(14, 16, 19, 0.24);
+  background: rgba(44, 36, 22, 0.28);
 }
 .data-drawer {
   position: absolute;
@@ -556,8 +578,9 @@ body {
   border-bottom: var(--sstpa-border-soft);
 }
 .drawer-title {
-  font-weight: 600;
-  font-size: 1rem;
+  font-family: var(--sstpa-font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
   color: var(--sstpa-text-strong);
 }
 .drawer-body {
@@ -689,7 +712,7 @@ textarea.sstpa-input::placeholder {
 .sstpa-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(14, 16, 19, 0.4);
+  background: rgba(44, 36, 22, 0.42);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -704,10 +727,18 @@ textarea.sstpa-input::placeholder {
   box-shadow: var(--sstpa-shadow-popup);
 }
 .sstpa-dialog h2 {
-  font-size: 1.02rem;
-  font-weight: 600;
+  font-family: var(--sstpa-font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
   color: var(--sstpa-text-strong);
   margin: 0 0 var(--sstpa-sp-3);
+}
+
+/* Display face for login / ceremonial wordmarks (body stays UI sans). */
+.sstpa-display {
+  font-family: var(--sstpa-font-display);
+  font-weight: 700;
+  color: var(--sstpa-text-strong);
 }
 .sstpa-alert-warning,
 .sstpa-alert-success,
@@ -754,8 +785,9 @@ textarea.sstpa-input::placeholder {
   background: var(--sstpa-surface);
 }
 .tool-shell-title {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-family: var(--sstpa-font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
   color: var(--sstpa-text-strong);
 }
 .tool-shell-context {

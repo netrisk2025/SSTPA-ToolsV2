@@ -34,3 +34,6 @@ deploy/caddy-root-ca.crt
 .DS_Store
 deploy/neo4j/import/
 sustainment/logs/
+
+# Local demo / scratch (not shipped)
+tmp/

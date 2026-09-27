@@ -2,7 +2,7 @@
 <!--
   SSTPA Tools Startup Software (SRS §4): authenticates the User, starts the
   Backend, launches the Frontend, and assures clean shutdown.
-  Styled per the Instrument design system (docs/DESIGN.md).
+  Styled per the Portfolio craft design system (docs/DESIGN.md).
   2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 -->
 <html lang="en">
@@ -11,29 +11,31 @@
     <title>SSTPA Tools — Startup</title>
     <style>
       :root {
-        --bg: #f4f5f7;
-        --surface: #ffffff;
-        --inset: #eceef1;
-        --text: #1a1d23;
-        --text-strong: #0e1013;
-        --muted: #5d6674;
-        --line: #d9dce1;
-        --accent: #3b4fd8;
-        --error: #be3536;
-        --ok: #1b7f4b;
+        /* Portfolio craft — parchment Light (aligned with docs/DESIGN.md) */
+        --bg: #e8dcc8;
+        --surface: #f3ebdd;
+        --inset: #dfd2bc;
+        --text: #2c2416;
+        --text-strong: #1f1810;
+        --muted: #6b5e4e;
+        --line: #c9bba6;
+        --accent: #3d5a7a;
+        --error: #a63c3c;
+        --ok: #2a6b45;
       }
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #14161a;
-          --surface: #1d2026;
-          --inset: #101216;
-          --text: #e6e8ec;
-          --text-strong: #ffffff;
-          --muted: #9aa3b0;
-          --line: #333842;
-          --accent: #7c90f0;
-          --error: #e5726b;
-          --ok: #4cc38a;
+          /* Bluish-grey Dark (not pure black) */
+          --bg: #1a2330;
+          --surface: #232d3c;
+          --inset: #151c28;
+          --text: #e8e2d6;
+          --text-strong: #f5f0e6;
+          --muted: #a09b8e;
+          --line: #3a4556;
+          --accent: #7b9bb5;
+          --error: #d47a72;
+          --ok: #5aa87a;
         }
       }
       * {
@@ -53,8 +55,9 @@
       }
       .frame {
         border: 1px solid var(--line);
-        border-radius: 12px;
+        border-radius: 8px;
         background: var(--surface);
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 45%, transparent);
         width: 400px;
         padding: 32px 28px 24px;
         text-align: center;

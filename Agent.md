@@ -75,7 +75,7 @@ Shared Add-on Tool helpers live in `frontend/src/tools/shared.tsx`
 - New Add-on Tool = a manifest entry + a lazy component + a registry line; no
   other wiring. Tools receive a `ToolLaunchContext` (current SoI, invoking node,
   cross-tool `focusHid`).
-- Design language: the minimalist "Instrument" system — see `docs/DESIGN.md`.
+- Design language: Portfolio craft (parchment Light / bluish-grey Dark) — see `docs/DESIGN.md`.
   Reuse `sstpa-*` CSS classes and `var(--sstpa-*)` tokens
   (`src/styles/sstpa-default.css`); no per-component stylesheets; SVG glyphs from
   `src/components/Icon.tsx` (never emoji). The GUI ships Light (default) and

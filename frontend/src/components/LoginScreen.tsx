@@ -69,11 +69,10 @@ export function LoginScreen() {
             <Mark size={44} />
           </div>
           <h1
+            className="sstpa-display"
             style={{
               margin: "var(--sstpa-sp-3) 0 2px",
-              fontSize: "1.25rem",
-              fontWeight: 600,
-              color: "var(--sstpa-text-strong)",
+              fontSize: "1.35rem",
             }}
           >
             SSTPA Tools
