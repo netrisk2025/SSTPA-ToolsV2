@@ -10,6 +10,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
@@ -42,9 +43,10 @@ type commitOperation struct {
 }
 
 type commitRequest struct {
-	SoIHID     string            `json:"soiHid"` // scope of the commit; "" for hierarchy-level commits
-	ToolID     string            `json:"toolId"` // invoking tool, e.g. "gui.datadrawer", "sstpa.loss"
-	Operations []commitOperation `json:"operations"`
+	SoIHID            string             `json:"soiHid"` // scope of the commit; "" for hierarchy-level commits
+	ToolID            string             `json:"toolId"` // invoking tool, e.g. "gui.datadrawer", "sstpa.loss"
+	Operations        []commitOperation  `json:"operations"`
+	LossPreconditions []lossPrecondition `json:"lossPreconditions,omitempty"`
 }
 
 type commitResponse struct {
@@ -63,6 +65,8 @@ var systemManagedProps = map[string]bool{
 	"Owner": true, "OwnerEmail": true, "Creator": true, "CreatorEmail": true,
 	"Created": true, "LastTouch": true, "VersionID": true,
 	"SoIIndex": true, "Sequence": true,
+	"AttackTreeVersion": true, "AttackTreeCreated": true, "AttackTreeCreatedBy": true, "AttackTreeCreatedByEmail": true,
+	"AttackTreeLastModified": true, "LastTreeBuild": true, "TreeIsValid": true, "TreeHasRVs": true, "PathCount": true,
 	"TraceVersion": true, "TraceStatus": true, "TraceSessionID": true,
 }
 
@@ -121,7 +125,11 @@ func (s *Server) handleCommit(w http.ResponseWriter, r *http.Request) {
 		return s.executeCommit(r, tx, user, commitID, req)
 	})
 	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "commit rejected", err.Error())
+		status := http.StatusUnprocessableEntity
+		if errors.Is(err, errLossConflict) {
+			status = http.StatusConflict
+		}
+		writeError(w, status, "commit rejected", err.Error())
 		return
 	}
 	// Counters increment after the transaction commits; ExecuteWrite may retry
@@ -138,6 +146,10 @@ func (s *Server) handleCommit(w http.ResponseWriter, r *http.Request) {
 func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, user UserIdentity, commitID string, req commitRequest) (*commitResponse, error) {
 	ctx := r.Context()
 	resp := &commitResponse{CommitID: commitID, CreatedNodes: map[string]string{}}
+	lossStates, err := s.prepareLossCommit(ctx, tx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	// affected tracks owner-notification bookkeeping per node HID (§5.6.6.8.1).
 	type nodeChange struct {
@@ -185,6 +197,16 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 			if err != nil {
 				return nil, err
 			}
+			if op.Label == "Loss" {
+				if raw, ok := props["AttackTreeJSON"].(string); ok && raw != "" && raw != "null" {
+					merged, err := mergeLossDocument("", raw)
+					if err != nil {
+						return nil, err
+					}
+					props["AttackTreeJSON"] = merged
+					lossStates[hid.String()] = lossRevision{}
+				}
+			}
 			q := fmt.Sprintf("CREATE (n:SSTPA:%s) SET n = $props, n.Created = datetime(), n.LastTouch = datetime()", op.Label)
 			if _, err := tx.Run(ctx, q, map[string]any{"props": props}); err != nil {
 				return nil, err
@@ -227,6 +249,12 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 					if def, ok := s.schema.PropertyDef(cur.label, k); ok &&
 						!strings.Contains(strings.ToLower(def.Edit), "admin") {
 						return nil, fmt.Errorf("Admins may only commit Admin-only properties; %s is not (SRS §3.2)", k)
+					}
+				}
+				if cur.label == "Loss" && k == "AttackTreeJSON" {
+					cast, err = mergeLossDocument(cur.attackTreeJSON, str2s(cast))
+					if err != nil {
+						return nil, err
 					}
 				}
 				setProps[k] = cast
@@ -313,9 +341,21 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 				return nil, err
 			}
 			if op.Type == "AT_RELATES_TO" {
+				relProps["LossHID"] = resolveHID(str2s(relProps["LossHID"]))
 				relProps, err = prepareAttackTreeRel(ctx, tx, src, tgt, srcInfo, tgtInfo, relProps)
 				if err != nil {
 					return nil, err
+				}
+				// A Loss created in this transaction was not present when the
+				// existing roots were locked. Track its first actual tree edge
+				// so limits and view identities still validate before commit.
+				lossHID := str2s(relProps["LossHID"])
+				if _, tracked := lossStates[lossHID]; !tracked {
+					rev, err := lockLossRevision(ctx, tx, lossHID, nil)
+					if err != nil {
+						return nil, err
+					}
+					lossStates[lossHID] = rev
 				}
 			}
 			if isTraceRel(op.Type) {
@@ -462,6 +502,10 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 		}
 	}
 
+	if err := s.finishLossCommit(ctx, tx, lossStates, resp.CreatedNodes, req.ToolID == "sstpa.loss"); err != nil {
+		return nil, err
+	}
+
 	// Ownership notifications (§5.6.6.8.1): aggregate per owner, one message
 	// per owner per commit, created in this same transaction.
 	byOwner := map[string][]string{}
@@ -526,7 +570,7 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 					}
 					return ""
 				}(),
-				"currentOwner": ownerNewOwner[owner],
+				"currentOwner":    ownerNewOwner[owner],
 				"transferredHids": transferred,
 				"changeSummary":   strings.Join(changes, "; "),
 			})

@@ -1,0 +1,291 @@
+{
+  "status": "PASS",
+  "verifiedAt": "2026-10-04T19:25:33.697879+00:00",
+  "scope": "Final frozen frontend source, before integration commit; native/installer results are recorded separately.",
+  "runtime": {
+    "verifiedAt": "2026-10-04T19:24:34.551898+00:00",
+    "system": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "tools": {
+      "node": {
+        "command": [
+          "node",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "v24.13.1",
+        "stderr": ""
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "11.8.0",
+        "stderr": ""
+      },
+      "rustc": {
+        "command": [
+          "rustc",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "rustc 1.94.1 (e408947bf 2026-03-25)",
+        "stderr": ""
+      },
+      "cargo": {
+        "command": [
+          "cargo",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+        "stderr": ""
+      },
+      "go": {
+        "command": [
+          "go",
+          "version"
+        ],
+        "exitCode": 0,
+        "output": "go version go1.25.0 linux/amd64",
+        "stderr": ""
+      },
+      "docker": {
+        "command": [
+          "docker",
+          "--context",
+          "default",
+          "version",
+          "--format",
+          "{{.Server.Version}}"
+        ],
+        "exitCode": 0,
+        "output": "29.8.1",
+        "stderr": ""
+      },
+      "gitBase": {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exitCode": 0,
+        "output": "38a8a8b34d48e6eb252e298b589b24250a094385",
+        "stderr": ""
+      }
+    }
+  },
+  "lockSha256": "958af248b630eaf5b817568ded284dc238e4a08a7539931d2a79398d9d6282e2",
+  "commands": [
+    {
+      "command": "npm test -- --reporter=json --outputFile=../tmp/final-verification/frontend-tests.json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "tests": 179,
+      "passed": 179,
+      "failed": 0,
+      "report": "docs/FRONTEND-UNIT-RESULTS.json"
+    },
+    {
+      "command": "npm run lint -- --format json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "warnings": 10,
+      "errors": 0,
+      "report": "docs/FRONTEND-LINT-RESULTS.json",
+      "baseline": "docs/LINT-BASELINE-VERIFICATION.json"
+    },
+    {
+      "command": "npm audit --json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "vulnerabilities": 0,
+      "report": "docs/NPM-AUDIT-RESULTS.json"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "log": "tmp/final-verification/frontend-build.log"
+    }
+  ],
+  "assets": [
+    {
+      "path": "frontend/dist/assets/AdminTool-CvNwoRG_.js",
+      "bytes": 40056,
+      "sha256": "b52adf2bdee76f44c464390a6a9c5a34de47da2673945c89a5688384fd8a3e15"
+    },
+    {
+      "path": "frontend/dist/assets/AssetManagerTool-B3MOZnH2.js",
+      "bytes": 35548,
+      "sha256": "36f52a6f7d13b2bd14749826cabe1646c40c96e05eeae12692bc480bf37db3fa"
+    },
+    {
+      "path": "frontend/dist/assets/AttackTool-BmzXmkDb.js",
+      "bytes": 38846,
+      "sha256": "3def11ad33920e9946fa61a28ac77835e0a9cfdc4c33d9d1af1879beb04ccf74"
+    },
+    {
+      "path": "frontend/dist/assets/ConnectionTool-BOqnprpy.js",
+      "bytes": 27659,
+      "sha256": "ae29e3ce9eb5f5feec0bb5bdb6512e40f3cef6398a01d8b9a0eb0da3d3f1c858"
+    },
+    {
+      "path": "frontend/dist/assets/ContextTool-L6vxk9EH.js",
+      "bytes": 34684,
+      "sha256": "1ad9b036e5dc97d3f399613a2e7697ab11e1e88d0f8d2e5a56712e2b9e0bb790"
+    },
+    {
+      "path": "frontend/dist/assets/ControlsTool-BSamGu4p.js",
+      "bytes": 49961,
+      "sha256": "b36445104f68e5d148d45702475835f2924280b7ab2ca6bd760cf0e2c351cc03"
+    },
+    {
+      "path": "frontend/dist/assets/FlowTool-11pZ0pqv.js",
+      "bytes": 23084,
+      "sha256": "ad3ab343a52969210b4291b174b8f9b950ff07a62d3bfb2e3181eb6bd5c2fcbd"
+    },
+    {
+      "path": "frontend/dist/assets/GoalKeeperTool--qySwiAP.js",
+      "bytes": 26070,
+      "sha256": "acca6dfbd0d0cb1d4e08ba2f1ec9ac291ff6f5a14e9cf2d77001520777903ca9"
+    },
+    {
+      "path": "frontend/dist/assets/LossTool-DLioOiRN.css",
+      "bytes": 15413,
+      "sha256": "b0cb7bd6fec5951c9c8f5808821438206604b1629a912c96009ac427f38e7d69"
+    },
+    {
+      "path": "frontend/dist/assets/LossTool-DZyA87UL.js",
+      "bytes": 284111,
+      "sha256": "07ce1d3f8ee63fb5de359c5931288181ff4328c8fdd4c73b54f0ff2d68336903"
+    },
+    {
+      "path": "frontend/dist/assets/MessageCenterTool-BdlahawH.js",
+      "bytes": 9887,
+      "sha256": "d8eb5874f5a3fde14f1e89664c143469ced39a6cd090d5484567bb503c6ef832"
+    },
+    {
+      "path": "frontend/dist/assets/NavigatorTool-DE8CZ3Lp.js",
+      "bytes": 143953,
+      "sha256": "7125f80000af21f8b7ca6865b17040c4b87c95c3e986e7bc01f28b7342dfb541"
+    },
+    {
+      "path": "frontend/dist/assets/ReferenceTool-2CPHOKkf.js",
+      "bytes": 12474,
+      "sha256": "4013339ec4fa014938cbee1c47d6252455b5de9c3dcbadf71ba9bf47a0977908"
+    },
+    {
+      "path": "frontend/dist/assets/ReportsTool-fJKTWAwG.js",
+      "bytes": 11862,
+      "sha256": "04a4aabae938c1317eb03a16e18ad81287353c6885d93cf1260fdd6fa5ee305d"
+    },
+    {
+      "path": "frontend/dist/assets/RequirementsTool-CgIX4_O1.js",
+      "bytes": 20833,
+      "sha256": "7bf94dcc28d96a6fb542a9444e88c5c0215521519c928de56a79efaa211951d3"
+    },
+    {
+      "path": "frontend/dist/assets/StateTool-DeP8DRnk.js",
+      "bytes": 31451,
+      "sha256": "f9c6194a050ac2ee188487459e46105ba4b389137f07f67db3d39774391838e2"
+    },
+    {
+      "path": "frontend/dist/assets/TraceTool-CPVTyavR.js",
+      "bytes": 33511,
+      "sha256": "94d9d69f7181281169e69b19f03c4e735ee44442753c4d958a0d1cc31dd110a6"
+    },
+    {
+      "path": "frontend/dist/assets/UseCaseTool-CF8RhvZ-.js",
+      "bytes": 32405,
+      "sha256": "76f5c26cdfc88e32998f48b09c32fe67bfdede6f3baf89e8dc85219586872f00"
+    },
+    {
+      "path": "frontend/dist/assets/core-CwxXejkd.js",
+      "bytes": 95,
+      "sha256": "b4709cdfbc9bdaae22b529c2fe534c689a904ef8e6f58637ebf5b1245729fcc0"
+    },
+    {
+      "path": "frontend/dist/assets/cytoscape.esm-B3I8pqwA.js",
+      "bytes": 435314,
+      "sha256": "3ba1591531f62729b98eab3de4699f5c9bd2a4489638f009e6b061666eb4a1d0"
+    },
+    {
+      "path": "frontend/dist/assets/elk-worker.min-r_yRvuMO.js",
+      "bytes": 1595334,
+      "sha256": "e4f5c51c6f2fd564bb64e52e81c4a85a316ef2f24f8b90e1db5eb886c765b030"
+    },
+    {
+      "path": "frontend/dist/assets/ibm-plex-sans-400-CDDApCn2.woff2",
+      "bytes": 22588,
+      "sha256": "3b646991d30055a93a4ecc499713d4347953a74a947ecab435ab72070cbdab0e"
+    },
+    {
+      "path": "frontend/dist/assets/ibm-plex-sans-500-6ng42L7E.woff2",
+      "bytes": 24184,
+      "sha256": "0717336fb31fcdcde4b8deb3675bb4a0f7f6d484864afcd6751ac29975962203"
+    },
+    {
+      "path": "frontend/dist/assets/ibm-plex-sans-600-CuJfVYMP.woff2",
+      "bytes": 24252,
+      "sha256": "8960851d691c054ed38e259bdcf1a6190d157b4203ed5bb32c632a863fb8ec2f"
+    },
+    {
+      "path": "frontend/dist/assets/index-B3kwK2mH.css",
+      "bytes": 42780,
+      "sha256": "d26f721578cb4441530147fe989ac953066cfd794fe919746f016dc12af1c7a9"
+    },
+    {
+      "path": "frontend/dist/assets/index-Do2eRTx6.js",
+      "bytes": 428421,
+      "sha256": "093ba0c3451df2cb1ac333cab914033a1072fa5185ae0226f579083f9978ac6d"
+    },
+    {
+      "path": "frontend/dist/assets/jetbrains-mono-400-V6pRDFza.woff2",
+      "bytes": 21168,
+      "sha256": "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb"
+    },
+    {
+      "path": "frontend/dist/assets/jetbrains-mono-700-BYuf6tUa.woff2",
+      "bytes": 21908,
+      "sha256": "d0d4e818808f2a0ba39b2b09d1989366f63494e295f003c7ef436697378507e8"
+    },
+    {
+      "path": "frontend/dist/assets/libre-baskerville-400-C42RasBZ.woff2",
+      "bytes": 20108,
+      "sha256": "3eb80fbca70498126925ce16ff5c20b2fa35e67ae7123ddb46302d2778dfbf0e"
+    },
+    {
+      "path": "frontend/dist/assets/libre-baskerville-700-CLGq6Yj4.woff2",
+      "bytes": 20436,
+      "sha256": "96fa63376eed93029fa2514a02f5cb80276b016e239426858787de6e794d8619"
+    },
+    {
+      "path": "frontend/dist/assets/shared-CPxlF_yk.js",
+      "bytes": 10035,
+      "sha256": "3325e8079d79c5c7019e3acf864ad391027805c9839a59bd61392acb22146048"
+    },
+    {
+      "path": "frontend/dist/favicon-32.png",
+      "bytes": 1438,
+      "sha256": "fcd961c1c061b7034a975a7d3fb195107faa43d69477b912b1c7148c0f1f0c44"
+    },
+    {
+      "path": "frontend/dist/favicon-64.png",
+      "bytes": 2659,
+      "sha256": "ecb348968ba783ad50a559f3dd00bfaf30887cec1e5a44875834de5853540fc2"
+    },
+    {
+      "path": "frontend/dist/index.html",
+      "bytes": 552,
+      "sha256": "48990f45cc584e318792031be3432a80535d631f863418cdea57b9c37dd3fa53"
+    },
+    {
+      "path": "frontend/dist/sstpa-logo-large.png",
+      "bytes": 2606343,
+      "sha256": "6a5029a84a53e9c2564e2483fe8f7774cde5953257e334d4eea38f0f748b4fd9"
+    }
+  ]
+}

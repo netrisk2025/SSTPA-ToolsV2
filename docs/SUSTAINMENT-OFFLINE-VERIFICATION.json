@@ -1,0 +1,159 @@
+{
+  "status": "PARTIAL - authentic archived sources unavailable",
+  "syntheticChecksPassed": true,
+  "checks": [
+    {
+      "check": "ATT&CK filters deprecated objects without discarding their audit record",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "ATT&CK preserves source RawData and tactic membership",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "ATLAS preserves tactics and cross-framework mapping",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "NIST retains nested statements/enhancements and filters withdrawn controls",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "EMB3D retains vulnerability/device/mitigation links",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Transform accepts the four synthetic normalized frameworks",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Cypher uses scoped MERGE, immutable reference flags and retained RawData",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Missing acquisition manifests are rejected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Missing normalized inputs are rejected",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "Unvalidated synthetic data cannot be packaged as a release",
+      "passed": true,
+      "detail": null
+    },
+    {
+      "check": "acquire CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-acquire 1.0.0"
+    },
+    {
+      "check": "normalize CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-normalize 1.0.0"
+    },
+    {
+      "check": "transform CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-transform 1.0.0"
+    },
+    {
+      "check": "validate CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-validate 1.0.0"
+    },
+    {
+      "check": "package CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-package 1.0.0"
+    },
+    {
+      "check": "pipeline CLI imports and reports version offline",
+      "passed": true,
+      "detail": "sstpa-ref-pipeline 1.0.0"
+    },
+    {
+      "check": "Offline pipeline refuses to invent missing reference archives",
+      "passed": true,
+      "detail": null
+    }
+  ],
+  "authenticPipelineExitCode": 1,
+  "authenticArchivePresent": false,
+  "authenticReleaseProduced": false,
+  "fixtureCypher": "tmp/offline-sustainment-check/graph/sstpa-ref-load-2026-10-04-v2.cypher",
+  "fixtureSha256": "8e45e129d0989a3e9c2a1419ae325d59cd698d249f71922dda40e990a3148b68",
+  "scope": "Synthetic normalization/transform and refusal-path checks only. No official source downloads or live deployment changes. Full corpus thresholds and authentic release packaging remain unverified.",
+  "syntheticDatabase": {
+    "status": "PASS",
+    "verifiedAt": "2026-10-04T19:19:30.774962+00:00",
+    "checks": [
+      {
+        "check": "Reference nodes plus four framework roots",
+        "expected": 14,
+        "actual": 14,
+        "passed": true
+      },
+      {
+        "check": "Reference relationships",
+        "expected": 12,
+        "actual": 12,
+        "passed": true
+      },
+      {
+        "check": "Immutable flags",
+        "expected": 0,
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "check": "Cross-framework mapping",
+        "expected": 1,
+        "actual": 1,
+        "passed": true
+      },
+      {
+        "check": "Duplicate scoped reference keys",
+        "expected": 0,
+        "actual": 0,
+        "passed": true
+      },
+      {
+        "check": "Quoted Unicode and nested source RawData survive actual Cypher parsing",
+        "passed": true
+      }
+    ],
+    "twoLoadOutputs": [
+      "referenceNodes\n10",
+      "referenceNodes\n10"
+    ],
+    "isolation": "Disposable Neo4j with --network none --hostname localhost, no exposed host ports",
+    "notAnAuthenticReferenceRelease": true
+  },
+  "verifiedAt": "2026-10-04T19:19:53.169002+00:00",
+  "runtime": {
+    "python": "3.13.9",
+    "PyYAML": "6.0.3",
+    "neo4j": "6.2.0",
+    "jsonschema": "4.25.0",
+    "stix2": "not installed; no executed module imports it"
+  },
+  "missingConfiguredInputs": [
+    "sustainment/ref-archive",
+    "sustainment/inf",
+    "sustainment/graph",
+    "sustainment/validation",
+    "sustainment/artifacts"
+  ],
+  "fullReleaseBlocker": "The documented offline pipeline requires an acquisition manifest and archived authentic framework files; neither is present. This check did not download sources, reconstruct provenance from a live database, or fabricate validation status."
+}

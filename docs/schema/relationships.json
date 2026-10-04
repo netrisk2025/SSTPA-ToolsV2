@@ -3114,6 +3114,103 @@
    "source": "DerivedAsset",
    "target": "Asset",
    "srsSection": "6.5.7.12"
+  },
+  {
+   "type": "AT_RELATES_TO",
+   "source": "Countermeasure",
+   "target": "DerivedAsset",
+   "srsSection": "6.5.10.22",
+   "srsLine": 1100,
+   "properties": [
+    {
+     "name": "LossHID",
+     "type": "String",
+     "edit": "fixed (system)",
+     "default": "N/A",
+     "required": true,
+     "description": "HID of the (:Loss) node that owns this attack tree edge. Set on creation; immutable. Scopes the relationship to exactly one tree."
+    },
+    {
+     "name": "Lossuuid",
+     "type": "String",
+     "edit": "fixed (system)",
+     "default": "N/A",
+     "required": true,
+     "description": "uuid of the owning (:Loss) node. Redundant with LossHID for query performance."
+    },
+    {
+     "name": "LogicOperator",
+     "type": "Enum {AND, OR, SAND}",
+     "edit": "edit",
+     "default": "AND",
+     "required": true,
+     "description": "The logical operator governing how this child node's condition combines with sibling nodes under the same parent. AND: all siblings must be satisfied. OR: any one sibling is sufficient. SAND: siblings must be satisfied in SANDSequence order."
+    },
+    {
+     "name": "SANDSequence",
+     "type": "Integer",
+     "edit": "edit",
+     "default": null,
+     "required": true,
+     "description": "For LogicOperator = SAND: the ordinal position of this child among its SAND siblings (0-indexed). NULL for AND and OR."
+    },
+    {
+     "name": "TailoredOut",
+     "type": "Boolean",
+     "edit": "edit",
+     "default": false,
+     "required": false,
+     "description": "When True, this edge is excluded from path enumeration and metric propagation for the owning Loss. Requires non-null TailorReason."
+    },
+    {
+     "name": "TailorReason",
+     "type": "String",
+     "edit": "edit",
+     "default": null,
+     "required": false,
+     "description": "Mandatory when TailoredOut = True. Analyst explanation of why this relationship does not apply in the current Loss context."
+    },
+    {
+     "name": "CompleteBlock",
+     "type": "Boolean",
+     "edit": "edit",
+     "default": false,
+     "required": false,
+     "description": "Applicable only when target is (:Countermeasure) and source is (:Attack). When True, the Countermeasure completely blocks the Attack with no recourse by the threat actor. Requires non-null CompleteBlockReason."
+    },
+    {
+     "name": "CompleteBlockReason",
+     "type": "String",
+     "edit": "edit",
+     "default": null,
+     "required": false,
+     "description": "Mandatory when CompleteBlock = True. Justification that this Countermeasure is an absolute barrier."
+    },
+    {
+     "name": "AllowedRV",
+     "type": "Boolean",
+     "edit": "edit",
+     "default": false,
+     "required": false,
+     "description": "Applicable only when source is (:Attack) and the edge is terminal (leaf Attack with no outgoing AT_RELATES_TO to a Countermeasure). When True, this Residual Vulnerability has been reviewed and accepted. Requires non-null AllowedRVReason."
+    },
+    {
+     "name": "AllowedRVReason",
+     "type": "String",
+     "edit": "edit",
+     "default": null,
+     "required": false,
+     "description": "Mandatory when AllowedRV = True. Analyst rationale for accepting this Residual Vulnerability."
+    },
+    {
+     "name": "MetricCacheJSON",
+     "type": "String (serialized JSON)",
+     "edit": "fixed (system)",
+     "default": null,
+     "required": false,
+     "description": "Backend-computed cache of all metric values propagated through this edge. Updated on every tree recalculation Commit. Format: {\"MetricName\": value, ...}."
+    }
+   ]
   }
  ],
  "constraints": {

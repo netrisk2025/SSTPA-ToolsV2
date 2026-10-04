@@ -144,7 +144,9 @@ build_tauri_or_release() {
   if [[ -f "${app_dir}/package.json" ]]; then
     (cd "${app_dir}" && npm run build)
   fi
-  (cd "${app_dir}/src-tauri" && cargo build --release)
+  # Tauri's CLI normally enables this feature. Without it the Frontend
+  # generate_context! uses devUrl and omits the bundled production assets.
+  (cd "${app_dir}/src-tauri" && cargo build --release --locked --features tauri/custom-protocol)
   printf -v "${status_var}" "%s" "release-binary"
 }
 
@@ -198,6 +200,7 @@ stage_reference_data() {
 
 require_cmd tar
 require_cmd git
+require_cmd node
 
 if command -v sha256sum >/dev/null 2>&1; then
   CHECKSUM_CMD=(sha256sum)
@@ -230,6 +233,10 @@ if [[ "${BUILD_TAURI}" -eq 1 ]]; then
   build_tauri_or_release "${ROOT_DIR}/startup" "Startup" STARTUP_BUNDLE_STATUS "${ROOT_DIR}/frontend/node_modules/.bin/tauri" build
 fi
 
+# Do not ship stale notices or an ELK binary whose matching source is absent.
+# This gate is offline and also applies to source-only (--skip-tauri) packages.
+node "${ROOT_DIR}/frontend/scripts/collect-licenses.mjs" --check
+
 rm -rf "${PACKAGE_DIR}"
 mkdir -p "${PACKAGE_DIR}/payload" "${PACKAGE_DIR}/manifests"
 
@@ -240,6 +247,7 @@ tar \
   --exclude='.git' \
   --exclude='frontend/node_modules' \
   --exclude='frontend/dist' \
+  --exclude='frontend/work' \
   --exclude='frontend/src-tauri/target' \
   --exclude='startup/src-tauri/target' \
   --exclude='deploy/.env' \
@@ -257,6 +265,11 @@ tar \
   -cf - \
   README.md NOTICE "SSTPA Tool SRS V7.md" FloorPlan.md Assets backend deploy docs frontend startup sustainment installer/README.md \
   | tar -C "${PACKAGE_DIR}/payload" -xf -
+
+# Recipient-readable notices and corresponding source are available outside
+# the desktop binary as well as through the global Product & license viewer.
+mkdir -p "${PACKAGE_DIR}/payload/licenses"
+cp -a "${ROOT_DIR}/frontend/public/licenses/." "${PACKAGE_DIR}/payload/licenses/"
 
 # The raw release binaries are ALWAYS staged under bundles/*/bin when they
 # exist — the Startup Software's frontend discovery and the documented
@@ -319,6 +332,9 @@ fi
   echo "referenceDataArtifact=${REFERENCE_DATA_ARTIFACT_NAME}"
   echo "dockerBuilt=${BUILD_DOCKER}"
   echo "imagesSaved=${SAVE_IMAGES}"
+  echo "licenseCatalog=payload/licenses/catalog.json"
+  echo "licenseSourceManifest=payload/licenses/source-manifest.json"
+  echo "licenseVerification=passed"
 } > "${PACKAGE_DIR}/manifests/package.properties"
 
 (
@@ -337,6 +353,12 @@ fi
     : > SHA256SUMS
   fi
 )
+if [[ "${BUILD_TAURI}" -eq 1 ]]; then
+  # Verify both staged binaries and embedded production-asset keys, not only
+  # that Cargo returned success. This catches accidental devUrl-only builds.
+  node "${ROOT_DIR}/frontend/scripts/verify-license-package.mjs" \
+    --package "${PACKAGE_DIR}" --require-native
+fi
 tar -C "${OUT_DIR}" -czf "${ARCHIVE}" "${PACKAGE_NAME}"
 
 echo "Package staged: ${PACKAGE_DIR}"

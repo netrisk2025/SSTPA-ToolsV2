@@ -1,0 +1,185 @@
+{
+  "baseline": {
+    "files": 41,
+    "warnings": 10,
+    "diagnostics": [
+      {
+        "file": "frontend/src/components/MainPanel.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "nodeTypeColor"
+        ]
+      },
+      {
+        "file": "frontend/src/components/NodeTypeBadge.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "displayName"
+        ]
+      },
+      {
+        "file": "frontend/src/components/NodeTypeBadge.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "nodeTypeColor"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "downloadText"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "errorText"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "exportPng"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "exportSvg"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "graphTheme"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "uiToken"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "usePrompt"
+        ]
+      }
+    ]
+  },
+  "current": {
+    "files": 75,
+    "warnings": 10,
+    "diagnostics": [
+      {
+        "file": "frontend/src/components/MainPanel.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "nodeTypeColor"
+        ]
+      },
+      {
+        "file": "frontend/src/components/NodeTypeBadge.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "displayName"
+        ]
+      },
+      {
+        "file": "frontend/src/components/NodeTypeBadge.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "nodeTypeColor"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "downloadText"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "errorText"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "exportPng"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "exportSvg"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "graphTheme"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "uiToken"
+        ]
+      },
+      {
+        "file": "frontend/src/tools/shared.tsx",
+        "rule": "react(only-export-components)",
+        "severity": "warning",
+        "symbols": [
+          "usePrompt"
+        ]
+      }
+    ]
+  },
+  "sameWarnings": true,
+  "baselineCommit": "38a8a8b34d48e6eb252e298b589b24250a094385",
+  "status": "PASS",
+  "verifiedAt": "2026-10-04T19:19:53.175921+00:00",
+  "exitCodes": {
+    "baseline": 0,
+    "current": 0
+  },
+  "comparison": "Same installed oxlint/config; archived baseline38a8a8b compared by normalized file, rule, severity, and exact exported symbol; offsets may differ after formatting.",
+  "finalFrozenRecheckAt": "2026-10-04T19:26:26.708923+00:00",
+  "finalReport": "docs/FRONTEND-LINT-RESULTS.json"
+}

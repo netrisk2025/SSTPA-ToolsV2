@@ -1,0 +1,103 @@
+{
+  "verifiedAt": "2026-10-04T19:16:29.214685+00:00",
+  "status": "PASS",
+  "command": "python3 Example_Data/FireSat/build_firesat.py --out-dir tmp/firesat-integration-check --no-package",
+  "builderExitCode": 0,
+  "loadCount": 2,
+  "loadOutputs": [
+    "exampleNodes\n467",
+    "exampleNodes\n467"
+  ],
+  "loadExitCodes": [
+    0,
+    0
+  ],
+  "samePostLoadCount": true,
+  "neo4jImage": "neo4j:2026.05.0-community",
+  "imageId": "sha256:6c162e2432f861f2c4e3da77a6ba478e7f10e2160b870541f85294532bc6ff5f",
+  "isolation": "Disposable container; --pull never --network none --hostname localhost; no exposed host ports; no live database mutation. Hostname localhost is needed for Neo4j in an isolated network namespace.",
+  "scriptSha256": "bae5a0f7cbbae66467664a5e7484599c612eadd5ce28d23d188f853ddc936e4e",
+  "checks": [
+    {
+      "check": "Nodes",
+      "query": "MATCH (n:SSTPA) RETURN count(n) AS value",
+      "expected": 467,
+      "actual": 467,
+      "passed": true
+    },
+    {
+      "check": "Relationships",
+      "query": "MATCH (:SSTPA)-[r]->(:SSTPA) RETURN count(r) AS value",
+      "expected": 842,
+      "actual": 842,
+      "passed": true
+    },
+    {
+      "check": "Systems",
+      "query": "MATCH (n:System) RETURN count(n) AS value",
+      "expected": 33,
+      "actual": 33,
+      "passed": true
+    },
+    {
+      "check": "Max system tier",
+      "query": "MATCH (n:System) RETURN max(size(split(n.SoIIndex,'.'))) AS value",
+      "expected": 8,
+      "actual": 8,
+      "passed": true
+    },
+    {
+      "check": "Duplicate HIDs",
+      "query": "MATCH (n:SSTPA) WITH n.HID AS h,count(*) AS c WHERE c>1 RETURN count(*) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "Missing immutable example ownership",
+      "query": "MATCH (n:SSTPA) WHERE n.Owner <> 'SSTPA Tools' OR n.Creator <> 'SSTPA Tools' OR n.Owner IS NULL OR n.Creator IS NULL RETURN count(*) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "Incomplete systems",
+      "query": "MATCH (s:System) WHERE NOT (s)-[:REALIZES]->(:Purpose) OR NOT (s)-[:ACTS_IN]->(:Environment) OR NOT (s)-[:EXHIBITS]->(:State) OR NOT (s)-[:HAS_FUNCTION]->() OR NOT (s)-[:HAS_INTERFACE]->() OR NOT (s)-[:HAS_ELEMENT]->() RETURN count(s) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "Systems without a reachable requirement",
+      "query": "MATCH (s:System) WHERE NOT EXISTS { MATCH (s)-[:REALIZES|HAS_FUNCTION|HAS_INTERFACE|HAS_ELEMENT|HAS_CONNECTION]->()-[:HAS_REQUIREMENT]->(:Requirement) } RETURN count(s) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "Connections with fewer than two interfaces",
+      "query": "MATCH (c:Connection) OPTIONAL MATCH (i:Interface)-[:PARTICIPATES_IN]->(c) WITH c,count(i) AS n WHERE n<2 RETURN count(c) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    },
+    {
+      "check": "Tutorial analysis nodes deliberately absent",
+      "query": "MATCH (n:SSTPA) WHERE n:Loss OR n:Attack OR n:Countermeasure OR n:Asset OR n:DerivedAsset RETURN count(n) AS value",
+      "expected": 0,
+      "actual": 0,
+      "passed": true
+    }
+  ],
+  "scope": "Current-schema structural FireSat example, not a prebuilt Loss analysis.",
+  "shippedArtifact": {
+    "path": "Example_Data/FireSat/dist/sstpa-example-firesat-2026-07-04-v1.tar.gz",
+    "sha256": "20767eb41f9bbcd8ac72afa8f833b3a4e2ded94e4cbd2ffc54ec950d92a7fe28",
+    "checks": {
+      "sha256MatchesCompanion": true,
+      "oneCypherMember": true,
+      "memberEqualsShippedCypher": true,
+      "currentSchemaRebuildEquivalentExceptGeneratedCommentsAndTimestamps": true
+    }
+  }
+}

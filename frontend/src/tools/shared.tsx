@@ -4,25 +4,17 @@
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
 
 import type { Core } from "cytoscape";
-import cytoscape from "cytoscape";
-// @ts-expect-error cytoscape-svg ships no type declarations
-import svg from "cytoscape-svg";
+import { diagramSvg } from "./diagramSvg";
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { ApiError } from "../api/client";
-
-let svgRegistered = false;
-function ensureSvg() {
-  if (!svgRegistered) {
-    cytoscape.use(svg);
-    svgRegistered = true;
-  }
-}
 
 /** Resolve a design token (e.g. "--sstpa-node-fill") to its computed value.
  *  Cytoscape styles cannot reference CSS variables, so graph styling reads
  *  the active style's tokens when the graph is built. */
 export function uiToken(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
 }
 
 /** Common graph colors resolved from the active style's tokens. */
@@ -52,10 +44,7 @@ export function exportPng(cy: Core, filename: string, full = true) {
 
 /** Export a cytoscape canvas as SVG (full graph or current viewport). */
 export function exportSvg(cy: Core, filename: string, full = true) {
-  ensureSvg();
-  const svgText = (
-    cy as unknown as { svg: (o: { full: boolean; scale: number; bg: string }) => string }
-  ).svg({ full, scale: 1, bg: "#ffffff" });
+  const svgText = diagramSvg(cy, full);
   downloadText(
     filename.endsWith(".svg") ? filename : `${filename}.svg`,
     svgText,
@@ -64,13 +53,17 @@ export function exportSvg(cy: Core, filename: string, full = true) {
 }
 
 /** Download text content as a file. */
-export function downloadText(filename: string, text: string, mime = "text/plain") {
+export function downloadText(
+  filename: string,
+  text: string,
+  mime = "text/plain",
+) {
   const blob = new Blob([text], { type: mime });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 /** Uniform error message extraction. */
@@ -100,7 +93,13 @@ export function ToolStatus({
 }) {
   if (needsSoI) {
     return (
-      <div style={{ padding: 24, color: "var(--sstpa-muted)", textAlign: "center" }}>
+      <div
+        style={{
+          padding: 24,
+          color: "var(--sstpa-muted)",
+          textAlign: "center",
+        }}
+      >
         <p style={{ fontFamily: "var(--sstpa-font-ui)", fontSize: "1.05rem" }}>
           Select a System of Interest first
         </p>
@@ -136,7 +135,13 @@ export function ToolStatus({
   }
   if (empty) {
     return (
-      <div style={{ padding: 24, color: "var(--sstpa-muted)", textAlign: "center" }}>
+      <div
+        style={{
+          padding: 24,
+          color: "var(--sstpa-muted)",
+          textAlign: "center",
+        }}
+      >
         <p>{empty}</p>
         {emptyHint && <div style={{ fontSize: "0.82rem" }}>{emptyHint}</div>}
       </div>

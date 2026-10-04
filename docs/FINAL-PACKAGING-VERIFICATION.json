@@ -1,0 +1,175 @@
+{
+  "status": "PASS for available Linux build and packaging gates; explicit platform and authentic-data limitations below",
+  "verifiedAt": "2026-10-04T19:28:23.784050+00:00",
+  "runtime": {
+    "verifiedAt": "2026-10-04T19:24:34.551898+00:00",
+    "system": "Linux-7.0.0-34-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "tools": {
+      "node": {
+        "command": [
+          "node",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "v24.13.1",
+        "stderr": ""
+      },
+      "npm": {
+        "command": [
+          "npm",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "11.8.0",
+        "stderr": ""
+      },
+      "rustc": {
+        "command": [
+          "rustc",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "rustc 1.94.1 (e408947bf 2026-03-25)",
+        "stderr": ""
+      },
+      "cargo": {
+        "command": [
+          "cargo",
+          "--version"
+        ],
+        "exitCode": 0,
+        "output": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+        "stderr": ""
+      },
+      "go": {
+        "command": [
+          "go",
+          "version"
+        ],
+        "exitCode": 0,
+        "output": "go version go1.25.0 linux/amd64",
+        "stderr": ""
+      },
+      "docker": {
+        "command": [
+          "docker",
+          "--context",
+          "default",
+          "version",
+          "--format",
+          "{{.Server.Version}}"
+        ],
+        "exitCode": 0,
+        "output": "29.8.1",
+        "stderr": ""
+      },
+      "gitBase": {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exitCode": 0,
+        "output": "38a8a8b34d48e6eb252e298b589b24250a094385",
+        "stderr": ""
+      }
+    }
+  },
+  "frontend": "docs/FRONTEND-BUILD-VERIFICATION.json",
+  "licensesAndInstaller": "docs/LICENSE-VERIFICATION.json",
+  "fireSat": "docs/FIRESAT-PACKAGE-VERIFICATION.json",
+  "sustainment": "docs/SUSTAINMENT-OFFLINE-VERIFICATION.json",
+  "lintBaseline": "docs/LINT-BASELINE-VERIFICATION.json",
+  "commands": [
+    {
+      "command": "npm test -- --reporter=json --outputFile=../tmp/final-verification/frontend-tests.json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "tests": 179,
+      "passed": 179,
+      "report": "docs/FRONTEND-UNIT-RESULTS.json"
+    },
+    {
+      "command": "npm run lint -- --format json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "errors": 0,
+      "baselineWarnings": 10,
+      "report": "docs/FRONTEND-LINT-RESULTS.json"
+    },
+    {
+      "command": "npm audit --json",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "vulnerabilities": 0,
+      "report": "docs/NPM-AUDIT-RESULTS.json"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "report": "docs/FRONTEND-BUILD-VERIFICATION.json"
+    },
+    {
+      "command": "cargo build --release --locked --features tauri/custom-protocol",
+      "cwd": "frontend/src-tauri",
+      "exitCode": 0,
+      "log": "Compiling sstpa-tools-gui v0.1.0 (/home/netrisk/Projects/SSTPA Tools/frontend/src-tauri)\n    Finished `release` profile [optimized] target(s) in 11.66s"
+    },
+    {
+      "command": "cargo build --release --locked --features tauri/custom-protocol",
+      "cwd": "startup/src-tauri",
+      "exitCode": 0,
+      "log": "Compiling sstpa-startup v0.1.0 (/home/netrisk/Projects/SSTPA Tools/startup/src-tauri)\n    Finished `release` profile [optimized] target(s) in 9.72s"
+    },
+    {
+      "command": "BUILDX_CONFIG=\"$PWD/tmp/buildx\" DOCKER_CONTEXT=default ./installer/scripts/build-package.sh --skip-reference-data --out tmp/integration-package",
+      "cwd": ".",
+      "exitCode": 0
+    },
+    {
+      "command": "node scripts/verify-license-package.mjs --package \"/home/netrisk/Projects/SSTPA Tools/tmp/integration-package/sstpa-tools-0.1.0-linux-x86_64\" --require-native",
+      "cwd": "frontend",
+      "exitCode": 0
+    },
+    {
+      "command": "git -c core.whitespace=cr-at-eol diff --check",
+      "cwd": ".",
+      "exitCode": 0,
+      "note": "Existing SRS uses CRLF; cr-at-eol preserves its established line-ending policy."
+    }
+  ],
+  "package": {
+    "archive": "tmp/integration-package/sstpa-tools-0.1.0-linux-x86_64.tar.gz",
+    "bytes": 80316689,
+    "sha256": "e823fdf957b8b8a899b8844ba470ff7d6ce60eb6ae438e432d848e53ee717754",
+    "metadata": "product=SSTPA Tools\nversion=0.1.0\nplatform=linux-x86_64\ngitCommit=38a8a8b34d48e6eb252e298b589b24250a094385\ncreatedUtc=2026-10-04T19:26:12Z\ntauriRequested=1\ntauriBuilt=0\ntauriNativeBundles=0\nfrontendBundleStatus=release-binary\nstartupBundleStatus=release-binary\nreferenceDataStatus=skipped\nreferenceDataArtifact=\ndockerBuilt=1\nimagesSaved=0\nlicenseCatalog=payload/licenses/catalog.json\nlicenseSourceManifest=payload/licenses/source-manifest.json\nlicenseVerification=passed\n",
+    "checksumsSha256": "32d1285673b8f7162e1b805fb626ee660de85f96aa3d66962c597497a95d5f24",
+    "snapshotNote": "The archive contains docs as they existed when staged. This final archive-hash report necessarily remains outside the archive to avoid a self-referential hash."
+  },
+  "nativeBinaries": [
+    {
+      "path": "frontend/src-tauri/target/release/sstpa-tools-gui",
+      "bytes": 34057552,
+      "sha256": "5ab217721c42b24beedac18033bdb1b48c6df2835cc739506826d7a002645e91"
+    },
+    {
+      "path": "startup/src-tauri/target/release/sstpa-startup",
+      "bytes": 9547880,
+      "sha256": "3cfdae34a545f02a89a2587adda4531ae2d742946bdb8e0b03a9e52dbc071e69"
+    }
+  ],
+  "backendImage": {
+    "tag": "sstpa-backend:latest",
+    "imageId": "sha256:79ce44c17ba701b204651c6430a387a818973f49f965a5bb88ffd201214b426c",
+    "buildExitCode": 0
+  },
+  "limitations": [
+    "Tauri CLI native bundling reaches this host's Too many open files watcher error; documented release-binary fallback succeeds with production assets embedded. No .deb/AppImage success is claimed.",
+    "Authentic archived sustainment sources and a validated Reference Data release archive are absent. Package explicitly skips Reference Data; synthetic offline pipeline and Neo4j verification passes but does not replace authentic source validation. See docs/SUSTAINMENT-OFFLINE-VERIFICATION.json.",
+    "Docker backend image was built locally; Docker images were not saved in the installer as an air-gap image archive.",
+    "Native GUI launch and Windows execution are not covered by this packaging record. Global license browsing and Navigator SVG interaction are covered by parent browser verification.",
+    "The product SBOM inventory is shown separately from verified npm production closure, bundled font and ELK notice/source coverage."
+  ]
+}

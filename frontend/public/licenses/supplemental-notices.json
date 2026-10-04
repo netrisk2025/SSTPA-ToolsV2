@@ -1,0 +1,48 @@
+[
+  {
+    "name": "@tauri-apps/api",
+    "version": "2.11.1",
+    "file": "supplemental/tauri-api-MIT.txt",
+    "url": "https://raw.githubusercontent.com/tauri-apps/tauri/e5ae5b93cdd310045191cc0526f253140ad64b87/LICENSE_MIT",
+    "sha256": "9dd42ea92cff2ede5cd477cbfcce051b2d0115c0ac7f368ee88cb545055dff1d"
+  },
+  {
+    "name": "@tauri-apps/api",
+    "version": "2.11.1",
+    "file": "supplemental/tauri-api-APACHE.txt",
+    "url": "https://raw.githubusercontent.com/tauri-apps/tauri/e5ae5b93cdd310045191cc0526f253140ad64b87/LICENSE_APACHE-2.0",
+    "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+  },
+  {
+    "name": "react-remove-scroll-bar",
+    "version": "2.3.8",
+    "file": "supplemental/react-remove-scroll-bar-MIT.txt",
+    "url": "https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/7301c160fda44cb8cf2b9fdfde61efad35736196/LICENSE",
+    "note": "The npm tarball omits its license file and its gitHead is unavailable in the public repository. This is the upstream repository license at a pinned revision; npm metadata declares MIT.",
+    "sha256": "a79aae0c0f21990d9d963bb3c5a79cdcea9a46f8523ba55c58d7fe776b6ebc84"
+  },
+  {
+    "name": "IBM Plex Sans",
+    "version": "3.201 (bundled font metadata)",
+    "file": "fonts/ibm-plex-sans-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/e0b9f6ca2d88f7d6e89710ee06b17d53a21f6a22/ofl/ibmplexsans/OFL.txt",
+    "license": "OFL-1.1",
+    "sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da"
+  },
+  {
+    "name": "JetBrains Mono",
+    "version": "2.211 (bundled font metadata)",
+    "file": "fonts/jetbrains-mono-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/2e05c1cf00a6e4f40a4b931600a90881c26e15cd/ofl/jetbrainsmono/OFL.txt",
+    "license": "OFL-1.1",
+    "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d"
+  },
+  {
+    "name": "Libre Baskerville",
+    "version": "2.005 (bundled font metadata)",
+    "file": "fonts/libre-baskerville-OFL.txt",
+    "url": "https://raw.githubusercontent.com/google/fonts/1fee23aceb88190a096292788d35bf7ca0d03968/ofl/librebaskerville/OFL.txt",
+    "license": "OFL-1.1",
+    "sha256": "3624eddd4c8f8a908130a417ae7cd089c9da69899c4e0ca1a5217d0a6fae16fd"
+  }
+]

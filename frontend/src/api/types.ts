@@ -65,6 +65,7 @@ export interface CommitOperation {
 }
 
 export interface CommitRequest {
+  lossPreconditions?: { lossHid: string; attackTreeVersion: number }[];
   soiHid?: string;
   toolId: string;
   operations: CommitOperation[];

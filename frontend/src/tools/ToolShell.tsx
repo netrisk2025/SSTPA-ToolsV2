@@ -44,11 +44,11 @@ const TOOL_COMPONENTS: Record<
 export function ToolWindowHost() {
   const openTools = useToolWindows((s) => s.openTools);
   return (
-    <>
+    <div className="tool-window-layer">
       {openTools.map((toolId) => (
         <ToolWindow key={toolId} toolId={toolId} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -64,8 +64,8 @@ function initialFrame(toolId: string) {
   } catch {
     saved = {};
   }
-  const w = Math.min(Math.max(420, saved.w ?? 900), maxW);
-  const h = Math.min(Math.max(300, saved.h ?? 620), maxH);
+  const w = Math.min(Math.max(420, saved.w ?? (toolId === "sstpa.loss" ? maxW : 900)), maxW);
+  const h = Math.min(Math.max(300, saved.h ?? (toolId === "sstpa.loss" ? maxH : 620)), maxH);
   const x = Math.min(
     Math.max(0, saved.x ?? (window.innerWidth - w) / 2),
     Math.max(0, window.innerWidth - w - 8),
@@ -215,7 +215,10 @@ function ToolWindow({ toolId }: { toolId: string }) {
           className="icon-button"
           title="Close tool"
           onMouseDown={(e) => e.stopPropagation()}
-          onClick={() => closeTool(toolId)}
+          onClick={() => {
+            if (toolId === "sstpa.loss" && !window.dispatchEvent(new Event("sstpa.loss.request-close", {cancelable:true}))) return;
+            closeTool(toolId);
+          }}
         >
           ✕
         </button>

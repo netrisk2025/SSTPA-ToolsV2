@@ -193,11 +193,12 @@ export const api = {
       `/api/loss/${encodeURIComponent(lossHid)}/paths?${new URLSearchParams(params ?? {})}`,
     ),
 
-  lossAutoBuild: (lossHid: string, rebuild = false) =>
+  lossAutoBuild: (lossHid: string, rebuild = false, expectedVersion?: number) =>
     request<Record<string, unknown>>(
       "POST",
       `/api/loss/${encodeURIComponent(lossHid)}/auto-build?${new URLSearchParams({
         rebuild: String(rebuild),
+        ...(expectedVersion === undefined ? {} : { expectedVersion: String(expectedVersion) }),
       })}`,
       {},
     ),

@@ -1,0 +1,56 @@
+{
+  "verifiedAt": "2026-10-04",
+  "environment": "Isolated FireSat verification backend; no production model data changed",
+  "url": "http://127.0.0.1:5199/",
+  "browser": "Codex in-app browser",
+  "passedChecks": [
+    "All 17 manifest tools reached rendered forms, tables, or expected empty states",
+    "Loss properties separate identity from attack metrics",
+    "Local node IDs survive Core HID/UUID assignment and reload",
+    "Leaf metrics calculated through Attack-Countermeasure-Attack branch to root",
+    "Right-click roll-up hides two descendants and preserves numerical results",
+    "All four color channels and both canvas themes persist",
+    "DOWN/RIGHT layout changes and stored RIGHT survive reload",
+    "Initial ELK/focus framing does not dirty an unchanged tree",
+    "Dirty draft guarded on close and pinned across SoI change; Revert follows new SoI",
+    "External Core edit causes HTTP409 with retained draft and explicit revision message",
+    "Trace coverage shows both relevant States",
+    "Core Data Drawer opens above tool and cancels cleanly",
+    "Optional production Model Text expands with generated model content",
+    "Global licenses accessible after repeated tool activation; exact two ELK search entries",
+    "Bundled license text renders while API session unavailable",
+    "Loss JSON, CSV, SVG and Markdown downloads materialize as real files",
+    "Navigator replacement SVG download parses as XML"
+  ],
+  "exports": {
+    "lossJSON": {
+      "nodes": 12,
+      "direction": "RIGHT",
+      "coreEvidence": [
+        "status",
+        "loadedVersion",
+        "attackTreeJSON",
+        "findings"
+      ]
+    },
+    "lossSVG": {
+      "bytes": 21427,
+      "xmlElements": 288
+    },
+    "pathCSV": {
+      "bytes": 3254
+    },
+    "evidenceMarkdown": {
+      "bytes": 13333
+    },
+    "navigatorSVG": {
+      "bytes": 27967,
+      "xmlElements": 350
+    }
+  },
+  "screenshots": [
+    "verification-images/loss-tool.png",
+    "verification-images/product-licenses.png"
+  ],
+  "scope": "Browser integration walkthrough, not every operation of each existing tool or native Windows/WebKit runtime. Automated suites provide graph/metric/limit/migration/transaction coverage. Historical console warnings from the duplicate license-key defect were resolved; Cytoscape custom-wheel-sensitivity warnings are pre-existing."
+}

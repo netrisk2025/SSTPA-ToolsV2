@@ -37,3 +37,6 @@ sustainment/logs/
 
 # Local demo / scratch (not shipped)
 tmp/
+
+# Local verification output (curated evidence is in docs)
+frontend/work/

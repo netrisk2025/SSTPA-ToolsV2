@@ -1,0 +1,30 @@
+[
+  {
+    "file": "src/assets/fonts/ibm-plex-sans-400.woff2",
+    "sha256": "3b646991d30055a93a4ecc499713d4347953a74a947ecab435ab72070cbdab0e"
+  },
+  {
+    "file": "src/assets/fonts/ibm-plex-sans-500.woff2",
+    "sha256": "0717336fb31fcdcde4b8deb3675bb4a0f7f6d484864afcd6751ac29975962203"
+  },
+  {
+    "file": "src/assets/fonts/ibm-plex-sans-600.woff2",
+    "sha256": "8960851d691c054ed38e259bdcf1a6190d157b4203ed5bb32c632a863fb8ec2f"
+  },
+  {
+    "file": "src/assets/fonts/jetbrains-mono-400.woff2",
+    "sha256": "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb"
+  },
+  {
+    "file": "src/assets/fonts/jetbrains-mono-700.woff2",
+    "sha256": "d0d4e818808f2a0ba39b2b09d1989366f63494e295f003c7ef436697378507e8"
+  },
+  {
+    "file": "src/assets/fonts/libre-baskerville-400.woff2",
+    "sha256": "3eb80fbca70498126925ce16ff5c20b2fa35e67ae7123ddb46302d2778dfbf0e"
+  },
+  {
+    "file": "src/assets/fonts/libre-baskerville-700.woff2",
+    "sha256": "96fa63376eed93029fa2514a02f5cb80276b016e239426858787de6e794d8619"
+  }
+]

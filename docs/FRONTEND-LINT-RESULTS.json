@@ -1,0 +1,198 @@
+{
+  "diagnostics": [
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/components/NodeTypeBadge.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 1614,
+            "length": 13,
+            "line": 46,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/components/NodeTypeBadge.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 1798,
+            "length": 11,
+            "line": 51,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 714,
+            "length": 7,
+            "line": 14,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 926,
+            "length": 10,
+            "line": 21,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 1460,
+            "length": 9,
+            "line": 37,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 1806,
+            "length": 9,
+            "line": 46,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 2075,
+            "length": 12,
+            "line": 56,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 2433,
+            "length": 9,
+            "line": 70,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/tools/shared.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 6844,
+            "length": 9,
+            "line": 233,
+            "column": 17
+          }
+        }
+      ],
+      "related": []
+    },
+    {
+      "message": "Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.",
+      "code": "react(only-export-components)",
+      "severity": "warning",
+      "causes": [],
+      "url": "https://oxc.rs/docs/guide/usage/linter/rules/react/only-export-components.html",
+      "filename": "src/components/MainPanel.tsx",
+      "labels": [
+        {
+          "span": {
+            "offset": 19850,
+            "length": 13,
+            "line": 642,
+            "column": 10
+          }
+        }
+      ],
+      "related": []
+    }
+  ],
+  "number_of_files": 75,
+  "number_of_rules": 103,
+  "threads_count": 28,
+  "start_time": 0.030039191
+}

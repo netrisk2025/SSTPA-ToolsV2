@@ -1,0 +1,2 @@
+# Keep vendored notices and corresponding sources byte-identical on every platform.
+frontend/public/licenses/** -text -whitespace

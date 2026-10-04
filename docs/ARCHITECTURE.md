@@ -103,17 +103,16 @@ Users clone reference properties into owned Core nodes via `[:REFERENCES]` (§3.
 - **Stack** (§6.1): Tauri, React, TypeScript, Vite, Tailwind CSS; Radix-style headless
   primitives; Framer Motion; Zustand (UI state); TanStack Query (server state);
   react-virtual (large lists); Cytoscape.js + fcose (graph popups); AG Grid (RTM,
-  search results, report tables).
+  search results, report tables). The approved Loss Tool integration adds React Flow
+  custom cards and a local ELK Layered worker; its domain model remains renderer-independent.
 - **Main window** (§6.3): Branding Panel, Control Panel (tool icons + red Shutdown),
   SoI Panel (hierarchy navigation), Main Panel (collapsible node-type sections →
   entity cards → relationship groups, progressive disclosure), and a right-side
   Data Drawer as the single edit surface with staged edits and Commit confirmation.
-- **Style** (§6.2): `sstpa-default.css` design tokens; the minimalist
-  "Instrument" system (docs/DESIGN.md; REQUIREMENTS-NOTES.md I-17): cool neutral
-  surfaces, hairline separation, one indigo accent reserved for
-  selection/focus/active state, mono HID chips, light + dark styles. Fonts:
-  IBM Plex Sans (UI), JetBrains Mono (identifiers) — all open-source, bundled
-  for air-gapped deployment.
+- **Style** (§6.2): `sstpa-default.css` design tokens; Portfolio craft
+  parchment Light / bluish-grey Nocturne (docs/DESIGN.md; REQUIREMENTS-NOTES.md
+  I-17). Fonts: IBM Plex Sans (UI), JetBrains Mono (identifiers) and Libre
+  Baskerville (display), bundled for air-gapped deployment.
 - **Add-on Tools** (§6.4): manifest-driven extension architecture; tools run in popup
   windows using a common shell (header, SoI display, Commit/Cancel/Close, validation
   display, Model Text Panel when the manifest declares model languages). Tools access
@@ -137,6 +136,19 @@ Users clone reference properties into owned Core nodes via `[:REFERENCES]` (§3.
   Core `(:SecurityControl)` nodes, Countermeasure satisfaction, Requirement
   generation/allocation, validation, and CSV/KerML/JSON exports.
 
+### Approved Loss Tool integration (§6.5.10.22)
+
+The documentation-first integration baseline is defined in
+[LOSS-TOOL-ARCHITECTURE.md](LOSS-TOOL-ARCHITECTURE.md). It preserves production
+Core semantics and tool services while adopting the approved Cameo-style cards,
+ELK layout, scalar/coherent-scenario metric engine, two-section property menu,
+root-persisted views and roll-up/down. Backend and Frontend enforce the same
+1,000-node / depth-20 / width-50 graph bounds. Root-version preconditions protect
+concurrent commits; additive view migration preserves legacy snapshots and
+unknown properties. The main Product & License surface gains a locally packaged
+third-party notice/source viewer. Implementation and verification status are
+recorded in PROGRESS.md and VERIFICATION.md, not inferred from this design.
+
 ## 6. SysML 2.0 / KerML 1.0 Interchange (§3.7)
 
 Backend-resident translators: **G2M** (graph → SysML/KerML text) and **M2G**
@@ -154,7 +166,7 @@ tests (`M2G(G2M(g)) = ∅`) run in the development pipeline. Exposed via
 | D-3 | Backend container image built from a multi-stage Dockerfile; Neo4j runs as its own service in the compose file | Matches §5.7.4 topology sketch. §5.5's "single container" for DB + non-user-facing apps is interpreted as the private `backend` network grouping, since process-per-container is required for the named images (Neo4j, Prometheus, Tempo, OTel) to operate per §5.7.4. |
 | D-4 | User passwords stored as SHA-384 hash (§3.2) — implemented exactly as specified | SRS explicitly prescribes SHA-384; noted as a security placeholder consistent with §5.6.6.9. |
 | D-5 | Schema extracts (`docs/schema/*.json`) generated from the SRS are embedded in the Go backend at build time | Keeps the SRS the single source of truth while making validation data-driven. |
-| D-6 | The GUI popup "windows" for Add-on Tools are Tauri WebviewWindows | Native multi-window support in Tauri; satisfies resizable popup requirement (§6.3.2). |
+| D-6 | Add-on Tools use in-application ToolShell windows with clamped movement, resizing and persisted frame state | The implemented shared React shell provides the popup behavior in both browser and Tauri hosts (§6.3.2). |
 
 ## 8. Requirement Deviations / Notifications
 

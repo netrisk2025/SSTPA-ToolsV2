@@ -9,6 +9,8 @@ into a release payload:
 - Frontend and Startup release binaries under `payload/bundles/*/bin`
   (plus native Tauri bundles when the host platform produced them).
 - Documentation, schema, SBOM, NOTICE, README, and visual assets.
+- Offline third-party notices and matching ELK source archives under
+  `payload/licenses/`, also available in the desktop Product & license viewer.
 - Latest validated `sstpa-ref-data-*.tar.gz` Reference Data artifact.
 - Optional Docker image archives for air-gapped installation.
 - Install/uninstall helpers for Linux/macOS (`install.sh`, `uninstall.sh`)
@@ -37,7 +39,10 @@ Useful options:
 - `--out PATH`: override the output directory.
 
 When the host Tauri CLI cannot produce native bundles, `build-package.sh`
-falls back to `npm run build` plus `cargo build --release`. In every case the
+falls back to `npm run build` plus
+`cargo build --release --locked --features tauri/custom-protocol`. The explicit
+Tauri feature is essential: it embeds production assets and avoids a binary
+that still expects the development server. In every case the
 raw release binaries are staged under `payload/bundles/*/bin` — the layout
 the Startup Software's frontend discovery uses. On Linux, the script also
 checks the visible inotify instance count before invoking the Tauri CLI; if
@@ -50,6 +55,14 @@ The generated `manifests/package.properties` records `tauriRequested`,
 fallback binaries.
 
 Output is written to `installer/out/` and ignored by Git.
+
+Packaging runs the offline license consistency gate even with `--skip-tauri`.
+Run `cd frontend && npm ci && npm run licenses` first after dependency or SBOM
+changes. The gate rejects stale notices, missing license texts, and modified
+ELK distribution files without matching reviewed source. Native Tauri bundles
+also include a `licenses/` resource directory; the standalone release binary
+contains the frontend license assets. Package SHA256SUMS covers all staged
+notices and source archives.
 
 ## Install From A Package
 

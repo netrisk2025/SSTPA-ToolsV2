@@ -133,9 +133,10 @@ func TestG2MOmitsBookkeeping(t *testing.T) {
 	g := testGraph()
 	g.Nodes[0].Props["Owner"] = "alice"
 	g.Nodes[0].Props["AttackTreeJSON"] = "{}"
+	g.Nodes[0].Props["AnalysisProfileJSON"] = "{\"mode\":\"scenario\"}"
 	sysml, kerml := EmitSoI(sch, g, "0.7")
 	all := sysml + kerml
-	if strings.Contains(all, "alice") || strings.Contains(all, "AttackTreeJSON") {
+	if strings.Contains(all, "alice") || strings.Contains(all, "AttackTreeJSON") || strings.Contains(all, "AnalysisProfileJSON") {
 		t.Errorf("bookkeeping or tool-state property emitted (SRS §3.7.2)")
 	}
 }

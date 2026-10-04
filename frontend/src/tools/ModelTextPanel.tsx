@@ -111,6 +111,7 @@ export function ModelTextPanel({
         className="model-text-panel"
         style={{
           width: 28,
+          minWidth: 28,
           cursor: "pointer",
           border: "none",
           borderLeft: "var(--sstpa-border)",

@@ -22,11 +22,12 @@ import (
 var timeNow = time.Now
 
 type nodeInfo struct {
-	label      string
-	owner      string
-	ownerEmail string
-	soiIndex   string
-	readOnly   bool
+	label          string
+	owner          string
+	ownerEmail     string
+	soiIndex       string
+	readOnly       bool
+	attackTreeJSON string
 }
 
 // fetchNodeForUpdate reads identity/ownership metadata for a node inside the
@@ -35,7 +36,7 @@ func fetchNodeForUpdate(ctx context.Context, tx neo4j.ManagedTransaction, hid st
 	res, err := tx.Run(ctx, `
 		MATCH (n {HID: $hid})
 		RETURN n.TypeName AS label, n.Owner AS owner, n.OwnerEmail AS ownerEmail,
-		       n.SoIIndex AS soi, (n:REF OR coalesce(n._ReadOnly, false)) AS readOnly
+		       n.AttackTreeJSON AS attackTreeJSON, n.SoIIndex AS soi, (n:REF OR coalesce(n._ReadOnly, false)) AS readOnly
 		LIMIT 1`,
 		map[string]any{"hid": hid})
 	if err != nil {
@@ -52,6 +53,7 @@ func fetchNodeForUpdate(ctx context.Context, tx neo4j.ManagedTransaction, hid st
 	info.ownerEmail, _ = m["ownerEmail"].(string)
 	info.soiIndex, _ = m["soi"].(string)
 	info.readOnly, _ = m["readOnly"].(bool)
+	info.attackTreeJSON, _ = m["attackTreeJSON"].(string)
 	return info, nil
 }
 
@@ -190,6 +192,9 @@ func (s *Server) castProperty(label, name string, v any) (any, error) {
 	}
 	if v == nil {
 		return nil, nil // "All properties with no value SHALL use Null" (§3.3.2)
+	}
+	if name == "AttackTreeJSON" || name == "MetricDefinitionsJSON" || name == "AnalysisProfileJSON" || name == "MetricsJSON" {
+		return castLossJSON(name, v)
 	}
 	switch strings.ToLower(def.Type) {
 	case "boolean":
@@ -377,6 +382,13 @@ func prepareAttackTreeRel(ctx context.Context, tx neo4j.ManagedTransaction, srcH
 		return nil, fmt.Errorf("[:AT_RELATES_TO] target %s is outside Loss SoI %s (SRS §3.3.4.11)", tgtHID, lossSoI)
 	}
 
+	for _, key := range []string{"TailoredOut", "CompleteBlock", "AllowedRV"} {
+		if value, supplied := props[key]; supplied && value != nil {
+			if _, ok := value.(bool); !ok {
+				return nil, fmt.Errorf("%s must be Boolean", key)
+			}
+		}
+	}
 	props["Lossuuid"] = lossUUID
 	if _, ok := props["TailoredOut"]; !ok {
 		props["TailoredOut"] = false
@@ -480,7 +492,7 @@ func (s *Server) validateRelInTx(ctx context.Context, tx neo4j.ManagedTransactio
 			return fmt.Sprintf("duplicate [:%s] between %s and %s (SRS §3.3.2)", relType, srcHID, tgtHID)
 		}
 	}
-	if s.schema.IsAcyclic(relType) {
+	if s.schema.IsAcyclic(relType) && relType != "AT_RELATES_TO" { // Loss-scoped DAG validation runs on the final transaction.
 		if srcHID == tgtHID {
 			return fmt.Sprintf("[:%s] self-loop would create a cycle (SRS §3.3.6)", relType)
 		}

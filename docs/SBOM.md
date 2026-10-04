@@ -67,10 +67,30 @@ for a full transitive audit). Notable transitive dependencies include
 | ag-grid-community, ag-grid-react | 36.0.0 | https://ag-grid.com | MIT | RTM / search / report tables (§6.1) | integrated |
 | oxlint | 1.71.0 | https://oxc.rs | MIT | Frontend linter (dev only) | integrated |
 
-Exact versions of all 181 packages (direct + transitive) are pinned in
-`frontend/package-lock.json`. Versions above are the resolved lockfile
-versions. All are MIT except TypeScript (Apache-2.0) and the dual
-MIT/Apache-2.0 Tauri packages.
+Exact frontend versions are pinned in `frontend/package-lock.json`. The table
+above records the pre-integration baseline; the generated manifest described
+below is authoritative for the current production dependency closure.
+
+### Integrated Loss canvas and verified notices (2026-10-04)
+
+| Component | Version | Source | License | Use | Status |
+|---|---|---|---|---|---|
+| @xyflow/react | 12.12.0 | https://github.com/xyflow/xyflow | MIT | Rounded Loss cards and interaction canvas | integrated |
+| elkjs | 0.12.0 | https://github.com/kieler/elkjs | EPL-2.0 (elected from EPL-2.0 OR GPL-3.0-or-later) | Local Layered layout worker | integrated |
+
+The prior npm package counts and all-MIT summary above are historical and are
+superseded by `frontend/public/licenses/npm-manifest.json`, generated from the
+current production lockfile closure. Licenses also include 0BSD and the
+ELK/embedded component terms documented in `docs/THIRD-PARTY-NOTICES.md`.
+The old GPLv3 `cytoscape-svg` export plugin has been removed in favor of original
+SSTPA vector export through the MIT Cytoscape.js public APIs.
+
+The global Product & license viewer includes verified original frontend/font
+notices and offline ELK corresponding sources. It also exposes this full product
+inventory. These are different scopes: this inventory is not a complete
+per-artifact license-text audit of Go, Rust, containers, Python, or toolchains.
+Existing subsystem lockfiles remain authoritative for exact versions; counts
+and development host tool versions recorded here can change independently.
 
 ## 4. Tauri (Rust crates) — `frontend/src-tauri/Cargo.toml`, `startup/src-tauri/Cargo.toml`
 

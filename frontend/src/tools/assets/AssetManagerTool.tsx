@@ -13,6 +13,7 @@ import type { CommitOperation, NodeResponse, SoINode } from "../../api/types";
 import { useDrawer, useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 import { ToolStatus, errorText } from "../shared";
+import { ASSET_TYPES, assetTypeLabel, isDerivedAsset as isDerived, newAssetOperations, type AssetType } from "./assetTypes";
 
 const CRITICALITIES = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"] as const;
 const ASSURANCES = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"] as const;
@@ -82,9 +83,6 @@ const findingsSummary = (l: SoINode): string => {
     return "";
   }
 };
-
-const isDerived = (a: SoINode) =>
-  a.typeName === "DerivedAsset" || a.properties.AssetType === "DERIVED";
 
 export default function AssetManagerTool({
   ctx,
@@ -228,8 +226,6 @@ export default function AssetManagerTool({
           Name: `Compromise ${assetName} ${c} ${s}`,
           ShortDescription: `Pending Environment assignment. Created from Asset ${assetHid}.`,
           AttackTreeStatus: "NOT_BUILT",
-          TreeIsValid: false,
-          TreeHasRVs: false,
         };
         for (const cc of CRITICALITIES) lossProps[cc] = cc === c;
         for (const ss of ASSURANCES) lossProps[ss] = ss === s;
@@ -370,19 +366,19 @@ function NewAssetDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [type, setType] = useState<"PRIMARY" | "DERIVED">("PRIMARY");
+  const [type, setType] = useState<AssetType>("Organic");
   const [derivedFrom, setDerivedFrom] = useState("");
   const [crit, setCrit] = useState<Record<string, boolean>>({});
   const [assr, setAssr] = useState<Record<string, boolean>>({});
   const [masterHid, setMasterHid] = useState("");
   const [envHid, setEnvHid] = useState("");
 
-  const primaries = assets.filter((a) => a.typeName === "Asset" && a.properties.AssetType !== "DERIVED");
+  const primaries = assets.filter((a) => a.typeName === "Asset" && !isDerived(a));
 
   const reset = () => {
     setOpen(false);
     setName("");
-    setType("PRIMARY");
+    setType("Organic");
     setDerivedFrom("");
     setCrit({});
     setAssr({});
@@ -393,24 +389,18 @@ function NewAssetDialog({
   const create = () => {
     const soiHid = ctx.soiHid;
     if (!soiHid) return;
-    if (type === "DERIVED") {
+    if (type === "Derived") {
       // (:DerivedAsset) per I-12: the schema authorizes [:DERIVED_FROM] to the
       // PRIMARY (:Asset); Criticality is inherited (displayed from the
       // referenced PRIMARY — the schema defines no Criticality/Assurance
       // properties on (:DerivedAsset)). SoI membership comes from the commit
       // scope's SoIIndex.
-      commit([
-        { op: "createNode", tempId: "ast", label: "DerivedAsset", properties: { Name: name } },
-        { op: "createRelationship", type: "DERIVED_FROM", sourceHid: "$ast", targetHid: derivedFrom },
-      ]);
+      commit(newAssetOperations(type, name, soiHid, derivedFrom));
       reset();
       return;
     }
-    const props: Record<string, unknown> = { Name: name, AssetType: "PRIMARY", ...crit, ...assr };
-    const ops: CommitOperation[] = [
-      { op: "createNode", tempId: "ast", label: "Asset", properties: props },
-      { op: "createRelationship", type: "HAS_ASSET", sourceHid: soiHid, targetHid: "$ast" },
-    ];
+    const props: Record<string, unknown> = { ...crit, ...assr };
+    const ops = newAssetOperations(type, name, soiHid, derivedFrom, props);
     // Optional Regime assignment (§6.5.7.8 step 3): clone the selected Master
     // Regime into an Asset-specific (:Regime) in the same transaction.
     if (masterHid) {
@@ -444,8 +434,6 @@ function NewAssetDialog({
           Name: `Compromise ${name} ${c} ${s}`,
           ShortDescription: `Pending Environment assignment. Created from new Asset.`,
           AttackTreeStatus: "NOT_BUILT",
-          TreeIsValid: false,
-          TreeHasRVs: false,
         };
         for (const cc of CRITICALITIES) lossProps[cc] = cc === c;
         for (const ss of ASSURANCES) lossProps[ss] = ss === s;
@@ -489,12 +477,11 @@ function NewAssetDialog({
         </label>
         <label style={{ display: "block", fontSize: "0.82rem", marginTop: 6 }}>
           Asset Type
-          <select className="sstpa-input" value={type} onChange={(e) => setType(e.target.value as "PRIMARY" | "DERIVED")}>
-            <option>PRIMARY</option>
-            <option>DERIVED</option>
+          <select className="sstpa-input" value={type} onChange={(e) => setType(e.target.value as AssetType)}>
+            {ASSET_TYPES.map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
         </label>
-        {type === "DERIVED" && (
+        {type === "Derived" && (
           <>
             <label style={{ display: "block", fontSize: "0.82rem", marginTop: 6 }}>
               Derived from (PRIMARY Asset; Criticality is inherited, §6.5.7.12)
@@ -514,7 +501,7 @@ function NewAssetDialog({
             </p>
           </>
         )}
-        {type === "PRIMARY" && (
+        {type !== "Derived" && (
           <>
             <fieldset style={{ marginTop: 8, border: "var(--sstpa-border-soft)", fontSize: "0.8rem" }}>
               <legend>Criticality</legend>
@@ -572,10 +559,10 @@ function NewAssetDialog({
           </button>
           <button
             className="sstpa-button"
-            disabled={!name || (type === "DERIVED" && !derivedFrom)}
+            disabled={!name || (type === "Derived" && !derivedFrom)}
             onClick={create}
           >
-            {type === "PRIMARY" ? "Create (Losses & Goals auto-generate)" : "Create Derived Asset"}
+            {type !== "Derived" ? "Create (Losses & Goals auto-generate)" : "Create Derived Asset"}
           </button>
         </div>
       </div>
@@ -695,7 +682,7 @@ function AssetTable({
           asset: a,
           hid: a.hid,
           name: String(a.properties.Name ?? ""),
-          type: isDerived(a) ? "DERIVED" : "PRIMARY",
+          type: assetTypeLabel(a),
           crit: (critSource ? trueList(critSource, CRITICALITIES) : []).join(", "),
           assr: trueList(a, ASSURANCES).join(", "),
           regimes: rels
@@ -843,7 +830,7 @@ function AssetTable({
                               className="type-badge"
                               style={{
                                 background:
-                                  r.type === "DERIVED" ? "var(--sstpa-node-muted)" : "var(--sstpa-node-asset)",
+                                  r.type === "Derived" ? "var(--sstpa-node-muted)" : "var(--sstpa-node-asset)",
                               }}
                             >
                               {r.type}

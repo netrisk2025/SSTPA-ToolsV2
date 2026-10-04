@@ -6,6 +6,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../api/client";
+import { ProductLicenses } from "./ProductLicenses";
 import {
   activeStyle,
   applyStyle,
@@ -20,7 +21,12 @@ export function GearMenu({ onClose }: { onClose: () => void }) {
   const item = (label: string, onClick: () => void) => (
     <button
       className="icon-button"
-      style={{ display: "block", width: "100%", textAlign: "left", border: "none" }}
+      style={{
+        display: "block",
+        width: "100%",
+        textAlign: "left",
+        border: "none",
+      }}
       onClick={onClick}
     >
       {label}
@@ -110,15 +116,21 @@ function ProductDialog({ onClose }: { onClose: () => void }) {
   return (
     <div className="sstpa-dialog-overlay" onClick={onClose}>
       <div
-        className="sstpa-frame sstpa-dialog"
+        className="sstpa-frame sstpa-dialog sstpa-product-dialog"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="Product and license information"
       >
         <h2>SSTPA Tools</h2>
         {/* The heritage logo's one ceremonial home (docs/DESIGN.md). */}
         <img
           src="/sstpa-logo-large.png"
           alt=""
-          style={{ maxWidth: 200, display: "block", margin: "0 auto var(--sstpa-sp-3)" }}
+          style={{
+            maxWidth: 200,
+            display: "block",
+            margin: "0 auto var(--sstpa-sp-3)",
+          }}
         />
         <p className="mono" style={{ fontSize: "0.78rem" }}>
           Version {String(p.Version ?? "—")} · Build{" "}
@@ -132,22 +144,33 @@ function ProductDialog({ onClose }: { onClose: () => void }) {
           may be used under specific contractual terms provided by the author.
         </p>
         <p style={{ fontSize: "0.82rem" }}>
-          Users retain ownership of data and reports generated during
-          legitimate use of the software, except for embedded proprietary
-          schemas and templates.
+          Users retain ownership of data and reports generated during legitimate
+          use of the software, except for embedded proprietary schemas and
+          templates.
         </p>
         {components.length > 0 && (
           <>
-            <h2 style={{ fontSize: "1rem" }}>Open-source components</h2>
+            <h2 style={{ fontSize: "1rem" }}>Database component records</h2>
             <ul style={{ fontSize: "0.78rem" }}>
               {components.map((c, i) => (
                 <li key={i} className="mono">
                   {String(c.Name)} {String(c.Version)} — {String(c.License)}
+                  {typeof c.Source === "string" &&
+                    /^https:\/\//.test(c.Source) && (
+                      <>
+                        {" "}
+                        ·{" "}
+                        <a href={c.Source} target="_blank" rel="noreferrer">
+                          Source
+                        </a>
+                      </>
+                    )}
                 </li>
               ))}
             </ul>
           </>
         )}
+        <ProductLicenses />
         <div style={{ textAlign: "right" }}>
           <button className="sstpa-button" onClick={onClose}>
             Close
@@ -186,7 +209,9 @@ function HelpDialog({ onClose }: { onClose: () => void }) {
         <div style={{ maxHeight: "56vh", overflow: "auto", marginTop: 10 }}>
           {entries.map((e) => (
             <div key={e.term} style={{ marginBottom: 10 }}>
-              <div style={{ fontWeight: 600, color: "var(--sstpa-text-strong)" }}>
+              <div
+                style={{ fontWeight: 600, color: "var(--sstpa-text-strong)" }}
+              >
                 {e.term}{" "}
                 <span
                   className="type-badge"

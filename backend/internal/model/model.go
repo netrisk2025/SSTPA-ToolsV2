@@ -188,7 +188,7 @@ var bookkeepingProps = map[string]bool{
 var toolStateProps = map[string]bool{
 	"AttackTreeJSON": true, "UseCaseDiagramJSON": true,
 	"ControlStructureJSON": true, "FunctionalFlowJSON": true,
-	"GoalStructure": true, "MetricCacheJSON": true,
+	"GoalStructure": true, "MetricCacheJSON": true, "AnalysisProfileJSON": true,
 	"NavigatorViewJSON": true, "StateViewJSON": true, "RequirementsViewJSON": true,
 }
 

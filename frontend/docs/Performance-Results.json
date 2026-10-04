@@ -1,0 +1,1017 @@
+{
+  "schema": "attack-tree-performance/1.0",
+  "measuredAt": "2026-10-04T19:24:44.863Z",
+  "environment": {
+    "runtime": "v24.13.1",
+    "platform": "linux",
+    "release": "7.0.0-34-generic",
+    "architecture": "x64",
+    "cpu": "Intel(R) Core(TM) i7-14700K",
+    "logicalCpus": 28,
+    "memoryBytes": 33373900800
+  },
+  "engine": "elkjs 0.12.0",
+  "adapter": "Node bundled adapter; browser worker responsiveness is verified separately",
+  "sampling": "One first (cold) and one repeated (warm) invocation per fixture in the same process. Engine construction occurs on each call; cold is not an OS-cache-cleared or fresh-browser measurement. Timings exclude geometry assertions and UI rendering. These observations are not percentile/frame-rate/production guarantees.",
+  "result": "Completed all samples; geometry assertions passed. metricComplete and rootStatus are reported per sample and are not replaced by a blanket analytical pass.",
+  "results": [
+    {
+      "id": "overview",
+      "title": "01 · FireSat overview",
+      "nodes": 25,
+      "edges": 25,
+      "depth": 7,
+      "width": 6,
+      "graphFindings": [],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 198.273,
+          "pathsMs": 0.816,
+          "metricsMs": 4.12,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 25.565,
+          "pathsMs": 0.06,
+          "metricsMs": 0.547,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sequence",
+      "title": "02 · SAND sequence",
+      "nodes": 25,
+      "edges": 25,
+      "depth": 7,
+      "width": 6,
+      "graphFindings": [],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 21.762,
+          "pathsMs": 0.1,
+          "metricsMs": 1.048,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 9,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario.",
+            "Shared leaf correlation at DEMO_LOSS; split independent occurrences or decompose the analysis.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 25.969,
+          "pathsMs": 0.089,
+          "metricsMs": 0.998,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 9,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario.",
+            "Shared leaf correlation at DEMO_LOSS; split independent occurrences or decompose the analysis.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shared",
+      "title": "03 · Shared identity",
+      "nodes": 25,
+      "edges": 25,
+      "depth": 7,
+      "width": 6,
+      "graphFindings": [],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 24.074,
+          "pathsMs": 0.143,
+          "metricsMs": 1.086,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 25.296,
+          "pathsMs": 0.119,
+          "metricsMs": 0.749,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "video-tamper--frame-check: complete block excludes this scenario."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wide",
+      "title": "04 · Wide state coverage",
+      "nodes": 86,
+      "edges": 86,
+      "depth": 3,
+      "width": 40,
+      "graphFindings": [
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "width: 40 / 50 (80% or more). Decompose the system to create smaller trees."
+        }
+      ],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 90.359,
+          "pathsMs": 0.197,
+          "metricsMs": 1.621,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 86,
+          "exactPaths": "41",
+          "materializedPaths": 41,
+          "truncatedPaths": false,
+          "unaddressedRVs": "41",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 41,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —)."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 85.311,
+          "pathsMs": 0.176,
+          "metricsMs": 1.433,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 86,
+          "exactPaths": "41",
+          "materializedPaths": 41,
+          "truncatedPaths": false,
+          "unaddressedRVs": "41",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 41,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "deep",
+      "title": "05 · Countermeasure depth",
+      "nodes": 22,
+      "edges": 21,
+      "depth": 20,
+      "width": 2,
+      "graphFindings": [
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "depth: 20 / 20 (80% or more). Decompose the system to create smaller trees."
+        }
+      ],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 13.183,
+          "pathsMs": 0.072,
+          "metricsMs": 0.547,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 22,
+          "exactPaths": "1",
+          "materializedPaths": 1,
+          "truncatedPaths": false,
+          "unaddressedRVs": "1",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 1,
+          "metricWarnings": []
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 13.133,
+          "pathsMs": 0.082,
+          "metricsMs": 0.538,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 22,
+          "exactPaths": "1",
+          "materializedPaths": 1,
+          "truncatedPaths": false,
+          "unaddressedRVs": "1",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 1,
+          "metricWarnings": []
+        }
+      ]
+    },
+    {
+      "id": "validation",
+      "title": "06 · Review findings",
+      "nodes": 25,
+      "edges": 25,
+      "depth": 7,
+      "width": 6,
+      "graphFindings": [],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 17.225,
+          "pathsMs": 0.069,
+          "metricsMs": 0.907,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "DEMO_DIAGNOSTIC: missing AttackCost.",
+            "DEMO_DIAGNOSTIC: missing TechnicalAbility.",
+            "DEMO_DIAGNOSTIC: missing AttackTime.",
+            "DEMO_DIAGNOSTIC: missing Noticeability.",
+            "DEMO_DIAGNOSTIC: PhysicalPresenceRequired uses declared default 0.",
+            "DEMO_DIAGNOSTIC: BreachOfTrustRequired uses declared default 0.",
+            "DEMO_DIAGNOSTIC: missing AttackerMoneyGain.",
+            "DEMO_DIAGNOSTIC: AttackerDestructionGain uses declared default 0.",
+            "DEMO_DIAGNOSTIC: AttackerDetriment uses declared default 0.",
+            "DEMO_DIAGNOSTIC: missing VictimFinancialLoss.",
+            "DEMO_DIAGNOSTIC: VictimSafetyImpact uses declared default 0.",
+            "DEMO_DIAGNOSTIC: VictimMissionImpact uses declared default 0.",
+            "DEMO_DIAGNOSTIC: RandomEventProbability uses declared default 1.",
+            "DEMO_DIAGNOSTIC: RandomEventDuration uses declared default 0.",
+            "DEMO_DIAGNOSTIC: RandomEventFrequency uses declared default 0.",
+            "DEMO_DIAGNOSTIC: BenefitASE uses declared default 1.",
+            "DEMO_DIAGNOSTIC: EncounterASE uses declared default 1.",
+            "DEMO_DIAGNOSTIC: AttackProbability uses declared default 1.",
+            "DEMO_DIAGNOSTIC: complete metrics withheld because inputs or analysis are incomplete.",
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "EL_1.1.2_3: complete metrics withheld because inputs or analysis are incomplete.",
+            "video-tamper--frame-check: complete block excludes this scenario.",
+            "ST_1.1.2_2: complete metrics withheld because inputs or analysis are incomplete.",
+            "ST_1.1.2_1: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 18.632,
+          "pathsMs": 0.067,
+          "metricsMs": 0.752,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 25,
+          "exactPaths": "9",
+          "materializedPaths": 9,
+          "truncatedPaths": false,
+          "unaddressedRVs": "4",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 6,
+          "metricWarnings": [
+            "DEMO_DIAGNOSTIC: missing AttackCost.",
+            "DEMO_DIAGNOSTIC: missing TechnicalAbility.",
+            "DEMO_DIAGNOSTIC: missing AttackTime.",
+            "DEMO_DIAGNOSTIC: missing Noticeability.",
+            "DEMO_DIAGNOSTIC: PhysicalPresenceRequired uses declared default 0.",
+            "DEMO_DIAGNOSTIC: BreachOfTrustRequired uses declared default 0.",
+            "DEMO_DIAGNOSTIC: missing AttackerMoneyGain.",
+            "DEMO_DIAGNOSTIC: AttackerDestructionGain uses declared default 0.",
+            "DEMO_DIAGNOSTIC: AttackerDetriment uses declared default 0.",
+            "DEMO_DIAGNOSTIC: missing VictimFinancialLoss.",
+            "DEMO_DIAGNOSTIC: VictimSafetyImpact uses declared default 0.",
+            "DEMO_DIAGNOSTIC: VictimMissionImpact uses declared default 0.",
+            "DEMO_DIAGNOSTIC: RandomEventProbability uses declared default 1.",
+            "DEMO_DIAGNOSTIC: RandomEventDuration uses declared default 0.",
+            "DEMO_DIAGNOSTIC: RandomEventFrequency uses declared default 0.",
+            "DEMO_DIAGNOSTIC: BenefitASE uses declared default 1.",
+            "DEMO_DIAGNOSTIC: EncounterASE uses declared default 1.",
+            "DEMO_DIAGNOSTIC: AttackProbability uses declared default 1.",
+            "DEMO_DIAGNOSTIC: complete metrics withheld because inputs or analysis are incomplete.",
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —).",
+            "EL_1.1.2_3: complete metrics withheld because inputs or analysis are incomplete.",
+            "video-tamper--frame-check: complete block excludes this scenario.",
+            "ST_1.1.2_2: complete metrics withheld because inputs or analysis are incomplete.",
+            "ST_1.1.2_1: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boundary",
+      "title": "07 · 1,000-node envelope",
+      "nodes": 1000,
+      "edges": 999,
+      "depth": 20,
+      "width": 50,
+      "graphFindings": [
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "nodes: 1000 / 1000 (80% or more). Decompose the system to create smaller trees."
+        },
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "depth: 20 / 20 (80% or more). Decompose the system to create smaller trees."
+        },
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "width: 50 / 50 (80% or more). Decompose the system to create smaller trees."
+        }
+      ],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 374.115,
+          "pathsMs": 2.263,
+          "metricsMs": 13.461,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 1000,
+          "exactPaths": "50",
+          "materializedPaths": 50,
+          "truncatedPaths": false,
+          "unaddressedRVs": "50",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 50,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —)."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 364.315,
+          "pathsMs": 0.738,
+          "metricsMs": 4.225,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 1000,
+          "exactPaths": "50",
+          "materializedPaths": 50,
+          "truncatedPaths": false,
+          "unaddressedRVs": "50",
+          "metricComplete": true,
+          "rootStatus": "complete",
+          "scenarioCount": 50,
+          "metricWarnings": [
+            "Zero feasibility: attack difficulty is unbounded (shown as —).",
+            "Zero risk accumulation: time to a positive risk threshold is unbounded (shown as —)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "qualification-100",
+      "title": "100-node qualification",
+      "nodes": 100,
+      "edges": 99,
+      "depth": 2,
+      "width": 50,
+      "graphFindings": [
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-0"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-1"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-2"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-3"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-4"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-5"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-6"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-7"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-8"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-9"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-10"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-11"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-12"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-13"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-14"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-15"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-16"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-17"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-18"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-19"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-20"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-21"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-22"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-23"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-24"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-25"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-26"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-27"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-28"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-29"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-30"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-31"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-32"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-33"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-34"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-35"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-36"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-37"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-38"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-39"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-40"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-41"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-42"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-43"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-44"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-45"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-46"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-47"
+        },
+        {
+          "code": "INCOMPLETE_BRANCH",
+          "severity": "warning",
+          "message": "Branch has no active terminal Attack or derived Asset.",
+          "nodeId": "envelope-2-48"
+        },
+        {
+          "code": "NEAR_LIMIT",
+          "severity": "warning",
+          "message": "width: 50 / 50 (80% or more). Decompose the system to create smaller trees."
+        }
+      ],
+      "samples": [
+        {
+          "phase": "cold",
+          "layoutMs": 34.792,
+          "pathsMs": 0.082,
+          "metricsMs": 1.083,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 100,
+          "exactPaths": "0",
+          "materializedPaths": 0,
+          "truncatedPaths": false,
+          "unaddressedRVs": "0",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 0,
+          "metricWarnings": [
+            "DEMO_ENVELOPE_2_0: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_0: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_1: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_1: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_10: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_10: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_11: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_11: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_12: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_12: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_13: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_13: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_14: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_14: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_15: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_15: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_16: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_16: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_17: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_17: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_18: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_18: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_19: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_19: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_2: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_2: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_20: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_20: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_21: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_21: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_22: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_22: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_23: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_23: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_24: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_24: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_25: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_25: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_26: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_26: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_27: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_27: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_28: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_28: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_29: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_29: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_3: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_3: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_30: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_30: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_31: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_31: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_32: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_32: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_33: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_33: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_34: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_34: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_35: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_35: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_36: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_36: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_37: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_37: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_38: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_38: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_39: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_39: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_4: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_4: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_40: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_40: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_41: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_41: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_42: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_42: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_43: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_43: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_44: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_44: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_45: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_45: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_46: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_46: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_47: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_47: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_48: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_48: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_5: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_5: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_6: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_6: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_7: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_7: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_8: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_8: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_9: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_9: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        },
+        {
+          "phase": "warm",
+          "layoutMs": 38.369,
+          "pathsMs": 0.129,
+          "metricsMs": 1.612,
+          "overlaps": 0,
+          "upwardEdges": 0,
+          "finite": true,
+          "positionedNodes": 100,
+          "exactPaths": "0",
+          "materializedPaths": 0,
+          "truncatedPaths": false,
+          "unaddressedRVs": "0",
+          "metricComplete": false,
+          "rootStatus": "incomplete",
+          "scenarioCount": 0,
+          "metricWarnings": [
+            "DEMO_ENVELOPE_2_0: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_0: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_1: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_1: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_10: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_10: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_11: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_11: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_12: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_12: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_13: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_13: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_14: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_14: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_15: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_15: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_16: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_16: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_17: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_17: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_18: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_18: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_19: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_19: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_2: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_2: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_20: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_20: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_21: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_21: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_22: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_22: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_23: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_23: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_24: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_24: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_25: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_25: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_26: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_26: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_27: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_27: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_28: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_28: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_29: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_29: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_3: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_3: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_30: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_30: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_31: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_31: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_32: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_32: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_33: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_33: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_34: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_34: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_35: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_35: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_36: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_36: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_37: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_37: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_38: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_38: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_39: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_39: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_4: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_4: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_40: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_40: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_41: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_41: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_42: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_42: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_43: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_43: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_44: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_44: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_45: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_45: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_46: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_46: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_47: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_47: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_48: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_48: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_5: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_5: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_6: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_6: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_7: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_7: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_8: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_8: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_ENVELOPE_2_9: structural branch has no terminal Attack or derived Asset; analysis incomplete.",
+            "DEMO_ENVELOPE_1_9: complete metrics withheld because inputs or analysis are incomplete.",
+            "DEMO_LOSS: complete metrics withheld because inputs or analysis are incomplete."
+          ]
+        }
+      ]
+    }
+  ]
+}

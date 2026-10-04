@@ -1474,6 +1474,21 @@
        "default": "False"
       }
      ]
+    },
+    {
+     "groupName": "Attack Tree Leaf Metrics",
+     "properties": [
+      {
+       "name": "MetricsJSON",
+       "displayName": "Metrics:",
+       "type": "String",
+       "edit": "edit",
+       "default": null
+      }
+     ],
+     "constraints": [
+      "Leaf-only inputs for a derived terminal in a Loss Attack Tree; branch raw values are retained but ignored by the approved analysis."
+     ]
     }
    ],
    "srsHeading": "Asset"
@@ -2140,6 +2155,13 @@
        "edit": "edit",
        "default": null,
        "ambiguity": "SRS line 2333 writes the type as 'String (serialized JSON)': 'MetricDefinitionsJSON  \"Metric Definitions:\"  String (serialized JSON)  edit  default: Null'."
+      },
+      {
+       "name": "AnalysisProfileJSON",
+       "displayName": "Analysis Profile:",
+       "type": "JSON",
+       "edit": "edit",
+       "default": null
       }
      ],
      "constraints": [
@@ -2149,7 +2171,8 @@
       "Common configurations: Attack Cost: ANDFormula=SUM (must defeat all), ORFormula=MIN (attacker picks cheapest path), SANDFormula=SUM. Attack Probability: ANDFormula=PRODUCT, ORFormula=MAX, SANDFormula=PRODUCT.",
       "MetricDefinitionsJSON is editable by the User at any time. Changing it invalidates all MetricCacheJSON entries on [:AT_RELATES_TO] edges; a full recomputation is required.",
       "MetricName values SHALL be unique within a single Loss's MetricDefinitionsJSON.",
-      "MetricDefinitionsJSON content is engineering data: the G2M translator (Section 3.7) SHALL materialize each metric definition as attribute values on the KerML Loss element, and leaf/contribution values from MetricsJSON on (:Attack) and (:Countermeasure) nodes as attribute values on the corresponding KerML elements. MetricCacheJSON is computed tool state and is never translated."
+      "MetricDefinitionsJSON content is engineering data: the G2M translator (Section 3.7) SHALL materialize each metric definition as attribute values on the KerML Loss element, and leaf/contribution values from MetricsJSON on (:Attack) and (:Countermeasure) nodes as attribute values on the corresponding KerML elements. MetricCacheJSON is computed tool state and is never translated.",
+      "AnalysisProfileJSON stores the approved Loss analysis mode, scenario limit, utility curves, attacker capabilities, victim impacts and encounter assumptions. It is analysis configuration excluded from G2M; MetricDefinitionsJSON remains engineering data."
      ]
     },
     {
@@ -2262,6 +2285,17 @@
        "type": "Boolean",
        "edit": "edit",
        "default": "False"
+      },
+      {
+       "name": "AttackEventKind",
+       "displayName": "Event Kind:",
+       "type": "Enum",
+       "enumValues": [
+        "hostile",
+        "stochastic"
+       ],
+       "edit": "edit",
+       "default": "hostile"
       }
      ],
      "constraints": [
@@ -2815,6 +2849,27 @@
     "[:INCLUDES_UC]"
    ],
    "srsHeading": "UseCase"
+  },
+  "DerivedAsset": {
+   "srsLines": "6.5.10.22",
+   "displayName": "Derived Asset",
+   "propertyGroups": [
+    {
+     "groupName": "Attack Tree Leaf Metrics",
+     "properties": [
+      {
+       "name": "MetricsJSON",
+       "displayName": "Metrics:",
+       "type": "String",
+       "edit": "edit",
+       "default": null
+      }
+     ],
+     "constraints": [
+      "Leaf-only inputs for a derived terminal in a Loss Attack Tree; branch raw values are retained but ignored by the approved analysis."
+     ]
+    }
+   ]
   }
  }
 }

@@ -10,10 +10,12 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"math"
+	"math/big"
 	"net/http"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -204,7 +206,13 @@ func (s *Server) assembleTree(ctx context.Context, tx neo4j.ManagedTransaction, 
 	// Snapshot reconciliation (§6.5.10.12): compare the AttackTreeJSON
 	// validationSnapshot against the live graph and emit findings.
 	findings := s.reconcileTreeFindings(ctx, tx, lossHid, m["loss"], nodeList)
+	shape, shapeErr := shapeOfLoss(lossHid, nodeList, edges)
+	findings = append(findings, lossCapacityFindings(shape)...)
+	if shapeErr != nil {
+		findings = append(findings, validationFinding{Severity: "ERROR", Type: "TREE_STRUCTURE", Message: shapeErr.Error()})
+	}
 
+	exact, _ := countLossPaths(map[string]any{"nodes": nodeList, "edges": edges}, lossHid)
 	return map[string]any{
 		"loss":               m["loss"],
 		"asset":              m["asset"],
@@ -215,6 +223,8 @@ func (s *Server) assembleTree(ctx context.Context, tx neo4j.ManagedTransaction, 
 		"statesCovered":      statesCovered,
 		"statesTotal":        statesTotal,
 		"validationFindings": findings,
+		"capacity":           shape,
+		"pathCountExact":     exact.String(), "pathCountSaturated": !exact.IsInt64(),
 	}, nil
 }
 
@@ -376,16 +386,50 @@ func removedFindingType(typeName string) string {
 // parseTreeSnapshot extracts the validationSnapshot from an AttackTreeJSON
 // document; nil when absent or unparseable.
 func parseTreeSnapshot(raw string) *treeSnapshot {
-	if raw == "" {
-		return nil
-	}
 	var wrapper struct {
 		ValidationSnapshot treeSnapshot `json:"validationSnapshot"`
 	}
-	if err := json.Unmarshal([]byte(raw), &wrapper); err != nil {
+	if raw == "" || json.Unmarshal([]byte(raw), &wrapper) != nil {
 		return nil
 	}
-	return &wrapper.ValidationSnapshot
+	snap := &wrapper.ValidationSnapshot
+	// Read the SRS SSTPA-ATF-2.0 snapshot alongside the deployed 1.0 shape.
+	if len(snap.Nodes) == 0 {
+		var doc map[string]any
+		_ = json.Unmarshal([]byte(raw), &doc)
+		value, _ := doc["validationSnapshot"].(map[string]any)
+		if value != nil {
+			snap.Environment = str2s(value["environmentHID"])
+			snap.BuiltAt = str2s(value["snapshotAt"])
+			appendNode := func(v map[string]any, id, name, typ string) {
+				if hid := str2s(v[id]); hid != "" {
+					snap.Nodes = append(snap.Nodes, snapNode{HID: hid, Name: str2s(v[name]), TypeName: typ})
+				}
+			}
+			if states, ok := value["states"].([]any); ok {
+				for _, x := range states {
+					state, _ := x.(map[string]any)
+					appendNode(state, "stateHID", "stateName", "State")
+					if entities, ok := state["traceEntities"].([]any); ok {
+						for _, x := range entities {
+							entity, _ := x.(map[string]any)
+							appendNode(entity, "entityHID", "entityName", str2s(entity["entityType"]))
+							snap.Traces = append(snap.Traces, snapTrace{EntityHID: str2s(entity["entityHID"]), StateHID: str2s(state["stateHID"])})
+						}
+					}
+				}
+			}
+			for _, group := range []struct{ key, id, name, typ string }{{"attacks", "attackHID", "attackName", "Attack"}, {"countermeasures", "countermeasureHID", "countermeasureName", "Countermeasure"}} {
+				if records, ok := value[group.key].([]any); ok {
+					for _, x := range records {
+						record, _ := x.(map[string]any)
+						appendNode(record, group.id, group.name, group.typ)
+					}
+				}
+			}
+		}
+	}
+	return snap
 }
 
 // handleLossAutoBuild builds the Attack Tree from graph data per §6.5.10.7 and
@@ -393,14 +437,34 @@ func parseTreeSnapshot(raw string) *treeSnapshot {
 // transaction. Rebuild=true first deletes existing edges for this Loss.
 func (s *Server) handleLossAutoBuild(w http.ResponseWriter, r *http.Request) {
 	user, _ := CurrentUser(r.Context())
+	if user.IsAdmin && !user.IsRootAdmin {
+		writeError(w, http.StatusForbidden, "Admins cannot edit Loss trees", "")
+		return
+	}
 	lossHid := chi.URLParam(r, "lossHid")
 	rebuild := r.URL.Query().Get("rebuild") == "true"
 
+	var expected *int64
+	if raw := r.URL.Query().Get("expectedVersion"); raw != "" {
+		version, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil || version < 0 {
+			writeError(w, http.StatusBadRequest, "invalid expectedVersion", "")
+			return
+		}
+		expected = &version
+	}
 	res, err := s.db.Write(r.Context(), func(tx neo4j.ManagedTransaction) (any, error) {
+		if _, err := lockLossRevision(r.Context(), tx, lossHid, expected); err != nil {
+			return nil, err
+		}
 		return s.autoBuildTree(r.Context(), tx, user, lossHid, rebuild)
 	})
 	if err != nil {
-		writeError(w, http.StatusUnprocessableEntity, "auto-build failed", err.Error())
+		status := http.StatusUnprocessableEntity
+		if errors.Is(err, errLossConflict) {
+			status = http.StatusConflict
+		}
+		writeError(w, status, "auto-build failed", err.Error())
 		return
 	}
 	writeJSON(w, http.StatusOK, res)
@@ -475,52 +539,19 @@ func (s *Server) autoBuildTree(ctx context.Context, tx neo4j.ManagedTransaction,
 		return nil, fmt.Errorf("tree construction: %w", err)
 	}
 
-	// T5+ counter-attack recursion (§6.5.10.6 T5/T6+, §6.5.10.7 step 6):
-	// alternate (:Attack)-[:DEFEATS]->(:Countermeasure) counter-attacks and
-	// the countermeasures that [:BLOCKS] them, until fixpoint or the maximum
-	// tree depth (12 tiers → 4 rounds past T4). The ancestor NOT EXISTS
-	// guards keep the per-Loss edge set acyclic.
-	counterAttacks := `
-		MATCH ()-[:AT_RELATES_TO {LossHID: $hid}]->(cm:Countermeasure)
-		MATCH (catk:Attack)-[:DEFEATS]->(cm)
-		WITH DISTINCT cm, catk
-		WHERE NOT EXISTS { MATCH (cm)-[:AT_RELATES_TO {LossHID: $hid}]->(catk) }
-		  AND NOT EXISTS { MATCH (catk)-[:AT_RELATES_TO*1..12 {LossHID: $hid}]->(cm) }
-		MERGE (cm)-[ca:AT_RELATES_TO {LossHID: $hid, counterKey: catk.HID}]->(catk)
-		ON CREATE SET ca.Lossuuid = $lossUuid, ca.LogicOperator = 'OR', ca.TailoredOut = false
-		RETURN count(*) AS created`
-	counterBlocks := `
-		MATCH (:Countermeasure)-[:AT_RELATES_TO {LossHID: $hid}]->(catk:Attack)
-		MATCH (cm2:Countermeasure)-[:BLOCKS]->(catk)
-		WITH DISTINCT catk, cm2
-		WHERE NOT EXISTS { MATCH (catk)-[:AT_RELATES_TO {LossHID: $hid}]->(cm2) }
-		  AND NOT EXISTS { MATCH (cm2)-[:AT_RELATES_TO*1..12 {LossHID: $hid}]->(catk) }
-		MERGE (catk)-[ce:AT_RELATES_TO {LossHID: $hid, cmKey: cm2.HID}]->(cm2)
-		ON CREATE SET ce.Lossuuid = $lossUuid, ce.LogicOperator = 'AND', ce.TailoredOut = false
-		RETURN count(*) AS created`
-	for round := 0; round < 4; round++ {
-		created := int64(0)
-		for _, q := range []string{counterAttacks, counterBlocks} {
-			res, err := tx.Run(ctx, q, map[string]any{"hid": lossHid, "lossUuid": lossUUID})
-			if err != nil {
-				return nil, fmt.Errorf("counter-attack tier construction: %w", err)
-			}
-			rec, err := res.Single(ctx)
-			if err != nil {
-				return nil, err
-			}
-			if n, ok := rec.AsMap()["created"].(int64); ok {
-				created += n
-			}
-		}
-		if created == 0 {
-			break
-		}
+	// T5+ alternates canonical DEFEATS/BLOCKS relations. Bounded reachability
+	// avoids exponential variable-length path enumeration on shared DAGs.
+	if err := buildLossCounterTiers(ctx, tx, lossHid, lossUUID); err != nil {
+		return nil, fmt.Errorf("counter-attack tier construction: %w", err)
 	}
 
 	// Post-build computation (§6.5.10.7): compute paths, RVs, validity.
 	tree, err := s.assembleTree(ctx, tx, lossHid)
 	if err != nil {
+		return nil, err
+	}
+	nodesForValidation, _ := tree["nodes"].([]atNode)
+	if err := validateLossGraph(lossHid, nodesForValidation, toEdges(tree["edges"])); err != nil {
 		return nil, err
 	}
 	stats := computeTreeStats(tree, nil)
@@ -549,12 +580,27 @@ func (s *Server) autoBuildTree(ctx context.Context, tx neo4j.ManagedTransaction,
 			})
 		}
 	}
-	snapJSON, _ := json.Marshal(map[string]any{
-		"schemaVersion":      "1.0",
-		"layout":             map[string]any{},
-		"validationSnapshot": snapshot,
-		"validationFindings": []any{},
-	})
+	document := map[string]any{}
+	lossProps, _ := tree["loss"].(map[string]any)
+	if raw := str2s(lossProps["AttackTreeJSON"]); raw != "" {
+		if err := json.Unmarshal([]byte(raw), &document); err != nil || document == nil {
+			return nil, fmt.Errorf("stored AttackTreeJSON is malformed")
+		}
+	}
+	if err := checkLossDocumentVersion(document); err != nil {
+		return nil, err
+	}
+	if document["schema"] == nil && document["schemaVersion"] == nil {
+		document["schema"] = "SSTPA-ATF-2.0"
+	}
+	document["validationSnapshot"] = snapshot
+	document["validationFindings"] = []any{}
+	version, _ := normalizeInt(lossProps["AttackTreeVersion"])
+	document["attackTreeVersion"] = version + 1
+	exact, _ := countLossPaths(tree, lossHid)
+	document["pathCountExact"] = exact.String()
+	document["pathCountSaturated"] = !exact.IsInt64()
+	snapJSON, _ := json.Marshal(document)
 	if _, err := tx.Run(ctx, `
 		MATCH (loss:Loss {HID: $hid})
 		SET loss.AttackTreeStatus = 'AUTO_GENERATED',
@@ -573,6 +619,10 @@ func (s *Server) autoBuildTree(ctx context.Context, tx neo4j.ManagedTransaction,
 		return nil, err
 	}
 	_ = user
+	tree, err = s.assembleTree(ctx, tx, lossHid)
+	if err != nil {
+		return nil, err
+	}
 	return map[string]any{
 		"lossHid": lossHid, "status": "AUTO_GENERATED",
 		"pathCount": stats.pathCount, "treeIsValid": stats.valid, "treeHasRVs": stats.hasRVs,
@@ -601,7 +651,13 @@ func (s *Server) handleLossPaths(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	nodesForValidation, _ := m["nodes"].([]atNode)
+	if err := validateLossGraph(lossHid, nodesForValidation, toEdges(m["edges"])); err != nil {
+		writeError(w, http.StatusUnprocessableEntity, "invalid Loss tree", err.Error())
+		return
+	}
 	paths := enumeratePaths(m, lossHid, metricDefs)
+	exact, rvExact := countLossPaths(m, lossHid)
 	limit, offset := paginate(r, 100, 500)
 	total := len(paths)
 	end := offset + limit
@@ -614,7 +670,7 @@ func (s *Server) handleLossPaths(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{
 		"lossHid": lossHid,
 		"paths":   paths[offset:end],
-		"total":   total, "limit": limit, "offset": offset,
+		"total":   total, "totalExact": exact.String(), "rvCountExact": rvExact.String(), "truncated": exact.Cmp(big.NewInt(int64(total))) > 0, "materializationLimit": lossPathLimit, "metricMode": "leaf-inputs", "limit": limit, "offset": offset,
 	})
 }
 
@@ -630,6 +686,7 @@ type metricDef struct {
 	MetricName          string  `json:"metricName"`
 	MetricDirection     string  `json:"metricDirection"` // MINIMIZE|MAXIMIZE
 	LeafDefault         float64 `json:"leafDefault"`
+	DefaultUnknown      bool    `json:"-"`
 	ANDFormula          string  `json:"andFormula"` // SUM|PRODUCT|MIN|MAX
 	ORFormula           string  `json:"orFormula"`
 	SANDFormula         string  `json:"sandFormula"`
@@ -689,15 +746,64 @@ func toEdges(v any) []atEdge {
 	return out
 }
 
-func computeTreeStats(m map[string]any, defs []metricDef) treeStats {
-	paths := enumeratePaths(m, str2s(nested(m, "loss", "HID")), defs)
-	st := treeStats{pathCount: len(paths), valid: len(paths) > 0}
-	for _, p := range paths {
-		if p.RVStatus == "RV" {
-			st.hasRVs = true
+func countLossPaths(m map[string]any, root string) (*big.Int, *big.Int) {
+	nodes, children := buildAdjacency(m)
+	type counts struct{ total, rv *big.Int }
+	memo := map[string]counts{}
+	visiting := map[string]bool{}
+	var visit func(string) counts
+	visit = func(id string) counts {
+		if c, ok := memo[id]; ok {
+			return c
 		}
+		if visiting[id] {
+			return counts{new(big.Int), new(big.Int)}
+		}
+		visiting[id] = true
+		total, rv := new(big.Int), new(big.Int)
+		for _, edge := range children[id] {
+			target := edge.TargetHID
+			if nodes[target].TypeName == "Environment" {
+				continue
+			}
+			if blocked, _ := edge.Props["CompleteBlock"].(bool); blocked {
+				total.Add(total, big.NewInt(1))
+				continue
+			}
+			if len(children[target]) == 0 {
+				typ := nodes[target].TypeName
+				if typ == "Attack" || typ == "Asset" || typ == "DerivedAsset" {
+					total.Add(total, big.NewInt(1))
+					if typ == "Attack" {
+						if allowed, _ := edge.Props["AllowedRV"].(bool); !allowed {
+							rv.Add(rv, big.NewInt(1))
+						}
+					}
+				}
+			} else {
+				c := visit(target)
+				total.Add(total, c.total)
+				rv.Add(rv, c.rv)
+			}
+		}
+		visiting[id] = false
+		c := counts{total, rv}
+		memo[id] = c
+		return c
 	}
-	return st
+	c := visit(root)
+	return c.total, c.rv
+}
+func computeTreeStats(m map[string]any, defs []metricDef) treeStats {
+	total, rv := countLossPaths(m, str2s(nested(m, "loss", "HID")))
+	// Neo4j Integer is signed 64-bit; the read endpoint also exposes the exact
+	// decimal count, without pretending a capped materialization is the total.
+	max := int64(^uint64(0) >> 1)
+	value := max
+	if total.IsInt64() {
+		value = total.Int64()
+	}
+	return treeStats{pathCount: int(value), valid: total.Sign() > 0, hasRVs: rv.Sign() > 0}
 }
 
 // enumeratePaths performs bounded DFS over the DAG rooted at lossHid.
@@ -711,33 +817,45 @@ func enumeratePaths(m map[string]any, lossHid string, defs []metricDef) []pathRe
 	var results []pathResult
 	const maxLen = 20
 
-	var dfs func(cur string, seq []string, visited map[string]bool)
-	dfs = func(cur string, seq []string, visited map[string]bool) {
-		if len(seq) > maxLen {
+	var dfs func(cur string, seq []string, visited map[string]bool, incoming *atEdge)
+	dfs = func(cur string, seq []string, visited map[string]bool, incoming *atEdge) {
+		if len(seq)-1 > maxLen || len(results) >= lossPathLimit {
 			return
 		}
 		kids := children[cur]
 		curNode := nodes[cur]
 		// Leaf classification (§6.5.10.5c terminal leaves).
-		if len(kids) == 0 {
+		blocked := false
+		if incoming != nil {
+			blocked, _ = incoming.Props["CompleteBlock"].(bool)
+		}
+		if blocked || len(kids) == 0 {
 			p := pathResult{Sequence: append([]string{}, seq...)}
 			for _, h := range p.Sequence {
 				p.NameSeq = append(p.NameSeq, nodes[h].Name)
 			}
 			p.LeafType = curNode.TypeName
-			switch curNode.TypeName {
-			case "Attack":
-				if edgeAllowedRV(m, cur) {
-					p.RVStatus = "ALLOWED_RV"
-				} else {
-					p.RVStatus = "RV"
-				}
-			case "Countermeasure":
+			if blocked {
 				p.RVStatus = "BLOCKED"
-			case "Asset", "DerivedAsset":
-				p.RVStatus = "DERIVED"
-			default:
-				return
+			} else {
+				switch curNode.TypeName {
+				case "Attack":
+					allowed := false
+					if incoming != nil {
+						allowed, _ = incoming.Props["AllowedRV"].(bool)
+					}
+					if allowed {
+						p.RVStatus = "ALLOWED_RV"
+					} else {
+						p.RVStatus = "RV"
+					}
+				case "Countermeasure":
+					return
+				case "Asset", "DerivedAsset":
+					p.RVStatus = "DERIVED"
+				default:
+					return
+				}
 			}
 			p.Metrics = computePathMetrics(p.Sequence, nodes, defs)
 			results = append(results, p)
@@ -748,11 +866,11 @@ func enumeratePaths(m map[string]any, lossHid string, defs []metricDef) []pathRe
 				continue // DAG safety
 			}
 			visited[e.TargetHID] = true
-			dfs(e.TargetHID, append(seq, e.TargetHID), visited)
+			dfs(e.TargetHID, append(seq, e.TargetHID), visited, &e)
 			delete(visited, e.TargetHID)
 		}
 	}
-	dfs(lossHid, []string{lossHid}, map[string]bool{lossHid: true})
+	dfs(lossHid, []string{lossHid}, map[string]bool{lossHid: true}, nil)
 	for i := range results {
 		results[i].PathNumber = i + 1
 	}
@@ -760,7 +878,12 @@ func enumeratePaths(m map[string]any, lossHid string, defs []metricDef) []pathRe
 	if len(defs) > 0 {
 		mn := defs[0].MetricName
 		sort.SliceStable(results, func(i, j int) bool {
-			return results[i].Metrics[mn] < results[j].Metrics[mn]
+			a, knownA := results[i].Metrics[mn]
+			b, knownB := results[j].Metrics[mn]
+			if knownA != knownB {
+				return knownA
+			}
+			return a < b
 		})
 		for i := range results {
 			results[i].PathNumber = i + 1
@@ -769,55 +892,59 @@ func enumeratePaths(m map[string]any, lossHid string, defs []metricDef) []pathRe
 	return results
 }
 
-// computePathMetrics computes each metric along a single path as an ordered
-// accumulation (SUM/PRODUCT/MIN/MAX per the incoming operator's formula —
-// along a single root-to-leaf path this reduces to the leaf's contribution
-// combined by the path's operators; we use leaf value combined by SUM/PRODUCT).
+// computePathMetrics reports terminal leaf inputs only. Parent aggregation and
+// coherent scenarios are computed by the shared approved frontend metric engine;
+// branch raw inputs never become extra contributions or double-count the leaf.
 func computePathMetrics(seq []string, nodes map[string]atNode, defs []metricDef) map[string]float64 {
 	out := map[string]float64{}
 	if len(seq) == 0 {
 		return out
 	}
 	leaf := nodes[seq[len(seq)-1]]
+	var inputs map[string]any
+	_ = json.Unmarshal([]byte(str2s(leaf.Props["MetricsJSON"])), &inputs)
 	for _, d := range defs {
-		// Leaf value: MetricsJSON[name] or LeafDefault.
-		v := d.LeafDefault
-		if mj, ok := leaf.Props["MetricsJSON"].(string); ok && mj != "" {
-			var vals map[string]float64
-			if json.Unmarshal([]byte(mj), &vals) == nil {
-				if x, ok := vals[d.MetricName]; ok {
-					v = x
+		value, known := d.LeafDefault, !d.DefaultUnknown
+		if raw := inputs[d.MetricName]; raw != nil {
+			if n, ok := number(raw); ok {
+				value, known = n, true
+			} else if b, ok := raw.(bool); ok {
+				known = true
+				value = 0
+				if b {
+					value = 1
 				}
 			}
 		}
-		// Accumulate Countermeasure contributions along the path.
-		acc := v
-		for _, h := range seq {
-			n := nodes[h]
-			if n.TypeName != "Countermeasure" {
-				continue
-			}
-			if mj, ok := n.Props["MetricsJSON"].(string); ok && mj != "" {
-				var vals map[string]float64
-				if json.Unmarshal([]byte(mj), &vals) == nil {
-					if x, ok := vals[d.MetricName]; ok {
-						switch d.ANDFormula {
-						case "PRODUCT":
-							acc *= x
-						case "MIN":
-							acc = math.Min(acc, x)
-						case "MAX":
-							acc = math.Max(acc, x)
-						default: // SUM
-							acc += x
-						}
-					}
-				}
-			}
+		if known {
+			out[d.MetricName] = value
 		}
-		out[d.MetricName] = acc
 	}
 	return out
+}
+
+func (d *metricDef) UnmarshalJSON(raw []byte) error {
+	type plain metricDef
+	var old plain
+	if err := json.Unmarshal(raw, &old); err != nil {
+		return err
+	}
+	*d = metricDef(old)
+	var fields map[string]any
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		return err
+	}
+	d.MetricName = metricID(fields)
+	d.ANDFormula = str2s(getMetricField(fields, "and", "andFormula", "ANDFormula"))
+	d.ORFormula = str2s(getMetricField(fields, "or", "orFormula", "ORFormula"))
+	d.SANDFormula = str2s(getMetricField(fields, "sand", "sandFormula", "SANDFormula"))
+	d.LeafDefault = 0
+	value := getMetricField(fields, "defaultValue", "leafDefault", "LeafDefault")
+	d.DefaultUnknown = value == nil
+	if n, ok := number(value); ok {
+		d.LeafDefault = n
+	}
+	return nil
 }
 
 // edgeAllowedRV reports whether the terminal edge into attackHid has AllowedRV.

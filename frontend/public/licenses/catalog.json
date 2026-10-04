@@ -1,0 +1,1388 @@
+{
+  "schemaVersion": 1,
+  "scope": "Verified offline notices cover the installed npm production dependency closure, bundled fonts and ELK embedded components. The product SBOM separately inventories Backend, native shells, toolchains, services, sustainment and reference data; it is not a claim of complete per-artifact notice coverage for those systems.",
+  "lockSha256": "958af248b630eaf5b817568ded284dc238e4a08a7539931d2a79398d9d6282e2",
+  "components": [
+    {
+      "name": "@floating-ui/core",
+      "version": "1.7.5",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/floating-ui/floating-ui.git",
+      "integrity": "sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==",
+      "files": [
+        "npm/@floating-ui__core@1.7.5/LICENSE"
+      ]
+    },
+    {
+      "name": "@floating-ui/dom",
+      "version": "1.7.6",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/floating-ui/floating-ui.git",
+      "integrity": "sha512-9gZSAI5XM36880PPMm//9dfiEngYoC6Am2izES1FF406YFsjvyBMmeJ2g4SAju3xWwtuynNRFL2s9hgxpLI5SQ==",
+      "files": [
+        "npm/@floating-ui__dom@1.7.6/LICENSE"
+      ]
+    },
+    {
+      "name": "@floating-ui/react-dom",
+      "version": "2.1.8",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/floating-ui/floating-ui.git",
+      "integrity": "sha512-cC52bHwM/n/CxS87FH0yWdngEZrjdtLW/qVruo68qg+prK7ZQ4YGdut2GyDVpoGeAYe/h899rVeOVm6Oi40k2A==",
+      "files": [
+        "npm/@floating-ui__react-dom@2.1.8/LICENSE"
+      ]
+    },
+    {
+      "name": "@floating-ui/utils",
+      "version": "0.2.11",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/floating-ui/floating-ui.git",
+      "integrity": "sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==",
+      "files": [
+        "npm/@floating-ui__utils@0.2.11/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/primitive",
+      "version": "1.1.4",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-7AdCK9PQyiljKoBDbN8OuctCbd/esdwZPQ8RtOE3SsyQtUpiPb+ND75q0jEhC1m1ecBI0MFNeLJvwIh9iKHRcQ==",
+      "files": [
+        "npm/@radix-ui__primitive@1.1.4/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-arrow",
+      "version": "1.1.11",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-Kdil9BB1rIFC/khmf4hC35bn8701AJcizTU7G7cUbEbk5XqqbjDuHW60uUfKqO5WojjZcbAW51Q7P0hRmMLw8A==",
+      "files": [
+        "npm/@radix-ui__react-arrow@1.1.11/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-collapsible",
+      "version": "1.1.15",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-8A1zibu5skAQ+UVbaeNH5hVMibiFCRJzgMuM14LTWGttnTZKQL9jwYnhAbHRuxrtCqPXa4JvvnVUq1pTNgyZYw==",
+      "files": [
+        "npm/@radix-ui__react-collapsible@1.1.15/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-collection",
+      "version": "1.1.11",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-djW9+zeg137KQdlPtmE8xnaD+K2rcXXMWFrSg0hsmYZ6HRbdTA7tDHFgpaW9+huWVEu0RCabL+985T4TA0BE7g==",
+      "files": [
+        "npm/@radix-ui__react-collection@1.1.11/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-compose-refs",
+      "version": "1.1.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-rYOP8OMnuuPMQF1uhPVlGNcCDlkokKqGFE3JcxFViIkAXP7EvFWUliJAstrapypaBLJNHbZL6jGhbVDGTwmVhA==",
+      "files": [
+        "npm/@radix-ui__react-compose-refs@1.1.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-context",
+      "version": "1.1.4",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-QwH4PO5urrbO+FaGd5Aglg+YJgWTyyuZ3g/6mKvsqraLkglDdckw9JafgL5McL5VEJ6EPNduPaT3ZE9BttDAqg==",
+      "files": [
+        "npm/@radix-ui__react-context@1.1.4/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-dialog",
+      "version": "1.1.18",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-apa28mldjMgORmE6g/w3sCcA0Y9UAVeeDVoozN4i7kOw12mLl9RBchfzK3Nn6qxOWjrZhK1Lfy7f07kyzxtnBw==",
+      "files": [
+        "npm/@radix-ui__react-dialog@1.1.18/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-direction",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-C3vFhbyi4SW3PmbAi6Awpu4OzJtd0MxGurvSsYtr7p7nM8RNB3VAF3CUmnp2j50knpkrRcB7+ycVXzgLgF6yNA==",
+      "files": [
+        "npm/@radix-ui__react-direction@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-dismissable-layer",
+      "version": "1.1.14",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-4lUhWTWAjbDIqFrAPWJ3WqBOpO5YchVZ88X3nh6H9Lu5AFi5nCUeTPj3D8FSDmabmFeRe9ME0BDA4MwKTha5GQ==",
+      "files": [
+        "npm/@radix-ui__react-dismissable-layer@1.1.14/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-dropdown-menu",
+      "version": "2.1.19",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-HZccBkbK0LOi8nYKIp5jll/zIRW0cCOmG6WWyqsSpmXCU+ZlcBbTqIwlBvPCu886C5RVu6c/kHV7xSP8IgYNHw==",
+      "files": [
+        "npm/@radix-ui__react-dropdown-menu@2.1.19/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-focus-guards",
+      "version": "1.1.4",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-cot/aB/mOm0IYVYTTmQcEEK1M48lZWi8FlYe5nDPQQ8NYZUlXEFgncJ9p2Kzer3RKSrY7cTTpEMLZKNo9QoP5Q==",
+      "files": [
+        "npm/@radix-ui__react-focus-guards@1.1.4/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-focus-scope",
+      "version": "1.1.11",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-Mn88Vg2whaRocGJNOH+DKFqYm6ySFPQaiwHNxZPyjn99B52KAEJWWY9NP83+nWdk2HM3rdov+STu9AG471Rt9w==",
+      "files": [
+        "npm/@radix-ui__react-focus-scope@1.1.11/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-id",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-orBC88futVpqCmhX1p4cvquNHsELQ+w+vBJnuj3ftETI5bJb0bZn3Tqu3SWN2IOcPycTnMGnhwoermvISt72sA==",
+      "files": [
+        "npm/@radix-ui__react-id@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-menu",
+      "version": "2.1.19",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-Mht9BVd1AIsNFVQr4KG3bIK7XQn5IXF0TL/2ObsrzOdc1loaly/+kBDL5roSCYn8j8XZkvpOD0WYLz2FQtH1Eg==",
+      "files": [
+        "npm/@radix-ui__react-menu@2.1.19/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-popper",
+      "version": "1.3.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-3QXNeMkdshed1MR3LNoiCirBywRFPkD8ETJa/HlPuLwSajaQixf2ro+isoDNJlGABg9ug41XuZpINZJIle4XWg==",
+      "files": [
+        "npm/@radix-ui__react-popper@1.3.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-portal",
+      "version": "1.1.13",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-z3oXfmaHLJTF1wktbjgD6cn9jiEbq3WSondB10LIuIt2m2Ym4iJlrW04/euMwENDdWDdE7z+OuY7Qyp1YpRSwA==",
+      "files": [
+        "npm/@radix-ui__react-portal@1.1.13/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-presence",
+      "version": "1.1.6",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-zdTk4PlUO0E18HnZ3wYbW0KkJJxWCdiNYp6g6X1PtONFhxVkg01vliTJAmwIszU6mHiyBOoW9P0rAugl5/hULQ==",
+      "files": [
+        "npm/@radix-ui__react-presence@1.1.6/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-primitive",
+      "version": "2.1.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-bC3NiwsprbxKjuon9l7X6BUTw7FPVzEYaL92MPEY5SCd/9hUTPXVFtVwRix7778wtRsVao+zE062gL79FZleeQ==",
+      "files": [
+        "npm/@radix-ui__react-primitive@2.1.7/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-roving-focus",
+      "version": "1.1.14",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-8Qcnx9447tx/aCBgw6Jenfqg4Skq+vqab9mCBmuGNipIS5YXvL275wbKEu7+ICYHIlAPgCduUMJH1XOYewKF6Q==",
+      "files": [
+        "npm/@radix-ui__react-roving-focus@1.1.14/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-slot",
+      "version": "1.3.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-MojKku4U/miO8Av4Dkb+ctMAQx7JmY96LmtDQlAarCRtd7rN52QCSzBF+XAvr5S6coSVj9HEPBgHAHKEJVk/WA==",
+      "files": [
+        "npm/@radix-ui__react-slot@1.3.0/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-tooltip",
+      "version": "1.2.11",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-8XZ6Py3y3W2nEzAUGCN5cfVKaUi+CVApcz1d6lrNVVf2hvYEixMRkq8k9ggPKnQUpRRuOV5avt8uvxViH2jLwA==",
+      "files": [
+        "npm/@radix-ui__react-tooltip@1.2.11/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-callback-ref",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-xCso9j1/u8sEgP1RNHjFrXJLApL8LiqOkI1R4ywuN00rxWdYg4oQXuwKLS3i0j5NWLromUD27/4nlxj2UFVvIw==",
+      "files": [
+        "npm/@radix-ui__react-use-callback-ref@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-controllable-state",
+      "version": "1.2.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-PLzC90MS+ReootmjC597dvopoelpZ8Q61HJkDXZSExitIq7PL55vHNnesAHwguHK0aPfBnpdNzQtv1uliaqQrA==",
+      "files": [
+        "npm/@radix-ui__react-use-controllable-state@1.2.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-effect-event",
+      "version": "0.0.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-6c8ZqvPTWILEKnyVkP53EGRCcpnJiKTC21sS/6R1GF5xKyHJJWQEPfkqlcgUkdRQivd6tb23abUwe4ngWmY0JA==",
+      "files": [
+        "npm/@radix-ui__react-use-effect-event@0.0.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-layout-effect",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-jrBWOxZITuGcnjRCM2t2U5ZPkCLxD+Ym6DjfssS5haTj2iiak/DOb64JeN6OdLfLgptb6/e2kKR+ZuTrGoZTPA==",
+      "files": [
+        "npm/@radix-ui__react-use-layout-effect@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-rect",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-d8a+bBY/FxikNPlgJJoaBHZX+zKVbWHYJGTLnLvveQgFSTntkGdEKv3JDtHrMS0DNYpllz2nRsTLGLKYttbpmw==",
+      "files": [
+        "npm/@radix-ui__react-use-rect@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-use-size",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-giWQp+4mxjBPt4KZ0MmyuykFNWfbDxKt4x+fPkRYmgRFJSbCZFzUglvMb/Kjn38tm10YP4ufiQZDx3zna4LU6w==",
+      "files": [
+        "npm/@radix-ui__react-use-size@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/react-visually-hidden",
+      "version": "1.2.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-1wNZBggTDK3GRuuQ6nP4k2yi7a6l7I5qbMPbZcRsrGsGVead/f/d5FhEzUvqFs0bcrDLx7n1zKQ3JvLR6whaaw==",
+      "files": [
+        "npm/@radix-ui__react-visually-hidden@1.2.7/LICENSE"
+      ]
+    },
+    {
+      "name": "@radix-ui/rect",
+      "version": "1.1.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/radix-ui/primitives.git",
+      "integrity": "sha512-xnXE7wG13PI+cxieVssYXlQJuYVRhH9NBoxt3KNwzghDIA69GMm7d4wXRouHIYjE+KvS6U/MsMO73NdS2MH9ZA==",
+      "files": [
+        "npm/@radix-ui__rect@1.1.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@tanstack/query-core",
+      "version": "5.101.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/TanStack/query.git",
+      "integrity": "sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw==",
+      "files": [
+        "npm/@tanstack__query-core@5.101.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@tanstack/react-query",
+      "version": "5.101.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/TanStack/query.git",
+      "integrity": "sha512-seDkr6kzGzX1okaaTtZPtgA688CDPlXUz1C6xSg0ESqn04Vuc8tlrYms1s3de+znBqhPVxFRfpAfUf+6XvfPWg==",
+      "files": [
+        "npm/@tanstack__react-query@5.101.2/LICENSE"
+      ]
+    },
+    {
+      "name": "@tanstack/react-virtual",
+      "version": "3.14.5",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/TanStack/virtual.git",
+      "integrity": "sha512-4EKRXh7zBLkbKbFmG3AUVkircuHd+7OdT1pocJSepxtfBd3qnrJgJ5rtPkRYyo9fmyVb2+pI2xPy5oYvMLQy6A==",
+      "files": [
+        "npm/@tanstack__react-virtual@3.14.5/LICENSE"
+      ]
+    },
+    {
+      "name": "@tanstack/virtual-core",
+      "version": "3.17.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/TanStack/virtual.git",
+      "integrity": "sha512-8Np/TFELpI0ySuJoVmjvOrQYXH/8sTX0Biv9szhFhY39xOdAAY+smrMxjxOum/ux3eM8MUJQsEJ0/R0UpvC8dw==",
+      "files": [
+        "npm/@tanstack__virtual-core@3.17.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@tauri-apps/api",
+      "version": "2.11.1",
+      "license": "Apache-2.0 OR MIT",
+      "declaredLicense": "Apache-2.0 OR MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/tauri-apps/tauri.git",
+      "integrity": "sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA==",
+      "files": [
+        "npm/@tauri-apps__api@2.11.1/LICENSE_APACHE-2.0",
+        "npm/@tauri-apps__api@2.11.1/LICENSE_MIT",
+        "supplemental/tauri-api-MIT.txt",
+        "supplemental/tauri-api-APACHE.txt"
+      ]
+    },
+    {
+      "name": "@tauri-apps/plugin-shell",
+      "version": "2.3.5",
+      "license": "MIT OR Apache-2.0",
+      "declaredLicense": "MIT OR Apache-2.0",
+      "category": "Frontend dependency",
+      "source": "https://github.com/tauri-apps/plugins-workspace",
+      "integrity": "sha512-jewtULhiQ7lI7+owCKAjc8tYLJr92U16bPOeAa472LHJdgaibLP83NcfAF2e+wkEcA53FxKQAZ7byDzs2eeizg==",
+      "files": [
+        "npm/@tauri-apps__plugin-shell@2.3.5/LICENSE.spdx"
+      ]
+    },
+    {
+      "name": "@types/d3-color",
+      "version": "3.1.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-iO90scth9WAbmgv7ogoq57O9YpKmFBbmoEoCHDB2xMBY0+/KVrqAaCDyCE16dUspeOvIxFFRI+0sEtqDqy2b4A==",
+      "files": [
+        "npm/@types__d3-color@3.1.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/d3-drag",
+      "version": "3.0.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-HE3jVKlzU9AaMazNufooRJ5ZpWmLIoc90A37WU2JMmeq28w1FQqCZswHZ3xR+SuxYftzHq6WU6KJHvqxKzTxxQ==",
+      "files": [
+        "npm/@types__d3-drag@3.0.7/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/d3-interpolate",
+      "version": "3.0.4",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-mgLPETlrpVV1YRJIglr4Ez47g7Yxjl1lj7YKsiMCb27VJH9W8NVM6Bb9d8kkpG/uAQS5AmbA48q2IAolKKo1MA==",
+      "files": [
+        "npm/@types__d3-interpolate@3.0.4/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/d3-selection",
+      "version": "3.0.12",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-Qe/KWYhEiIIxGs7HrAAjMfShxKldx19SJtr5zu53f3afPsdZNz7HHtdTLXo/kqeiWNXVycI24kSnfzBYkTzpgw==",
+      "files": [
+        "npm/@types__d3-selection@3.0.12/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/d3-transition",
+      "version": "3.0.9",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-uZS5shfxzO3rGlu0cC3bjmMFKsXv+SmZZcgp0KD22ts4uGXp5EVYGzu/0YdwZeKmddhcAccYtREJKkPfXkZuCg==",
+      "files": [
+        "npm/@types__d3-transition@3.0.9/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/d3-zoom",
+      "version": "3.0.9",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-0sE1406XBYJGiqD3AusTl9ZqC//2mIXix51tbom25gDCA8ri4xnSZg28CaSE8Srl6FClqABUKfsn0qghgdepMA==",
+      "files": [
+        "npm/@types__d3-zoom@3.0.9/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/react",
+      "version": "19.2.17",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==",
+      "files": [
+        "npm/@types__react@19.2.17/LICENSE"
+      ]
+    },
+    {
+      "name": "@types/react-dom",
+      "version": "19.2.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+      "integrity": "sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==",
+      "files": [
+        "npm/@types__react-dom@19.2.3/LICENSE"
+      ]
+    },
+    {
+      "name": "@xyflow/react",
+      "version": "12.12.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/xyflow/xyflow.git",
+      "integrity": "sha512-74oXI0Rgm1Eu33cHQAd74J6oVgCH9mbFyTVQbsGgp2kmWwh0HdtBr2VP04z8mbPD+M/xO69nqG5dDEt7/EN2rQ==",
+      "files": [
+        "npm/@xyflow__react@12.12.0/LICENSE"
+      ]
+    },
+    {
+      "name": "@xyflow/system",
+      "version": "0.0.83",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/xyflow/xyflow.git",
+      "integrity": "sha512-a//eDjez3WZF47aaPTfVUDD0OINOq+WVwBZCRTqG+m0a5euX8EwlJ4jMY1Wxz0Ocj4xOeekJ70V22Pq0ll8RJw==",
+      "files": [
+        "npm/@xyflow__system@0.0.83/LICENSE"
+      ]
+    },
+    {
+      "name": "ag-charts-types",
+      "version": "14.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/ag-grid/ag-charts.git",
+      "integrity": "sha512-89X4J/OeOTzTp505126JayGEn3k6QUKz3UHSR0/ggoVZYzVqtMN13k/B136S1+YBwgnzyJ/NARnnIRTPWsWG9g==",
+      "files": [
+        "npm/ag-charts-types@14.0.0/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "ag-grid-community",
+      "version": "36.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/ag-grid/ag-grid.git",
+      "integrity": "sha512-73PeuoG1Pofi6o1o2dYd092m5AdCt0uq/iCaVTCxLw9eRJGLZu0I+HICReolUmUH7A5X+CnYDXiE+P9S8dUqCQ==",
+      "files": [
+        "npm/ag-grid-community@36.0.0/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "ag-grid-react",
+      "version": "36.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/ag-grid/ag-grid.git",
+      "integrity": "sha512-ShmynyRQDoxuXBso+kPliZJnivQKwBG/EGclCBV3dg98ou2kq7yxdgf8DhrW4uM5SekNDaqor4Gn9OAGtH2o3g==",
+      "files": [
+        "npm/ag-grid-react@36.0.0/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "ag-stack",
+      "version": "36.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/ag-grid/ag-grid.git",
+      "integrity": "sha512-ciXqjZygVLk3tnZWOAQyOxP48Ju2ZmaSAtIebekXJwHqA7vB+NJ8ZME/O4XTRpInTSHn2KSu/KTxgWJO8dduiw==",
+      "files": [
+        "npm/ag-stack@36.0.0/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "aria-hidden",
+      "version": "1.2.6",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/theKashey/aria-hidden.git",
+      "integrity": "sha512-ik3ZgC9dY/lYVVM++OISsaYDeg1tb0VtP5uL3ouh1koGOaUMDPpbFIei4JkFimWUFPn90sbMNMXQAIVOlnYKJA==",
+      "files": [
+        "npm/aria-hidden@1.2.6/LICENSE"
+      ]
+    },
+    {
+      "name": "classcat",
+      "version": "5.0.5",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "jorgebucaran/classcat",
+      "integrity": "sha512-JhZUT7JFcQy/EzW605k/ktHtncoo9vnyW/2GspNYwFlN1C/WmjuV/xtS04e9SOkL2sTdw0VAZ2UGCcQ9lR6p6w==",
+      "files": [
+        "npm/classcat@5.0.5/LICENSE.md"
+      ]
+    },
+    {
+      "name": "cose-base",
+      "version": "2.2.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/iVis-at-Bilkent/cose-base.git",
+      "integrity": "sha512-AzlgcsCbUMymkADOJtQm3wO9S3ltPfYOFD5033keQn9NJzIbtnZj+UdBJe7DYml/8TdbtHJW3j58SOnKhWY/5g==",
+      "files": [
+        "npm/cose-base@2.2.0/LICENSE"
+      ]
+    },
+    {
+      "name": "csstype",
+      "version": "3.2.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/frenic/csstype",
+      "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==",
+      "files": [
+        "npm/csstype@3.2.3/LICENSE"
+      ]
+    },
+    {
+      "name": "cytoscape",
+      "version": "3.34.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/cytoscape/cytoscape.js.git",
+      "integrity": "sha512-62rNSrioXw93uliKFBwjukeQyeWwH2PqDrTac31r2P6464u3AUvTk0xS4LVvT251g7IgkFunrI48ZEZGjywSOg==",
+      "files": [
+        "npm/cytoscape@3.34.0/LICENSE",
+        "npm/cytoscape@3.34.0/license-update.mjs"
+      ]
+    },
+    {
+      "name": "cytoscape-fcose",
+      "version": "2.2.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/iVis-at-Bilkent/cytoscape.js-fcose.git",
+      "integrity": "sha512-ki1/VuRIHFCzxWNrsshHYPs6L7TvLu3DL+TyIGEsRcvVERmxokbf5Gdk7mFxZnTdiGtnA4cfSmjZJMviqSuZrQ==",
+      "files": [
+        "npm/cytoscape-fcose@2.2.0/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-color",
+      "version": "3.1.0",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-color.git",
+      "integrity": "sha512-zg/chbXyeBtMQ1LbD/WSoW2DpC3I0mpmPdW+ynRTj/x2DAWYrIY7qeZIHidozwV24m4iavr15lNwIwLxRmOxhA==",
+      "files": [
+        "npm/d3-color@3.1.0/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-dispatch",
+      "version": "3.0.1",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-dispatch.git",
+      "integrity": "sha512-rzUyPU/S7rwUflMyLc1ETDeBj0NRuHKKAcvukozwhshr6g6c5d8zh4c2gQjY2bZ0dXeGLWc1PF174P2tVvKhfg==",
+      "files": [
+        "npm/d3-dispatch@3.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-drag",
+      "version": "3.0.0",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-drag.git",
+      "integrity": "sha512-pWbUJLdETVA8lQNJecMxoXfH6x+mO2UQo8rSmZ+QqxcbyA3hfeprFgIT//HW2nlHChWeIIMwS2Fq+gEARkhTkg==",
+      "files": [
+        "npm/d3-drag@3.0.0/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-ease",
+      "version": "3.0.1",
+      "license": "BSD-3-Clause",
+      "declaredLicense": "BSD-3-Clause",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-ease.git",
+      "integrity": "sha512-wR/XK3D3XcLIZwpbvQwQ5fK+8Ykds1ip7A2Txe0yxncXSdq1L9skcG7blcedkOX+ZcgxGAmLX1FrRGbADwzi0w==",
+      "files": [
+        "npm/d3-ease@3.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-interpolate",
+      "version": "3.0.1",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-interpolate.git",
+      "integrity": "sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==",
+      "files": [
+        "npm/d3-interpolate@3.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-selection",
+      "version": "3.0.0",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-selection.git",
+      "integrity": "sha512-fmTRWbNMmsmWq6xJV8D19U/gw/bwrHfNXxrIN+HfZgnzqTHp9jOmKMhsTUjXOJnZOdZY9Q28y4yebKzqDKlxlQ==",
+      "files": [
+        "npm/d3-selection@3.0.0/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-timer",
+      "version": "3.0.1",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-timer.git",
+      "integrity": "sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==",
+      "files": [
+        "npm/d3-timer@3.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-transition",
+      "version": "3.0.1",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-transition.git",
+      "integrity": "sha512-ApKvfjsSR6tg06xrL434C0WydLr7JewBB3V+/39RMHsaXTOG0zmt/OAXeng5M5LBm0ojmxJrpomQVZ1aPvBL4w==",
+      "files": [
+        "npm/d3-transition@3.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "d3-zoom",
+      "version": "3.0.0",
+      "license": "ISC",
+      "declaredLicense": "ISC",
+      "category": "Frontend dependency",
+      "source": "https://github.com/d3/d3-zoom.git",
+      "integrity": "sha512-b8AmV3kfQaqWAuacbPuNbL6vahnOJflOhexLzMMNLga62+/nh0JzvJ0aO/5a5MVgUFGS7Hu1P9P03o3fJkDCyw==",
+      "files": [
+        "npm/d3-zoom@3.0.0/LICENSE"
+      ]
+    },
+    {
+      "name": "detect-node-es",
+      "version": "1.1.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/thekashey/detect-node",
+      "integrity": "sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==",
+      "files": [
+        "npm/detect-node-es@1.1.0/LICENSE"
+      ]
+    },
+    {
+      "name": "elkjs",
+      "version": "0.12.0",
+      "license": "EPL-2.0 (elected)",
+      "declaredLicense": "EPL-2.0 OR GPL-3.0-or-later",
+      "category": "Frontend dependency",
+      "source": "https://github.com/kieler/elkjs.git",
+      "integrity": "sha512-YZcKynxVxYoKIOEpywEPwCFdg+BTbxQRNf3pbwdDCvc8O3kQD8bmIwSxKU1eOTVc4Xo+VG9Te+575mlfvOrhEQ==",
+      "files": [
+        "npm/elkjs@0.12.0/LICENSE.md"
+      ]
+    },
+    {
+      "name": "framer-motion",
+      "version": "12.42.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/motiondivision/motion/",
+      "integrity": "sha512-5XY9luDiu0oHfHBjpDthFMh0ES+122w6p/papSJBweMkO8Sn+PW2QaEgRblQBpWFnuvZS5qvarpt/hO2pjGmnw==",
+      "files": [
+        "npm/framer-motion@12.42.2/LICENSE.md"
+      ]
+    },
+    {
+      "name": "get-nonce",
+      "version": "1.0.1",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git@github.com:theKashey/get-nonce.git",
+      "integrity": "sha512-FJhYRoDaiatfEkUK8HKlicmu/3SGFD51q3itKDGoSTysQJBnfOcxU5GxnhE1E6soB76MbT0MBtnKJuXyAx+96Q==",
+      "files": [
+        "npm/get-nonce@1.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "js-tokens",
+      "version": "4.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "lydell/js-tokens",
+      "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==",
+      "files": [
+        "npm/js-tokens@4.0.0/LICENSE"
+      ]
+    },
+    {
+      "name": "layout-base",
+      "version": "2.0.1",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/iVis-at-Bilkent/layout-base.git",
+      "integrity": "sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==",
+      "files": [
+        "npm/layout-base@2.0.1/LICENSE"
+      ]
+    },
+    {
+      "name": "loose-envify",
+      "version": "1.4.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git://github.com/zertosh/loose-envify.git",
+      "integrity": "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==",
+      "files": [
+        "npm/loose-envify@1.4.0/LICENSE"
+      ]
+    },
+    {
+      "name": "motion-dom",
+      "version": "12.42.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/motiondivision/motion",
+      "integrity": "sha512-5gIMWLp/PycBtJRJWRgjxke5n8dlvkSn2DrYW+tr3XcqAZY1xZh6BJyooJXCM8wdfM7wfMjkBJNLge1CKPUIRA==",
+      "files": [
+        "npm/motion-dom@12.42.2/LICENSE.md"
+      ]
+    },
+    {
+      "name": "motion-utils",
+      "version": "12.39.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/motiondivision/motion",
+      "integrity": "sha512-8nadJAJjTtqRkmRF36FoJTrywK9nnFmnPwnSMyxaOCU7GDjN9RTMJIxx9De8ErM+vpPhMccr/6fo5WciyQLnMQ==",
+      "files": [
+        "npm/motion-utils@12.39.0/LICENSE.md"
+      ]
+    },
+    {
+      "name": "object-assign",
+      "version": "4.1.1",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "sindresorhus/object-assign",
+      "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
+      "files": [
+        "npm/object-assign@4.1.1/license"
+      ]
+    },
+    {
+      "name": "prop-types",
+      "version": "15.8.1",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "facebook/prop-types",
+      "integrity": "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==",
+      "files": [
+        "npm/prop-types@15.8.1/LICENSE"
+      ]
+    },
+    {
+      "name": "react",
+      "version": "19.2.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/facebook/react.git",
+      "integrity": "sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==",
+      "files": [
+        "npm/react@19.2.7/LICENSE"
+      ]
+    },
+    {
+      "name": "react-cytoscapejs",
+      "version": "2.0.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/plotly/react-cytoscapejs.git",
+      "integrity": "sha512-t3SSl1DQy7+JQjN+8QHi1anEJlM3i3aAeydHTsJwmjo/isyKK7Rs7oCvU6kZsB9NwZidzZQR21Vm2PcBLG/Tjg==",
+      "files": [
+        "npm/react-cytoscapejs@2.0.0/LICENSE"
+      ]
+    },
+    {
+      "name": "react-dom",
+      "version": "19.2.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/facebook/react.git",
+      "integrity": "sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==",
+      "files": [
+        "npm/react-dom@19.2.7/LICENSE"
+      ]
+    },
+    {
+      "name": "react-is",
+      "version": "16.13.1",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/facebook/react.git",
+      "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
+      "files": [
+        "npm/react-is@16.13.1/LICENSE"
+      ]
+    },
+    {
+      "name": "react-remove-scroll",
+      "version": "2.7.2",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/theKashey/react-remove-scroll",
+      "integrity": "sha512-Iqb9NjCCTt6Hf+vOdNIZGdTiH1QSqr27H/Ek9sv/a97gfueI/5h1s3yRi1nngzMUaOOToin5dI1dXKdXiF+u0Q==",
+      "files": [
+        "npm/react-remove-scroll@2.7.2/LICENSE"
+      ]
+    },
+    {
+      "name": "react-remove-scroll-bar",
+      "version": "2.3.8",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/theKashey/react-remove-scroll-bar",
+      "integrity": "sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==",
+      "files": [
+        "supplemental/react-remove-scroll-bar-MIT.txt"
+      ],
+      "note": "The npm tarball omits its license file and its gitHead is unavailable in the public repository. This is the upstream repository license at a pinned revision; npm metadata declares MIT."
+    },
+    {
+      "name": "react-style-singleton",
+      "version": "2.2.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/theKashey/react-style-singleton",
+      "integrity": "sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==",
+      "files": [
+        "npm/react-style-singleton@2.2.3/LICENSE"
+      ]
+    },
+    {
+      "name": "scheduler",
+      "version": "0.27.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/facebook/react.git",
+      "integrity": "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==",
+      "files": [
+        "npm/scheduler@0.27.0/LICENSE"
+      ]
+    },
+    {
+      "name": "tslib",
+      "version": "2.8.1",
+      "license": "0BSD",
+      "declaredLicense": "0BSD",
+      "category": "Frontend dependency",
+      "source": "https://github.com/Microsoft/tslib.git",
+      "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==",
+      "files": [
+        "npm/tslib@2.8.1/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "use-callback-ref",
+      "version": "1.3.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/theKashey/use-callback-ref/",
+      "integrity": "sha512-jQL3lRnocaFtu3V00JToYz/4QkNWswxijDaCVNZRiRTO3HQDLsdu1ZtmIUvV4yPp+rvWm5j0y0TG/S61cuijTg==",
+      "files": [
+        "npm/use-callback-ref@1.3.3/LICENSE"
+      ]
+    },
+    {
+      "name": "use-sidecar",
+      "version": "1.1.3",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/theKashey/use-sidecar",
+      "integrity": "sha512-Fedw0aZvkhynoPYlA5WXrMCAMm+nSWdZt6lzJQ7Ok8S6Q+VsHmHpRWndVRJ8Be0ZbkfPc5LRYH+5XrzXcEeLRQ==",
+      "files": [
+        "npm/use-sidecar@1.1.3/LICENSE"
+      ]
+    },
+    {
+      "name": "use-sync-external-store",
+      "version": "1.7.0",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "https://github.com/react/react.git",
+      "integrity": "sha512-6L+EeigHMQhdaIPNIFUKwfWJSwWFQ8gJbJ2DLOs5sDIegTwR9fRxvnM3uciHKjIZhFz+KAv2emhWMRvDmMcY8A==",
+      "files": [
+        "npm/use-sync-external-store@1.7.0/LICENSE"
+      ]
+    },
+    {
+      "name": "zustand",
+      "version": "4.5.7",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/pmndrs/zustand.git",
+      "integrity": "sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==",
+      "files": [
+        "npm/zustand@4.5.7/LICENSE"
+      ]
+    },
+    {
+      "name": "zustand",
+      "version": "5.0.14",
+      "license": "MIT",
+      "declaredLicense": "MIT",
+      "category": "Frontend dependency",
+      "source": "git+https://github.com/pmndrs/zustand.git",
+      "integrity": "sha512-/8tAspM5LMPr28b3fwLYrtdj77ECpfZviaP75CMTnwO8ISyaE4GDIG/9rDDYq/cH9D2Xw2A2RXglLInmVBQB/g==",
+      "files": [
+        "npm/zustand@5.0.14/LICENSE"
+      ]
+    },
+    {
+      "name": "IBM Plex Sans",
+      "version": "3.201 (bundled font metadata)",
+      "license": "OFL-1.1",
+      "source": "https://raw.githubusercontent.com/google/fonts/e0b9f6ca2d88f7d6e89710ee06b17d53a21f6a22/ofl/ibmplexsans/OFL.txt",
+      "category": "Bundled font",
+      "files": [
+        "fonts/ibm-plex-sans-OFL.txt"
+      ]
+    },
+    {
+      "name": "JetBrains Mono",
+      "version": "2.211 (bundled font metadata)",
+      "license": "OFL-1.1",
+      "source": "https://raw.githubusercontent.com/google/fonts/2e05c1cf00a6e4f40a4b931600a90881c26e15cd/ofl/jetbrainsmono/OFL.txt",
+      "category": "Bundled font",
+      "files": [
+        "fonts/jetbrains-mono-OFL.txt"
+      ]
+    },
+    {
+      "name": "Libre Baskerville",
+      "version": "2.005 (bundled font metadata)",
+      "license": "OFL-1.1",
+      "source": "https://raw.githubusercontent.com/google/fonts/1fee23aceb88190a096292788d35bf7ca0d03968/ofl/librebaskerville/OFL.txt",
+      "category": "Bundled font",
+      "files": [
+        "fonts/libre-baskerville-OFL.txt"
+      ]
+    },
+    {
+      "name": "elkjs",
+      "version": "0.12.0",
+      "license": "EPL-2.0",
+      "source": "https://codeload.github.com/kieler/elkjs/tar.gz/ff5771d7165445c42c408bb8a090c8035272218c",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/elkjs-0.12.0-source.tar.gz"
+      ]
+    },
+    {
+      "name": "Eclipse Layout Kernel",
+      "version": "0.12.0",
+      "license": "EPL-2.0",
+      "source": "https://codeload.github.com/eclipse-elk/elk/tar.gz/323312916048544e4e594eab3303cdb0d01e2929",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/elk-0.12.0-source.tar.gz"
+      ]
+    },
+    {
+      "name": "emf-common-2.12.4",
+      "version": "See source archive",
+      "license": "EPL-1.0",
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-common/2.12.4/emf-common-2.12.4-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/emf-common-2.12.4-sources.jar"
+      ]
+    },
+    {
+      "name": "emf-ecore-2.12.4",
+      "version": "See source archive",
+      "license": "EPL-1.0",
+      "source": "https://repo.maven.apache.org/maven2/com/genmymodel/emf/gwt/emf-ecore/2.12.4/emf-ecore-2.12.4-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/emf-ecore-2.12.4-sources.jar"
+      ]
+    },
+    {
+      "name": "org.eclipse.xtext.xbase.lib-2.36.0",
+      "version": "See source archive",
+      "license": "EPL-2.0",
+      "source": "https://repo.maven.apache.org/maven2/org/eclipse/xtext/org.eclipse.xtext.xbase.lib/2.36.0/org.eclipse.xtext.xbase.lib-2.36.0-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/org.eclipse.xtext.xbase.lib-2.36.0-sources.jar"
+      ]
+    },
+    {
+      "name": "org.eclipse.xtend.lib-2.36.0",
+      "version": "See source archive",
+      "license": "EPL-2.0",
+      "source": "https://repo.maven.apache.org/maven2/org/eclipse/xtend/org.eclipse.xtend.lib/2.36.0/org.eclipse.xtend.lib-2.36.0-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/org.eclipse.xtend.lib-2.36.0-sources.jar"
+      ]
+    },
+    {
+      "name": "org.eclipse.xtend.lib.macro-2.36.0",
+      "version": "See source archive",
+      "license": "EPL-2.0",
+      "source": "https://repo.maven.apache.org/maven2/org/eclipse/xtend/org.eclipse.xtend.lib.macro/2.36.0/org.eclipse.xtend.lib.macro-2.36.0-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/org.eclipse.xtend.lib.macro-2.36.0-sources.jar"
+      ]
+    },
+    {
+      "name": "guava-31.1-jre",
+      "version": "See source archive",
+      "license": "Apache-2.0",
+      "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/guava-31.1-jre-sources.jar"
+      ]
+    },
+    {
+      "name": "guava-gwt-31.1-jre",
+      "version": "See source archive",
+      "license": "Apache-2.0",
+      "source": "https://repo.maven.apache.org/maven2/com/google/guava/guava-gwt/31.1-jre/guava-gwt-31.1-jre-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/guava-gwt-31.1-jre-sources.jar"
+      ]
+    },
+    {
+      "name": "gwt-user-2.11.0",
+      "version": "See source archive",
+      "license": "Apache-2.0",
+      "source": "https://repo.maven.apache.org/maven2/org/gwtproject/gwt-user/2.11.0/gwt-user-2.11.0-sources.jar",
+      "category": "ELK corresponding source",
+      "files": [
+        "elk-embedded/ELK-NOTICE.md",
+        "elk-embedded/Apache-2.0.txt",
+        "elk-embedded/gwt-jre-emulation-COPYING.txt",
+        "elk-embedded/guava-31.1-COPYING.txt",
+        "elk-embedded/gwt-core-COPYING.txt",
+        "elk-embedded/gwt-2.11.0-COPYING.txt",
+        "elk-embedded/gwt-json-COPYING.txt",
+        "elk-embedded/SOURCE-ATTRIBUTIONS.txt",
+        "elk-embedded/EPL-1.0.html",
+        "elk-embedded/ELK-LICENSE.md",
+        "elk-embedded/EPL-2.0.md"
+      ],
+      "archives": [
+        "sources/gwt-user-2.11.0-sources.jar"
+      ]
+    }
+  ]
+}
