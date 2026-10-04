@@ -1,6 +1,6 @@
 {
   "schema": "attack-tree-performance/1.0",
-  "measuredAt": "2026-10-04T19:24:44.863Z",
+  "measuredAt": "2026-10-04T23:23:08.687Z",
   "environment": {
     "runtime": "v24.13.1",
     "platform": "linux",
@@ -26,9 +26,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 198.273,
-          "pathsMs": 0.816,
-          "metricsMs": 4.12,
+          "layoutMs": 174.849,
+          "pathsMs": 0.307,
+          "metricsMs": 2.244,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -48,9 +48,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 25.565,
-          "pathsMs": 0.06,
-          "metricsMs": 0.547,
+          "layoutMs": 17.114,
+          "pathsMs": 0.056,
+          "metricsMs": 0.545,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -81,9 +81,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 21.762,
-          "pathsMs": 0.1,
-          "metricsMs": 1.048,
+          "layoutMs": 16.251,
+          "pathsMs": 0.076,
+          "metricsMs": 0.843,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -105,9 +105,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 25.969,
-          "pathsMs": 0.089,
-          "metricsMs": 0.998,
+          "layoutMs": 15.087,
+          "pathsMs": 0.053,
+          "metricsMs": 0.551,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -140,9 +140,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 24.074,
-          "pathsMs": 0.143,
-          "metricsMs": 1.086,
+          "layoutMs": 12.796,
+          "pathsMs": 0.082,
+          "metricsMs": 0.526,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -162,9 +162,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 25.296,
-          "pathsMs": 0.119,
-          "metricsMs": 0.749,
+          "layoutMs": 12.044,
+          "pathsMs": 0.066,
+          "metricsMs": 0.385,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -201,9 +201,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 90.359,
-          "pathsMs": 0.197,
-          "metricsMs": 1.621,
+          "layoutMs": 48.751,
+          "pathsMs": 0.108,
+          "metricsMs": 0.906,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -222,9 +222,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 85.311,
-          "pathsMs": 0.176,
-          "metricsMs": 1.433,
+          "layoutMs": 44.427,
+          "pathsMs": 0.121,
+          "metricsMs": 0.835,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -260,9 +260,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 13.183,
-          "pathsMs": 0.072,
-          "metricsMs": 0.547,
+          "layoutMs": 7.296,
+          "pathsMs": 0.045,
+          "metricsMs": 0.321,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -278,9 +278,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 13.133,
-          "pathsMs": 0.082,
-          "metricsMs": 0.538,
+          "layoutMs": 7.388,
+          "pathsMs": 0.083,
+          "metricsMs": 0.672,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -307,9 +307,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 17.225,
-          "pathsMs": 0.069,
-          "metricsMs": 0.907,
+          "layoutMs": 9.33,
+          "pathsMs": 0.05,
+          "metricsMs": 0.588,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -352,9 +352,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 18.632,
-          "pathsMs": 0.067,
-          "metricsMs": 0.752,
+          "layoutMs": 10.26,
+          "pathsMs": 0.045,
+          "metricsMs": 0.427,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -424,9 +424,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 374.115,
-          "pathsMs": 2.263,
-          "metricsMs": 13.461,
+          "layoutMs": 363.607,
+          "pathsMs": 2.092,
+          "metricsMs": 12.452,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -445,9 +445,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 364.315,
-          "pathsMs": 0.738,
-          "metricsMs": 4.225,
+          "layoutMs": 329.685,
+          "pathsMs": 0.704,
+          "metricsMs": 3.989,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -777,9 +777,9 @@
       "samples": [
         {
           "phase": "cold",
-          "layoutMs": 34.792,
-          "pathsMs": 0.082,
-          "metricsMs": 1.083,
+          "layoutMs": 34.641,
+          "pathsMs": 0.086,
+          "metricsMs": 1.039,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,
@@ -895,9 +895,9 @@
         },
         {
           "phase": "warm",
-          "layoutMs": 38.369,
-          "pathsMs": 0.129,
-          "metricsMs": 1.612,
+          "layoutMs": 31.71,
+          "pathsMs": 0.077,
+          "metricsMs": 0.835,
           "overlaps": 0,
           "upwardEdges": 0,
           "finite": true,

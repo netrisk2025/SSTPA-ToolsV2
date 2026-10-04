@@ -1,0 +1,301 @@
+{
+  "source": "GoalKeeper/examples/firesat-vault/FireSat-Authentic-Reports",
+  "sourceRevision": "5273f00fae5b907a19ef0aa1e8dc44950f228746",
+  "status": "Illustrative draft; no operational evidence or authority acceptance claimed",
+  "nodes": [
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnAssumption",
+      "gsn_id": "A1",
+      "name": "Reviewed configuration",
+      "statement": "The retired development downlink interface is absent from the reviewed operational configuration.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "DEMO_OBSOLETE"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnContext",
+      "gsn_id": "C1",
+      "name": "Payload operating scope",
+      "statement": "Fire Detection Payload; Standby and Imaging; cryogenic sensor operation on a thermally stable platform.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "SYS_1.1.2_0",
+        "ST_1.1.2_1",
+        "ST_1.1.2_2",
+        "ENV_1.1.2_1"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnContext",
+      "gsn_id": "C2",
+      "name": "Loss and protected asset",
+      "statement": "Loss: authentic fire reports. Asset: fire detection reports. Mission Critical; Authenticity. Prototype illustration.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "DEMO_LOSS",
+        "DEMO_AST_FIRE_REPORTS"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnContext",
+      "gsn_id": "C3",
+      "name": "Draft evidence boundary",
+      "statement": "Acceptance criteria, operational evidence and authority decisions remain outstanding; no operational approval is asserted.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnContext",
+      "gsn_id": "C4",
+      "name": "Block claim limitation",
+      "statement": "The source marks one frame-injection route Complete Block; effectiveness has not been demonstrated.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "DEMO_FRAME_CHECK"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G1",
+      "name": "FireSat report authenticity",
+      "statement": "Loss of authentic fire reports is acceptably controlled in the declared Fire Detection Payload configuration.",
+      "undeveloped": false,
+      "is_root": true,
+      "assurance_status": "Illustrative draft \u2014 operational evidence and authority acceptance remain outstanding.",
+      "source_repository": "https://github.com/netrisk2025/attack-tree",
+      "source_revision": "8d7641d8e1fe5ef9fcbf7bb912dde4cdf922fc28",
+      "source_entity_ids": [
+        "DEMO_LOSS",
+        "DEMO_AST_FIRE_REPORTS"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [
+        "[[S1]]"
+      ],
+      "in_context_of": [
+        "[[C1]]",
+        "[[C2]]"
+      ]
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G2",
+      "name": "Traceable scope and coverage",
+      "statement": "The selected Loss, payload scope and modeled routes are traceable to the recorded prototype baseline.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "DEMO_LOSS",
+        "SYS_1.1.2_0"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [
+        "[[Sn1]]"
+      ],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G3",
+      "name": "Trusted payload processing",
+      "statement": "Firmware, diagnostic access and update-key custody preserve authentic report generation.",
+      "undeveloped": true,
+      "source_entity_ids": [
+        "EL_1.1.2_3",
+        "DEMO_FIRMWARE",
+        "DEMO_DIAGNOSTIC",
+        "DEMO_DERIVED_KEY"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G4",
+      "name": "Authentic sensor frames",
+      "statement": "Sensor-frame origin and integrity are established before data enters the classification chain.",
+      "undeveloped": true,
+      "source_entity_ids": [
+        "INT_1.1.2_1",
+        "DEMO_VIDEO_TAMPER",
+        "DEMO_FRAME_CHECK"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": [
+        "[[C4]]"
+      ]
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G5",
+      "name": "Trusted classification",
+      "statement": "Detection classification and calibration references preserve authentic fire-report content.",
+      "undeveloped": true,
+      "source_entity_ids": [
+        "FUN_1.1.2_2",
+        "DEMO_MODEL_BIAS",
+        "DEMO_CALIBRATION",
+        "DEMO_REVIEW_BYPASS"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G6",
+      "name": "Fresh downlink reports",
+      "statement": "Report freshness is maintained through replay attempts, counter rollover and state transitions.",
+      "undeveloped": true,
+      "source_entity_ids": [
+        "INT_1.1.2_2",
+        "DEMO_REPLAY",
+        "DEMO_ANTI_REPLAY",
+        "DEMO_ROLLOVER"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G7",
+      "name": "Justified residual decisions",
+      "statement": "Residual, blocked, derived and excluded routes have sufficient justification for acceptance.",
+      "undeveloped": false,
+      "source_entity_ids": [
+        "DEMO_KEYTHEFT",
+        "DEMO_FRAME_CHECK",
+        "DEMO_DERIVED_KEY",
+        "DEMO_OBSOLETE"
+      ],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [
+        "[[G8]]",
+        "[[G9]]"
+      ],
+      "in_context_of": [
+        "[[C3]]",
+        "[[A1]]"
+      ]
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G8",
+      "name": "Recorded prototype decisions",
+      "statement": "Prototype route dispositions and rationale are recorded for independent scrutiny.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [
+        "[[Sn2]]"
+      ],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnGoal",
+      "gsn_id": "G9",
+      "name": "Evidence and authority review",
+      "statement": "The regime authority accepts residual exposure against approved criteria and verified evidence.",
+      "undeveloped": true,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnJustification",
+      "gsn_id": "J1",
+      "name": "Decomposition rationale",
+      "statement": "Processor, sensor, classification and downlink branches follow the four attack surfaces in the Loss Tool.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": []
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnStrategy",
+      "gsn_id": "S1",
+      "name": "Argument by attack surface",
+      "statement": "Argue over scope, four report-chain attack surfaces and the justification of residual decisions.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [
+        "[[G2]]",
+        "[[G3]]",
+        "[[G4]]",
+        "[[G5]]",
+        "[[G6]]",
+        "[[G7]]"
+      ],
+      "in_context_of": [
+        "[[J1]]"
+      ]
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnSolution",
+      "gsn_id": "Sn1",
+      "name": "Loss source inventory",
+      "statement": "Recorded Loss scope and route inventory; supports traceability only.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": [],
+      "has_evidence": [
+        "[[Evidence/FS-E1]]"
+      ]
+    },
+    {
+      "gk_schema": 1,
+      "gk_type": "GsnSolution",
+      "gsn_id": "Sn2",
+      "name": "Decision source record",
+      "statement": "Recorded prototype dispositions; documents decisions without validating them.",
+      "undeveloped": false,
+      "source_entity_ids": [],
+      "provenance": "Prototype-authored GSN illustration derived from the recorded FireSat Loss source.",
+      "supported_by": [],
+      "in_context_of": [],
+      "has_evidence": [
+        "[[Evidence/FS-E2]]"
+      ]
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # SSTPA Tools — Verification record
 
+## 2026-10-04 Goal Keeper production integration
+
+The final supported-host gate passes: 312 frontend tests, 173 standalone tests, 53 Go unit tests and 17 database integration tests, plus build/lint/race/native/offline/package checks. See [GOALKEEPER-VERIFICATION.md](GOALKEEPER-VERIFICATION.md) for the complete results, FireSat storyboard and limits. These records supplement the prior Loss verification below.
+
 This record separates the current Loss integration gate from historical evidence. SRS §6.5.10.22 and `LOSS-TOOL-ARCHITECTURE.md` were updated before integration implementation began on 2026-10-04. `TESTING.md` defines the procedures; a procedure or prototype approval is not a production PASS.
 
 ## Current integration verification — 2026-10-04

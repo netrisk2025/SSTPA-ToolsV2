@@ -39,3 +39,7 @@ Schema: {path} - description - Access Rules
 /home/netrisk/Projects/SSTPA Tools/docs/verify-sustainment-offline.py - Reproducible offline synthetic pipeline and missing-source refusal checks; does not create an authentic reference-data release - Open for use
 
 /home/netrisk/Projects/SSTPA Tools/Example_Data - Example Data projects (SRS §3.6) managed outside the application: tailorable YAML models, build/validate/package scripts, deployable Cypher artifacts (FireSat) - Open for use
+
+/home/netrisk/Projects/SSTPA Tools/frontend/src/tools/goalkeeper - Approved GSN v3 host, Core adapter, canvas, color/model dialogs and pure domain modules - Open for use
+
+/home/netrisk/Projects/SSTPA Tools/frontend/tests/goalkeeper - Transferred GSN, ELK, color, migration and production UI verification - Open for use

@@ -1,0 +1,84 @@
+{
+  "status": "PASS for supported Linux release-binary packaging gates",
+  "verifiedAt": "2026-10-04T23:25:22.678907+00:00",
+  "commands": [
+    {
+      "command": "cargo build --release --locked --offline --features tauri/custom-protocol",
+      "cwd": "frontend/src-tauri",
+      "exitCode": 0,
+      "log": "frontend-native-release.log"
+    },
+    {
+      "command": "cargo build --release --locked --offline --features tauri/custom-protocol",
+      "cwd": "startup/src-tauri",
+      "exitCode": 0,
+      "log": "startup-native-release.log"
+    },
+    {
+      "command": "env -u DOCKER_HOST DOCKER_CONTEXT=default BUILDX_CONFIG=<task workspace>/work/production-backend/buildx CARGO_NET_OFFLINE=true ./installer/scripts/build-package.sh --skip-reference-data --version 0.1.0-goalkeeper-v3 --out <task workspace>/work/goalkeeper-package",
+      "exitCode": 0,
+      "log": "installer-build.log"
+    },
+    {
+      "command": "node scripts/verify-license-package.mjs --package <staged package> --require-native",
+      "cwd": "frontend",
+      "exitCode": 0,
+      "log": "installer-license-native-verification.log"
+    }
+  ],
+  "package": {
+    "archive": "<task workspace>/work/goalkeeper-package/sstpa-tools-0.1.0-goalkeeper-v3-linux-x86_64.tar.gz",
+    "bytes": 80574103,
+    "sha256": "779fe43442a93ab2d16dadc5b0393c891543b7d1d84960641f5e676f38a85efa",
+    "metadata": "product=SSTPA Tools\nversion=0.1.0-goalkeeper-v3\nplatform=linux-x86_64\ngitCommit=05e076bfc8a18e36e146b5ecf01121c32566448c\ncreatedUtc=2026-10-04T23:25:00Z\ntauriRequested=1\ntauriBuilt=0\ntauriNativeBundles=0\nfrontendBundleStatus=release-binary\nstartupBundleStatus=release-binary\nreferenceDataStatus=skipped\nreferenceDataArtifact=\ndockerBuilt=1\nimagesSaved=0\nlicenseCatalog=payload/licenses/catalog.json\nlicenseSourceManifest=payload/licenses/source-manifest.json\nlicenseVerification=passed\n",
+    "checksumsSha256": "6180a332d4c9aeb2398c1cb2479f7c383a6136408d1d45956d7d0470e9700445",
+    "localDeploymentSecretsExcluded": true,
+    "snapshotNote": "Package includes integration source as it existed at staging. gitCommit is the base HEAD; actual native/archive hashes identify this tested build. Final report updates after staging remain outside this archive."
+  },
+  "nativeBinaries": [
+    {
+      "path": "frontend/src-tauri/target/release/sstpa-tools-gui",
+      "bytes": 34074016,
+      "sha256": "425a1b22c00e46daf18cd5c78a26136830796edd03749836bd0e93e753562dcd"
+    },
+    {
+      "path": "startup/src-tauri/target/release/sstpa-startup",
+      "bytes": 9547880,
+      "sha256": "3cfdae34a545f02a89a2587adda4531ae2d742946bdb8e0b03a9e52dbc071e69"
+    }
+  ],
+  "goalkeeperChunkEmbedded": "GoalKeeperTool-C5Su3W9M.js",
+  "backendImage": {
+    "tag": "sstpa-backend:latest",
+    "imageId": "sha256:0ea6500e74d76df2542b17f9579b2e9bc44ed12d18e69dcb19098d6fcef5f172",
+    "buildExitCode": 0
+  },
+  "licensesAndNativePackage": {
+    "passed": true,
+    "verifiedAt": "2026-10-04T23:25:22.586Z",
+    "licenseFiles": 130,
+    "worker": "elk-worker.min-r_yRvuMO.js",
+    "workerBytes": 1595334,
+    "lockSha256": "2af876fdddbfd964ea475f2d6146f530ed6dbfcd3eb19134735b77eeb4cd9b16",
+    "installer": {
+      "directory": "<task workspace>/work/goalkeeper-package/sstpa-tools-0.1.0-goalkeeper-v3-linux-x86_64",
+      "checksumEntries": 571,
+      "licenseFiles": 130,
+      "nativeBinariesVerified": true
+    },
+    "checks": [
+      "current lock dependency notices",
+      "matching corresponding source",
+      "all built license files byte-identical",
+      "local worker byte-identical",
+      "Tauri resources and same-origin worker CSP",
+      "installer explicit offline notice staging"
+    ]
+  },
+  "limitations": [
+    "Host inotify capacity caused the existing documented release-binary fallback. No .deb/AppImage success is claimed.",
+    "Authentic Reference Data archive unavailable; package explicitly skips Reference Data. Synthetic and disposable-database checks do not qualify an authentic reference release.",
+    "Docker backend image was built locally, not deployed; image archives were not saved in this installer.",
+    "Native GUI interaction and Windows execution were not exercised."
+  ]
+}

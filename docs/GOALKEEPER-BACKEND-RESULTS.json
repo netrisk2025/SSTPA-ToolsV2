@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-04",
+  "status": "PASS",
+  "repository": ".",
+  "independentReview": "SCC/legacy-edge/scope review cleared; final read-only review found advisory scope inconsistency, corrected with shared helper and real-database regression. No remaining blocker found.",
+  "checks": [
+    {
+      "command": "go test -count=1 ./...",
+      "result": "PASS",
+      "log": "go-verification.log"
+    },
+    {
+      "command": "go vet ./...",
+      "result": "PASS",
+      "log": "go-verification.log"
+    },
+    {
+      "command": "go build ./...",
+      "result": "PASS",
+      "log": "go-verification.log"
+    },
+    {
+      "command": "go test -race -count=1 ./internal/api ./internal/model ./internal/schema",
+      "result": "PASS",
+      "log": "go-verification.log"
+    },
+    {
+      "command": "DOCKER_HOST=unix:///var/run/docker.sock ./scripts/integration-test.sh",
+      "result": "PASS",
+      "topLevelTests": 17,
+      "newGsnTests": 5,
+      "log": "integration.log",
+      "environment": "Disposable Neo4j 2026.05.0-community; container removed by harness."
+    },
+    {
+      "command": "cargo check --locked --offline (frontend/src-tauri)",
+      "result": "PASS",
+      "log": "frontend-cargo-check.log"
+    },
+    {
+      "command": "cargo check --locked --offline (startup/src-tauri)",
+      "result": "PASS",
+      "log": "startup-cargo-check.log"
+    },
+    {
+      "command": "python3 docs/verify-sustainment-offline.py",
+      "result": "PASS",
+      "checks": 17,
+      "authenticReleaseProduced": false,
+      "log": "sustainment.log"
+    },
+    {
+      "command": "python3 Example_Data/FireSat/build_firesat.py --out-dir <task workspace>/work/production-backend/firesat-package",
+      "result": "PASS",
+      "nodes": 467,
+      "relationships": 842,
+      "systems": 33,
+      "log": "firesat-builder.log"
+    },
+    {
+      "command": "cmp canonical schema files with docs/schema mirrors; git diff --check (owned tracked files)",
+      "result": "PASS"
+    },
+    {
+      "command": "cargo test --locked --offline (GoalKeeper/src-tauri)",
+      "result": "PASS",
+      "nativeTests": 0,
+      "scope": "Library, binary and doc-test compilation, not native UI behavior.",
+      "log": "standalone-cargo-test.log"
+    },
+    {
+      "command": "python3 work/production-backend/verify_offline_databases.py",
+      "result": "PASS",
+      "syntheticReferenceDatabaseAssertions": 6,
+      "fireSatDatabaseAssertions": 10,
+      "fireSatLoaderSuccessfulLoads": 2,
+      "loaderRefusalChecks": 2,
+      "scope": "Disposable offline Neo4j only; authentic reference release remains unqualified.",
+      "log": "offline-database-verification.log",
+      "details": [
+        "sustainment-database-verification.json",
+        "firesat-loader-verification.json"
+      ]
+    }
+  ],
+  "newUnitTests": 8,
+  "scopeNotes": [
+    "GSN v3 core only; no extensions claim.",
+    "Canonical graph remains authoritative; GoalStructure is presentation state only.",
+    "Undeveloped Boolean applies only to Goal/Strategy and permits partially supported arguments.",
+    "Existing invalid legacy graphs remain readable, with layout-only edits and incremental structural repair; new/worsened edge-level violations reject.",
+    "GSN semantic writes serialize on affected System scopes, expanding across legacy cross-scope links. Nodes without canonical SoI scope cannot take semantic edits.",
+    "Independent root cases may reuse display numbers; uniqueness is checked within each reachable root case.",
+    "Unsupported drafts and absent evidence remain incompleteness findings, not structural commit blockers.",
+    "Optional expectedGoalStructure string/null on updateNode locks and compares exact persisted root view; conflict returns HTTP 409 with full transaction rollback.",
+    "No deployed database accessed; no source data migration; no commits or pushes by this subagent.",
+    "Native cargo checks are compile checks, not native GUI runtime qualification.",
+    "Relationship preview and Commit share expansion through existing legacy cross-scope links; both reject cycles through such detours."
+  ],
+  "sha256": {
+    "backend/internal/api/gsn_validation.go": "e2111220560d0ed2d57b2f2bb6a081fb5638050827b8d30ee056607458b87236",
+    "backend/internal/api/gsn_validation_test.go": "3e3159706ea3f81375cbdd56b15ae4f45a7cf90119842368dfa9378f6de9369d",
+    "backend/internal/api/gsn_transaction_integration_test.go": "aad0a3045d176807dd2bb6e4d1aaf6e478aea6ef14495ac71da908f624c2db04",
+    "backend/internal/api/commit.go": "3257bec431c88264c13ad89b19752b3cc08455709d6d3f712f369fde3b421701",
+    "backend/internal/api/commit_helpers.go": "2485ad9e5e11af477b58d1f56ac2c7ca104c13d1f44bf3888200b25f7fb15e39",
+    "backend/internal/api/relationships.go": "e9366c5ddee53c304846f064e88a494e7a544cf37ba338d43be54b978da1421a",
+    "backend/internal/schema/data/node-properties.json": "a570f9b68abfbdd31b68382973f52e73bda51dab837bcf088317a26226989f13",
+    "backend/internal/schema/data/relationships.json": "504e3fb1640b7d75e74e0fbe63df2a4f041cb5d3832fe26809e5706c5334c6b6",
+    "docs/schema/node-properties.json": "a570f9b68abfbdd31b68382973f52e73bda51dab837bcf088317a26226989f13",
+    "docs/schema/relationships.json": "504e3fb1640b7d75e74e0fbe63df2a4f041cb5d3832fe26809e5706c5334c6b6"
+  },
+  "verifiedAt": "2026-10-04T23:22:45.965272+00:00",
+  "topLevelUnitTests": 53
+}

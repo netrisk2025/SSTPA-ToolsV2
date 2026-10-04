@@ -3,6 +3,16 @@
 This file records implementation checkpoints and verification status while the
 application is completed against `SSTPA Tool SRS V7.md`.
 
+## 2026-10-04 — Approved Goal Keeper production integration and colors
+
+Replaced the old Goal Keeper tier display with the approved GSN v3 core SVG presentation. The alternate graph/actual Backend text is on-demand through View; the main canvas uses complete statements, canonical glyphs/arrows and undeveloped markers. Added the Loss-style six-type/four-channel color selector with theme defaults/reset and explicit Core presentation commit. Both tools share the locally bundled ELK factory; no runtime dependency was added. Core identities, authoring/evidence, ownership and SoI context remain authoritative. Legacy presentation envelopes are preserved additively.
+
+Added final-state GSN Backend validation, legacy cross-scope expansion, display-ID/root/cycle guards and an exact root-view precondition for stale saves. Frozen UI drafts survive background refresh/root disappearance; commit/reload failures retain a clear reconciliation boundary. Updated SRS §6.5.11.27, I-20, architecture and verification procedures.
+
+Final supported-host gate: frontend 312/312, standalone 173/173, Go 53 unit +17 database integration, vet/build/race, both native checks/releases, synthetic sustainment 17/17 +reference DB 6/6, FireSat 10/10 +2 loads/refusals 2/2. Build/lint/audit/license checks pass; the 10 pre-existing lint warnings remain. Production browser FireSat walkthrough and Loss shared-worker regression pass; no production data changed. Final installer verifies 571 checksums/130 license files and both native binaries. [GOALKEEPER-VERIFICATION.md](GOALKEEPER-VERIFICATION.md) records evidence, storyboard and unqualified native-runtime/Windows/authentic-reference scopes.
+
+SBOM impact: jsdom 26.1.0 is a test-only dependency; existing elkjs 0.12.0 and its verified notices/sources are reused. Runtime production closure remains 93 npm packages. Native bundling used the documented watcher-capacity release-binary fallback; no deployment or operational approval is claimed.
+
 ## 2026-07-06 — Example Data: external FireSat package is now the only example; embedded exemplar removed
 
 Populated the deployment with the external FireSat Example Data package and

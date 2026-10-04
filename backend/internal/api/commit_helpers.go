@@ -8,6 +8,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -195,6 +196,18 @@ func (s *Server) castProperty(label, name string, v any) (any, error) {
 	}
 	if name == "AttackTreeJSON" || name == "MetricDefinitionsJSON" || name == "AnalysisProfileJSON" || name == "MetricsJSON" {
 		return castLossJSON(name, v)
+	}
+	if isGsnLabel(label) && name == gsnIDProperty(label) {
+		switch n := v.(type) {
+		case float64:
+			if math.IsNaN(n) || math.IsInf(n, 0) || n != math.Trunc(n) || n < 0 || n >= 9223372036854775808.0 {
+				return nil, fmt.Errorf("GSN display ID %s must be a nonnegative Integer", name)
+			}
+		case int64:
+			if n < 0 {
+				return nil, fmt.Errorf("GSN display ID %s must be a nonnegative Integer", name)
+			}
+		}
 	}
 	switch strings.ToLower(def.Type) {
 	case "boolean":
@@ -477,7 +490,7 @@ func (s *Server) validateRelInTx(ctx context.Context, tx neo4j.ManagedTransactio
 		!crossSoIAllowed(relType, src.label, tgt.label) {
 		return fmt.Sprintf("[:%s] may not cross SoI boundaries (SRS §3.3.5)", relType)
 	}
-	if !relAllowsMultiplicity(relType) {
+	if !relAllowsMultiplicity(relType) && relType != "SUPPORTED_BY" && relType != "IN_CONTEXT_OF" {
 		res, err := tx.Run(ctx, fmt.Sprintf(
 			`MATCH (a {HID: $src})-[r:%s]->(b {HID: $tgt}) RETURN count(r) AS n`, relType),
 			map[string]any{"src": srcHID, "tgt": tgtHID})
@@ -492,7 +505,7 @@ func (s *Server) validateRelInTx(ctx context.Context, tx neo4j.ManagedTransactio
 			return fmt.Sprintf("duplicate [:%s] between %s and %s (SRS §3.3.2)", relType, srcHID, tgtHID)
 		}
 	}
-	if s.schema.IsAcyclic(relType) && relType != "AT_RELATES_TO" { // Loss-scoped DAG validation runs on the final transaction.
+	if s.schema.IsAcyclic(relType) && relType != "AT_RELATES_TO" && relType != "SUPPORTED_BY" { // Loss and GSN DAG validation runs on the final transaction.
 		if srcHID == tgtHID {
 			return fmt.Sprintf("[:%s] self-loop would create a cycle (SRS §3.3.6)", relType)
 		}

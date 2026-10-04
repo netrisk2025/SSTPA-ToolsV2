@@ -64,8 +64,8 @@ function initialFrame(toolId: string) {
   } catch {
     saved = {};
   }
-  const w = Math.min(Math.max(420, saved.w ?? (toolId === "sstpa.loss" ? maxW : 900)), maxW);
-  const h = Math.min(Math.max(300, saved.h ?? (toolId === "sstpa.loss" ? maxH : 620)), maxH);
+  const w = Math.min(Math.max(420, saved.w ?? (["sstpa.loss","sstpa.goalkeeper"].includes(toolId) ? maxW : 900)), maxW);
+  const h = Math.min(Math.max(300, saved.h ?? (["sstpa.loss","sstpa.goalkeeper"].includes(toolId) ? maxH : 620)), maxH);
   const x = Math.min(
     Math.max(0, saved.x ?? (window.innerWidth - w) / 2),
     Math.max(0, window.innerWidth - w - 8),
@@ -170,7 +170,7 @@ function ToolWindow({ toolId }: { toolId: string }) {
     window.addEventListener("mouseup", onUp);
   };
 
-  const showModelText = manifest.ModelTextLanguages.length > 0;
+  const showModelText = toolId !== "sstpa.goalkeeper" && manifest.ModelTextLanguages.length > 0;
 
   return (
     <div
@@ -216,7 +216,7 @@ function ToolWindow({ toolId }: { toolId: string }) {
           title="Close tool"
           onMouseDown={(e) => e.stopPropagation()}
           onClick={() => {
-            if (toolId === "sstpa.loss" && !window.dispatchEvent(new Event("sstpa.loss.request-close", {cancelable:true}))) return;
+            if (["sstpa.loss","sstpa.goalkeeper"].includes(toolId) && !window.dispatchEvent(new Event(`${toolId}.request-close`, {cancelable:true}))) return;
             closeTool(toolId);
           }}
         >

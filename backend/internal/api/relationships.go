@@ -112,6 +112,36 @@ func (s *Server) validateRelationship(r *http.Request, req validateRelationshipR
 		}
 	}
 
+	// The GSN preview uses the same complete finite-graph checks as Commit;
+	// it does not inherit the generic traversal's 50-hop cycle cutoff.
+	if isGsnStructureRel(req.Type) && req.SourceHID != "" && req.TargetHID != "" {
+		_, err := s.db.Read(r.Context(), func(tx neo4j.ManagedTransaction) (any, error) {
+			sois, err := expandGsnScopes(r.Context(), tx, map[string]bool{srcSoI: true, tgtSoI: true})
+			if err != nil {
+				return nil, err
+			}
+			graph, err := loadGsnGraph(r.Context(), tx, sois)
+			if err != nil {
+				return nil, err
+			}
+			before := s.gsnViolations(graph)
+			if req.Type == "HAS_GOAL" {
+				node := graph.Nodes[req.TargetHID]
+				node.Root = true
+				graph.Nodes[req.TargetHID] = node
+			} else {
+				graph.Edges = append(graph.Edges, gsnEdge{Source: req.SourceHID, Target: req.TargetHID, Type: req.Type})
+			}
+			return nil, rejectNewGsnViolations(before, s.gsnViolations(graph))
+		})
+		if err != nil {
+			return invalid("%v", err)
+		}
+		if req.Type != "HAS_GOAL" {
+			return validateRelationshipResponse{Valid: true}
+		}
+	}
+
 	// Duplicate prevention (§3.3.2) and acyclicity (§3.3.6) for existing nodes.
 	if req.SourceHID != "" && req.TargetHID != "" {
 		res, err := s.db.Read(r.Context(), func(tx neo4j.ManagedTransaction) (any, error) {

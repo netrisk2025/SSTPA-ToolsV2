@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-04",
+  "status": "PASS",
+  "environment": "Isolated integration-verification Core; no deployed database mutations",
+  "origins": {
+    "development": "http://127.0.0.1:5200/",
+    "production": "http://127.0.0.1:5201/?backend=http://127.0.0.1:18089"
+  },
+  "browser": "Codex in-app browser, Linux",
+  "rootHid": "G_1.1.2_3",
+  "soiHid": "SYS_1.1.2_0",
+  "fixture": "frontend/scripts/seed-goalkeeper-verification.mjs",
+  "productionConsoleErrors": 0,
+  "checks": [
+    "Sign-in, FireSat hierarchy navigation and existing Goal Keeper manifest entry",
+    "18 GSN elements, 17 GSN edges,2 evidence references; all6 core types and5 undeveloped claims",
+    "GSN main workspace without permanently docked model panel",
+    "Font/fill/connector/boundary changes, default reset to theme fill #fffefb, authenticated Commit, close and reopen restores colors",
+    "Light and Dark theme inspection; custom overrides retain their chosen values",
+    "Fit/100%/branch reading; primary statements remain16px at 100%",
+    "Production local ELK worker arranges both Goal Keeper and Loss; Loss smoke reverted its layout draft",
+    "View-menu dialog shows argument projection and actual read-only SoI Backend SYSML/KERML text; Escape dismisses",
+    "Core drawer and node edit/commit; draft protection while editing; dirty close and reload confirmation",
+    "Whole-argument SVG/JSON/Markdown downloads parsed;18nodes/17graphlinks and full statements; matching4-channel palette; no external SVG resources",
+    "Customer Markdown retains provenance/evidence statements without raw Core JSON blobs",
+    "FireSat validation0errors/5warnings/5informational findings preserves illustrative evidence limits"
+  ],
+  "exports": {
+    "GoalKeeper-Production-FireSat.md": {
+      "bytes": 11186,
+      "sha256": "e4aad61daf2783c88e801713c6f609544a8dacba01c950b49332f78b145199d2"
+    },
+    "GoalKeeper-Production-FireSat.json": {
+      "bytes": 43470,
+      "sha256": "61a670594a9b985d46eb12f4a3138776dd65257b55d60f0637d1b9f8f21f69d0"
+    },
+    "GoalKeeper-Production-FireSat.svg": {
+      "bytes": 23296,
+      "sha256": "e3630259c743fddc3a9bd7b21aabce0def623180ea7578a54719ded428704d2d"
+    }
+  },
+  "limitations": [
+    "These are synthetic illustrative FireSat records, not operational evidence.",
+    "Core/SoI deletion, conflict, rejection and failed-refresh cases are covered by automated tests; not every case was reproduced through a real browser.",
+    "Native GUI interaction and operating-system color-picker interaction were not exercised.",
+    "Backend restart invalidated a temporary session during setup; final authenticated run had zero captured console errors."
+  ]
+}

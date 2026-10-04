@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "tests": 173,
+  "testFiles": 17,
+  "gates": [
+    {
+      "command": "npm run verify",
+      "startedAt": "2026-10-04T23:11:07.582610+00:00",
+      "exitCode": 0,
+      "log": "1-run.log"
+    },
+    {
+      "command": "npm audit --json",
+      "startedAt": "2026-10-04T23:11:12.267388+00:00",
+      "exitCode": 0,
+      "log": "2-audit.log"
+    }
+  ],
+  "auditVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "native": {
+    "command": "cargo test --locked --offline",
+    "passed": true,
+    "tests": 0,
+    "scope": "Rust compilation only; native UI not exercised"
+  }
+}

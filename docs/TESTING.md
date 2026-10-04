@@ -1,6 +1,6 @@
 # SSTPA Tools — Testing and validation guide
 
-Updated for the approved Loss Tool integration, SRS §6.5.10.22 (2026-10-04). This file specifies procedures; observed results are recorded in `VERIFICATION.md` and `PROGRESS.md`. A running port, seeded account or example dataset is not guaranteed by this document.
+Updated for the approved Loss and Goal Keeper integrations, SRS §6.5.10.22 and §6.5.11.27 (2026-10-04). This file specifies procedures; observed results are recorded in `VERIFICATION.md` and `PROGRESS.md`. A running port, seeded account or example dataset is not guaranteed by this document.
 
 ## Establish the test environment
 
@@ -121,3 +121,7 @@ Record the actual fixture, application origin, source revision, browser errors a
 | Incomplete risk | Inspect missing inputs, scenario budget, shared-event correlation or stochastic assumptions; do not relabel a partial result as complete. |
 | Reference search empty | Check the installed reference artifact and use the guarded reference loader for the intended test database. |
 | SVG/license package failure | Run exporter/license tests and inspect the exact final lockfile, generated catalog paths and packaged source checksums. |
+
+## Goal Keeper production acceptance (§6.5.11.27)
+
+Run the full supported-host gate above and the standalone GoalKeeper test/typecheck/build/license gates before push. Add domain vectors for v3 glyphs, long statements, typed endpoints, cycles, evidence, colors, escaping and ELK non-overlap; adapter vectors for canonical identity, duplicate display IDs, legacy/malformed/future snapshots and palette/view round trips. In an isolated fixture, verify all six symbols, undeveloped diamonds, pan/zoom/branch/manual arrangement, both themes, four color channels by node type, defaults reset, committed reopen, SVG parity, and keyboard dismissal of Colors and View→SysML/KerML. Confirm main window has no model panel. Test dirty close/root/SoI protections, failed saves, subsequent reload failure, evidence/authoring/Data Drawer and legacy repair. Record actual results separately from this procedure.

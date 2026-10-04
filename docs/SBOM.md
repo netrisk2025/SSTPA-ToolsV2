@@ -92,6 +92,10 @@ per-artifact license-text audit of Go, Rust, containers, Python, or toolchains.
 Existing subsystem lockfiles remain authoritative for exact versions; counts
 and development host tool versions recorded here can change independently.
 
+### Goal Keeper integration (2026-10-04)
+
+Goal Keeper reuses the existing `elkjs` 0.12.0 production dependency and the shared locally bundled worker; it adds no runtime dependency. `jsdom` 26.1.0 (MIT, https://github.com/jsdom/jsdom) is added only to development dependencies for the React dialog and host integration tests. Its exact transitive closure is pinned in `frontend/package-lock.json`. Generated production notices and corresponding-source materials remain verified by the build and installer gates.
+
 ## 4. Tauri (Rust crates) — `frontend/src-tauri/Cargo.toml`, `startup/src-tauri/Cargo.toml`
 
 | Component | Version | Source | License | Use | Status |

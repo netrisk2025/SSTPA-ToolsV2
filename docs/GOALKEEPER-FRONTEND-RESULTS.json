@@ -1,0 +1,198 @@
+{
+  "date": "2026-10-04",
+  "status": "PASS",
+  "tests": 312,
+  "testFiles": 24,
+  "failed": 0,
+  "lintWarnings": 10,
+  "lintBaselineWarnings": 10,
+  "auditVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "gates": [
+    {
+      "command": "npm test -- --reporter=json --outputFile=<task workspace>/work/final-sstpa-frontend/tests.json",
+      "startedAt": "2026-10-04T23:23:07.009720+00:00",
+      "exitCode": 0,
+      "log": "1-test.log"
+    },
+    {
+      "command": "npm run build",
+      "startedAt": "2026-10-04T23:23:08.722622+00:00",
+      "exitCode": 0,
+      "log": "2-run.log"
+    },
+    {
+      "command": "npm run lint",
+      "startedAt": "2026-10-04T23:23:13.002144+00:00",
+      "exitCode": 0,
+      "log": "3-run.log"
+    },
+    {
+      "command": "node scripts/verify-license-package.mjs",
+      "startedAt": "2026-10-04T23:23:13.111330+00:00",
+      "exitCode": 0,
+      "log": "4-verify-license-package.mjs.log"
+    },
+    {
+      "command": "npm audit --json",
+      "startedAt": "2026-10-04T23:23:13.226921+00:00",
+      "exitCode": 0,
+      "log": "5-audit.log"
+    }
+  ],
+  "files": [
+    {
+      "file": "frontend/tests/asset-types.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "frontend/tests/export-svg.test.ts",
+      "status": "passed",
+      "tests": 5
+    },
+    {
+      "file": "frontend/tests/goalkeeper/colors.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "frontend/tests/goalkeeper/compliance.test.ts",
+      "status": "passed",
+      "tests": 61
+    },
+    {
+      "file": "frontend/tests/goalkeeper/core-adapter.test.ts",
+      "status": "passed",
+      "tests": 22
+    },
+    {
+      "file": "frontend/tests/goalkeeper/elk.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "frontend/tests/goalkeeper/frontmatter.test.ts",
+      "status": "passed",
+      "tests": 2
+    },
+    {
+      "file": "frontend/tests/goalkeeper/graph.test.ts",
+      "status": "passed",
+      "tests": 3
+    },
+    {
+      "file": "frontend/tests/goalkeeper/layout.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "frontend/tests/goalkeeper/markdown.test.ts",
+      "status": "passed",
+      "tests": 4
+    },
+    {
+      "file": "frontend/tests/goalkeeper/presentation.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "frontend/tests/goalkeeper/rules.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "frontend/tests/goalkeeper/ui.test.ts",
+      "status": "passed",
+      "tests": 14
+    },
+    {
+      "file": "frontend/tests/loss/core-adapter.test.ts",
+      "status": "passed",
+      "tests": 34
+    },
+    {
+      "file": "frontend/tests/loss/examples.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "frontend/tests/loss/export.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "frontend/tests/loss/graph.test.ts",
+      "status": "passed",
+      "tests": 23
+    },
+    {
+      "file": "frontend/tests/loss/identity-security.test.ts",
+      "status": "passed",
+      "tests": 16
+    },
+    {
+      "file": "frontend/tests/loss/layout.test.ts",
+      "status": "passed",
+      "tests": 6
+    },
+    {
+      "file": "frontend/tests/loss/metrics.test.ts",
+      "status": "passed",
+      "tests": 30
+    },
+    {
+      "file": "frontend/tests/loss/node-identity.test.ts",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "file": "frontend/tests/loss/paths.test.ts",
+      "status": "passed",
+      "tests": 7
+    },
+    {
+      "file": "frontend/tests/loss/performance.test.ts",
+      "status": "passed",
+      "tests": 1
+    },
+    {
+      "file": "frontend/tests/loss/storage.test.ts",
+      "status": "passed",
+      "tests": 19
+    }
+  ],
+  "sourceSha256": {
+    "frontend/src/tools/goalkeeper/GoalKeeperTool.tsx": "d2b977c825f5135c1cdfae05c9c7161346da32725aa1a192acfc89c9e7cb6d25",
+    "frontend/src/tools/goalkeeper/GsnCanvas.tsx": "8865625d5059b8aac9238c0d5cf558c6434a87edecaf56829745907c904205a7",
+    "frontend/src/tools/goalkeeper/PresentationDialogs.tsx": "afc8e5cc1af00828761a3ab10398e4088694b60fd98918f9b707b25a247a398d",
+    "frontend/src/tools/goalkeeper/core-adapter.ts": "27099d1b246b93dfe5d7a53a426478fbee874c5b245ea6ed43e1c2afbf67fc27",
+    "frontend/src/tools/goalkeeper/domain/export/report.ts": "5eb32f21678881d27268eed787fe2150f83ec97f153bc772c172a5fb59dda93e",
+    "frontend/src/tools/goalkeeper/domain/graph/cycle.ts": "01403c28afa0cfcb9d85e2daa0bffec814341dfb7f2fbbb418edc3c99760c05e",
+    "frontend/src/tools/goalkeeper/domain/graph/reachability.ts": "5b55d41ea996d56ff8ece8ce6c90c5ccde33b364c72892b7b74aa21f18bc24ef",
+    "frontend/src/tools/goalkeeper/domain/index.ts": "bdb2b0ecb927da71185e499df174267b3f0006533ae8053ea7dee4950ecc2612",
+    "frontend/src/tools/goalkeeper/domain/layout/elk.ts": "2ad612feb5ba58b895bc2b56fe25b602457015b0a0f779f8c00e397c2ebcd27f",
+    "frontend/src/tools/goalkeeper/domain/layout/manager.ts": "f097716380d5fc0a9d8d7f5d8b7dc6317592e028b5a43760825ad14de3d3c099",
+    "frontend/src/tools/goalkeeper/domain/markdown/frontmatter.ts": "7bcbfc92b89c3acee9eb36c7799e94722104074bb75d269411449138d3c0bee8",
+    "frontend/src/tools/goalkeeper/domain/markdown/parse.ts": "6554eee107fc2234c3bed611097df06b6be1449275abd5507b4748e9da505b2b",
+    "frontend/src/tools/goalkeeper/domain/model/types.ts": "ec0b6f169755b8a73ff826655b6a99611cc590c8fbdc523aee87d1e8361d48a2",
+    "frontend/src/tools/goalkeeper/domain/presentation/colors.ts": "af1b05dc0f95fdc3ab180d3dacd9c5b79ca1140e40146f76894444137ba56d9b",
+    "frontend/src/tools/goalkeeper/domain/presentation/geometry.ts": "535bf99861eae2b2bd2261b974d3d18e3b278808f0fa0ffecfa6eb857678fae2",
+    "frontend/src/tools/goalkeeper/domain/presentation/svg.ts": "2f9caaa81115a8492fb1a64f77eee1213ef6a11a6a7a66a2ec28d20bf4c0f1a8",
+    "frontend/src/tools/goalkeeper/domain/rules/relationships.ts": "03e2623b4728ff1c1deeff58ac76a8534c37a20170a32c2bab75acb16b30238f",
+    "frontend/src/tools/goalkeeper/domain/rules/validate.ts": "ebc94306cb79dc40d9d335be802151f45487245eb23df81230884824f41c1adb",
+    "frontend/src/tools/goalkeeper/domain/vault/load.ts": "4392932ef82ff9d8bd9e13135a6d3bc69fc72291273d7d2bc8cb2801ccfdb51f",
+    "frontend/src/tools/goalkeeper/useGsnTheme.ts": "e27976083e7b494370e98195660ed3f28962ee6c2c6fceeb3843360f3fad93ee",
+    "frontend/src/tools/layoutEngine.ts": "892a3556dd8b04414a507fa44570de80cdb931c025b81a5330eb0661e335e8ed",
+    "frontend/src/tools/loss/domain/layout.ts": "9110c1082469954a9bcdc2c70dad6f1a4115a503681d721c8319b2763e627d31",
+    "frontend/src/tools/ToolShell.tsx": "7fcafb24351a9cc6d51c8311e5bd2e08fb57da3f288d840a3a0439e5f9288fea",
+    "frontend/src/styles/sstpa-default.css": "e06a83ed37de92ee1dc199d826b4667e9a63c66808bb17d61814b61af05e2a1a",
+    "frontend/package-lock.json": "2af876fdddbfd964ea475f2d6146f530ed6dbfcd3eb19134735b77eeb4cd9b16"
+  }
+}
