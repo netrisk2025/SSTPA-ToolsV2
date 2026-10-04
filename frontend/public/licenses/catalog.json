@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": "Verified offline notices cover the installed npm production dependency closure, bundled fonts and ELK embedded components. The product SBOM separately inventories Backend, native shells, toolchains, services, sustainment and reference data; it is not a claim of complete per-artifact notice coverage for those systems.",
-  "lockSha256": "958af248b630eaf5b817568ded284dc238e4a08a7539931d2a79398d9d6282e2",
+  "lockSha256": "2af876fdddbfd964ea475f2d6146f530ed6dbfcd3eb19134735b77eeb4cd9b16",
   "components": [
     {
       "name": "@floating-ui/core",

@@ -12645,7 +12645,6 @@ The Goal Keeper Tool SHALL support the following relationships:
 (:GsnGoal)-[:IN_CONTEXT_OF]->(:GsnAssumption)
 
 (:GsnStrategy)-[:SUPPORTED_BY]->(:GsnGoal)
-(:GsnStrategy)-[:SUPPORTED_BY]->(:GsnSolution)
 (:GsnStrategy)-[:IN_CONTEXT_OF]->(:GsnContext)
 (:GsnStrategy)-[:IN_CONTEXT_OF]->(:GsnJustification)
 (:GsnStrategy)-[:IN_CONTEXT_OF]->(:GsnAssumption)
@@ -12682,9 +12681,9 @@ Every non-root GSN node SHALL be reachable from the Root Goal.
 
 A (:GsnGoal) node MAY be supported by one or more (:GsnGoal), (:GsnStrategy), or (:GsnSolution) nodes.
 
-A (:GsnStrategy) node SHALL be used to explain how a Goal is decomposed into supporting Goals or Solutions.
+A (:GsnStrategy) node SHALL be used to explain how a Goal is decomposed into supporting Goals.
 
-A (:GsnStrategy) node SHOULD have at least one outgoing [:SUPPORTED_BY] relationship to a (:GsnGoal) or (:GsnSolution).
+A (:GsnStrategy) node SHOULD have at least one outgoing [:SUPPORTED_BY] relationship to a (:GsnGoal).
 
 A (:GsnSolution) node SHALL be terminal with respect to [:SUPPORTED_BY] relationships.
 
@@ -13158,8 +13157,7 @@ Selecting a relationship SHALL:
 The Goal Keeper Tool SHALL support:
 
 • manual layout
-• hierarchical top-down layout
-• hierarchical left-to-right layout
+• hierarchical top-to-bottom GSN layout using the locally bundled ELK manager (§6.5.11.27)
 • automatic layout on demand
 
 The layout engine SHALL preserve relative node positioning where feasible.
@@ -13554,8 +13552,7 @@ The system SHALL verify that:
 
 #### 6.5.11.25 UX Design Principles
 
-The Goal Keeper Tool SHALL render diagrams consistent with GSN Community Standard Version 3 to the maximum extent practical using the KerML 1.0 language within the SSTPA Tool current visual style.
-All entities depicted in Goal Keeper SHALL use KerML 1.0  Where KerML 1.0 conflicts with the GSN Community Standard Version 3, KerML 1.0 takes precidence.
+The Goal Keeper Tool SHALL render the primary argument using GSN Community Standard Version 3 core notation. GSN notation takes precedence over the alternate SysML/KerML projection. See §6.5.11.27 for the approved production presentation.
 
 
 The diagram SHALL use the following visual conventions:
@@ -13567,13 +13564,7 @@ The diagram SHALL use the following visual conventions:
 • (:GsnJustification) nodes SHALL be displayed as ovals.
 • (:GsnAssumption) nodes SHALL be displayed as ovals.
 
-All GSN nodes SHALL display:
-
-• GSN ID
-• Node type label
-• HID
-• Name
-• Statement property
+Primary GSN symbols SHALL display the GSN ID and full Statement property. The inspector/Data Drawer SHALL provide type, HID, UUID, Name and other Core properties.
 
 Statement properties SHALL include:
 
@@ -13610,14 +13601,26 @@ The tool SHALL visually distinguish:
 
 #### 6.5.11.26 Model Text Panel
 
-ModelTextLanguages: ["KERML"]. Scope: the displayed GSN structure — GSN
-features, SupportedBy and InContextOf connectors, and SolutionEvidence
-connectors per Section 3.7.6. Edit mode supports GSN node and relationship
-mutations authorized to this tool.
-
-
+The View menu SHALL open the SysML/KerML equivalent dialog on request, as specified in §6.5.11.27. Graph projection is argument scoped; current Backend G2M text is read-only and SoI scoped (M-1/M-4). No equivalent view occupies the main canvas by default.
 
 \---
+
+#### 6.5.11.27 Approved GSN v3 production presentation (2026-10-04)
+
+Owner approval replaces the old KerML-first presentation and permanent model panel. The following clauses take precedence over conflicting presentation clauses in §6.4.2 and §6.5.11.2, .15, .16, .25 and .26. The scope is GSN Community Standard v3 Part 1 §2 core notation; pattern, modular, confidence and dialectic extensions are not claimed.
+
+1. The main Goal Keeper canvas SHALL use Goal rectangles, Strategy parallelograms, Solution circles, Context rounded rectangles, Assumption/Justification ellipses with A/J identifiers, and undeveloped Goal/Strategy diamonds. Support arrows SHALL be filled; context arrows SHALL be hollow.
+2. The primary symbols SHALL show the display GSN identifier and full statement at 16 px at 100% zoom, without clipping or ellipsis. HID, UUID, type, Name and evidence details SHALL remain available in the inspector/Data Drawer. GSN notation SHALL take precedence over KerML rendering; surrounding chrome SHALL follow the current SSTPA Portfolio theme.
+3. The canvas SHALL be the default main workspace, with optional outline/inspector and no permanently docked equivalent graph or model text. A View-menu action SHALL open an accessible, dismissible SysML/KerML dialog. Its graph SHALL reflect the current argument and be labeled as a projection; Backend G2M text SHALL be read-only and label its actual SoI scope.
+4. Layout SHALL use the Loss Tool's locally bundled ELK engine. The user SHALL be able to pan, zoom, fit, read a selected branch, rearrange nodes, and restore the last committed view. Layout results SHALL not replace a newer root or draft.
+5. A Node type colors dialog SHALL use the Loss Tool's type selector and native color controls for fill, boundary, font and connector colors. Reset default colors SHALL restore theme defaults at any time. Palette changes SHALL affect canvas, equivalent graph and SVG exports consistently, without changing GSN semantics. Custom colors MAY reduce contrast; the default palette SHALL remain legible.
+6. Presentation changes SHALL be staged and saved through the authenticated atomic Core Commit API in the root GoalStructure property. Failed saves SHALL retain the draft; successful commits SHALL be distinguished from a failed subsequent reload. Dirty work SHALL not be silently discarded by tool close, root/SoI changes, refetches or layout responses.
+7. Canonical Core HIDs/UUIDs SHALL retain authority independent of visible GSN IDs. Legacy GoalStructure snapshots and unrelated envelope fields SHALL be preserved additively; malformed or future snapshots SHALL not be silently overwritten. Persisted view data SHALL not author semantic nodes or links.
+8. New semantic mutations SHALL obey v3 support endpoints (Goal→Goal/Strategy/Solution; Strategy→Goal) and context endpoints (Goal/Strategy→Context/Assumption/Justification), prevent duplicates/cycles and retain Backend ownership/SoI enforcement. Legacy invalid arguments SHALL remain readable and incrementally repairable, without permitting new/worsened violations.
+9. Existing Asset/Loss root association, evidence links, Core drawer, node/link authoring, validation and reporting SHALL remain available. The tool SHALL not imply that structural validity establishes evidence sufficiency or authorization. Dedicated DerivedAsset spawning remains deferred under I-12.
+10. Markdown/JSON and full-scene SVG SHALL export the actual selected argument and working view, including complete statements, evidence references, stable identities and selected colors. The SVG SHALL contain no external resource requirement.
+11. Verification SHALL run the standalone GoalKeeper suite and the entire supported-host SSTPA gate before GitHub push, including frontend tests/build/lint/notices, Backend unit/race/schema/integration, both native shell checks and applicable offline sustainment/FireSat/package checks. Results and platform limitations SHALL be recorded without claiming unperformed acceptance.
+
 
 ### 6.5.12 Use-Case Tool
 

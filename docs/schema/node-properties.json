@@ -2395,6 +2395,14 @@
        "type": "String",
        "edit": "edit",
        "default": null
+      },
+      {
+       "name": "Undeveloped",
+       "displayName": "Undeveloped",
+       "type": "Boolean",
+       "edit": "edit",
+       "default": false,
+       "ambiguity": "GSN v3 core: development-status decorator restricted to Goals and Strategies."
       }
      ]
     },
@@ -2511,6 +2519,14 @@
        "type": "String",
        "edit": "edit",
        "default": null
+      },
+      {
+       "name": "Undeveloped",
+       "displayName": "Undeveloped",
+       "type": "Boolean",
+       "edit": "edit",
+       "default": false,
+       "ambiguity": "GSN v3 core: development-status decorator restricted to Goals and Strategies."
       }
      ]
     }

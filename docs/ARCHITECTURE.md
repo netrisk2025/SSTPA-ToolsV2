@@ -172,3 +172,7 @@ tests (`M2G(G2M(g)) = ∅`) run in the development pipeline. Exposed via
 
 Tracked in `docs/REQUIREMENTS-NOTES.md` (deviations, "Will"-statement risks, and
 justifications requiring permission per §1.1 imperative rules).
+
+## Approved Goal Keeper integration (§6.5.11.27)
+
+`sstpa.goalkeeper` hosts the approved GSN v3 core SVG presentation, with canonical Core records adapted into a pure domain. It retains authenticated Core editing/evidence and persists only the view in root `GoalStructure`; visible GSN numbers are independent of HID/UUID identity. Shared `tools/layoutEngine.ts` supplies the same local ELK worker to Loss and Goal Keeper. View → SysML/KerML opens the optional projection and read-only Backend model text. See [GOALKEEPER-INTEGRATION.md](GOALKEEPER-INTEGRATION.md) for migration, atomicity, draft protection, validation and source boundaries, and [GOALKEEPER-VERIFICATION.md](GOALKEEPER-VERIFICATION.md) for recorded results.

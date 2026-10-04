@@ -33,6 +33,9 @@ type commitOperation struct {
 	// updateNode / deleteNode / transferOwnership
 	HID string `json:"hid,omitempty"`
 
+	// Optional optimistic guard for root-owned GSN presentation state.
+	ExpectedGoalStructure json.RawMessage `json:"expectedGoalStructure,omitempty"`
+
 	// transferOwnership (SRS §5.6.6.8.2): explicit user-initiated ownership change
 	NewOwner string `json:"newOwner,omitempty"`
 
@@ -126,7 +129,7 @@ func (s *Server) handleCommit(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		status := http.StatusUnprocessableEntity
-		if errors.Is(err, errLossConflict) {
+		if errors.Is(err, errLossConflict) || errors.Is(err, errGsnConflict) {
 			status = http.StatusConflict
 		}
 		writeError(w, status, "commit rejected", err.Error())
@@ -147,6 +150,11 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 	ctx := r.Context()
 	resp := &commitResponse{CommitID: commitID, CreatedNodes: map[string]string{}}
 	lossStates, err := s.prepareLossCommit(ctx, tx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	gsnState, err := s.prepareGsnCommit(ctx, tx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,6 +236,9 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 			}
 
 		case "updateNode":
+			if err := checkGsnLayoutPrecondition(ctx, tx, op); err != nil {
+				return nil, err
+			}
 			cur, err := fetchNodeForUpdate(ctx, tx, op.HID)
 			if err != nil {
 				return nil, err
@@ -503,6 +514,10 @@ func (s *Server) executeCommit(r *http.Request, tx neo4j.ManagedTransaction, use
 	}
 
 	if err := s.finishLossCommit(ctx, tx, lossStates, resp.CreatedNodes, req.ToolID == "sstpa.loss"); err != nil {
+		return nil, err
+	}
+
+	if err := s.finishGsnCommit(ctx, tx, gsnState); err != nil {
 		return nil, err
 	}
 

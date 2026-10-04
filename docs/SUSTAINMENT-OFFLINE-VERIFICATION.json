@@ -91,45 +91,53 @@
   "authenticPipelineExitCode": 1,
   "authenticArchivePresent": false,
   "authenticReleaseProduced": false,
-  "fixtureCypher": "tmp/offline-sustainment-check/graph/sstpa-ref-load-2026-10-04-v2.cypher",
-  "fixtureSha256": "8e45e129d0989a3e9c2a1419ae325d59cd698d249f71922dda40e990a3148b68",
+  "fixtureCypher": "tmp/offline-sustainment-check/graph/sstpa-ref-load-2026-10-04-v3.cypher",
+  "fixtureSha256": "64b314f1504b705d6428ca4afbeb2b1ed7da75ad28b8792f54b33d545bfa8240",
   "scope": "Synthetic normalization/transform and refusal-path checks only. No official source downloads or live deployment changes. Full corpus thresholds and authentic release packaging remain unverified.",
   "syntheticDatabase": {
     "status": "PASS",
-    "verifiedAt": "2026-10-04T19:19:30.774962+00:00",
+    "verifiedAt": "2026-10-04T23:09:45.427988+00:00",
     "checks": [
       {
         "check": "Reference nodes plus four framework roots",
+        "query": "MATCH (n:REF) RETURN count(n) AS value",
         "expected": 14,
         "actual": 14,
         "passed": true
       },
       {
         "check": "Reference relationships",
+        "query": "MATCH (:REF)-[r]->(:REF) RETURN count(r) AS value",
         "expected": 12,
         "actual": 12,
         "passed": true
       },
       {
         "check": "Immutable flags",
+        "query": "MATCH (n:REF) WHERE coalesce(n._ReadOnly,false) <> true RETURN count(n) AS value",
         "expected": 0,
         "actual": 0,
         "passed": true
       },
       {
         "check": "Cross-framework mapping",
+        "query": "MATCH (:REF)-[r:AT_MAPS_TO_ATTACK]->(:REF) RETURN count(r) AS value",
         "expected": 1,
         "actual": 1,
         "passed": true
       },
       {
         "check": "Duplicate scoped reference keys",
+        "query": "MATCH (n:REF) WITH n.ExternalID AS id,n.FrameworkName AS f,n.FrameworkVersion AS v,count(*) AS c WHERE c>1 RETURN count(*) AS value",
         "expected": 0,
         "actual": 0,
         "passed": true
       },
       {
         "check": "Quoted Unicode and nested source RawData survive actual Cypher parsing",
+        "query": "MATCH (n:REF {ExternalID:'T-FIXTURE',FrameworkName:'ATT&CK'}) RETURN CASE WHEN n.Name='Analyst\\'s quoted fixture; \u03a9' AND n.RawData='{\"type\": \"attack-pattern\", \"id\": \"attack-pattern--fixture\", \"name\": \"Analyst\\'s quoted fixture; \u03a9\", \"description\": \"First sentence. Second sentence.\", \"external_references\": [{\"source_name\": \"mitre-attack\", \"external_id\": \"T-FIXTURE\"}], \"kill_chain_phases\": [{\"phase_name\": \"fixture-tactic\"}], \"custom_preserved\": {\"nested\": [\"original\", 42]}}' THEN 1 ELSE 0 END AS value",
+        "expected": 1,
+        "actual": 1,
         "passed": true
       }
     ],
@@ -137,23 +145,9 @@
       "referenceNodes\n10",
       "referenceNodes\n10"
     ],
-    "isolation": "Disposable Neo4j with --network none --hostname localhost, no exposed host ports",
+    "isolation": "Fresh disposable Compose project; --pull never, network none, hostname localhost, no host ports; removed in finally.",
     "notAnAuthenticReferenceRelease": true
   },
-  "verifiedAt": "2026-10-04T19:19:53.169002+00:00",
-  "runtime": {
-    "python": "3.13.9",
-    "PyYAML": "6.0.3",
-    "neo4j": "6.2.0",
-    "jsonschema": "4.25.0",
-    "stix2": "not installed; no executed module imports it"
-  },
-  "missingConfiguredInputs": [
-    "sustainment/ref-archive",
-    "sustainment/inf",
-    "sustainment/graph",
-    "sustainment/validation",
-    "sustainment/artifacts"
-  ],
-  "fullReleaseBlocker": "The documented offline pipeline requires an acquisition manifest and archived authentic framework files; neither is present. This check did not download sources, reconstruct provenance from a live database, or fabricate validation status."
+  "verifiedAt": "2026-10-04T23:09:45.428008+00:00",
+  "fullReleaseBlocker": "Authentic source archives and acquisition manifests are unavailable; no authentic release is claimed."
 }

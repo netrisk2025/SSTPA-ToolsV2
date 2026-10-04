@@ -49,6 +49,8 @@ export interface HierarchyEntry {
 }
 
 export interface CommitOperation {
+  /** Optional exact prior root view for a conflict-checked GsnGoal GoalStructure update. */
+  expectedGoalStructure?: string | null;
   op:
     | "createNode"
     | "updateNode"

@@ -1,328 +1,179 @@
-// Goal Keeper Tool (SRS §6.5.11): GSN assurance-case construction, evidence
-// association, validation, diagram-state persistence, and exports.
+// Production Goal Keeper: canonical Core authoring with the approved GSN v3 presentation.
 // 2025 Nicholas Triska. All rights reserved. See NOTICE at repository root.
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Component, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../../api/client";
 import type { CommitOperation, SoINode } from "../../api/types";
 import { ConfirmDialog } from "../../components/ConfirmDialog";
-import { useDrawer } from "../../state/stores";
+import { useDrawer, useToolWindows } from "../../state/stores";
 import type { ToolLaunchContext, ToolManifest } from "../manifest";
 import { ResizablePane, ToolStatus, downloadText, errorText } from "../shared";
+import { displayIdFor, fromCore, readCoreView, serializeCoreView, type CoreView } from "./core-adapter";
+import { layoutArgument } from "./domain/layout/elk";
+import { validateStructure as validateGsn } from "./domain/rules/validate";
+import { exportMarkdown as exportCoreMarkdown } from "./domain/export/report";
+import { renderDiagram } from "./domain/presentation/svg";
+import type { ViewportState } from "./domain/model/types";
+import { GsnCanvas } from "./GsnCanvas";
+import { ColorsDialog, ModelDialog } from "./PresentationDialogs";
+import { useGsnTheme } from "./useGsnTheme";
 
 type Mode = "structure" | "evidence" | "validation" | "export";
 type GsnLabel = "GsnGoal" | "GsnStrategy" | "GsnContext" | "GsnJustification" | "GsnAssumption" | "GsnSolution";
 type GsnRel = "SUPPORTED_BY" | "IN_CONTEXT_OF";
-
 const GSN_LABELS: GsnLabel[] = ["GsnGoal", "GsnStrategy", "GsnContext", "GsnJustification", "GsnAssumption", "GsnSolution"];
 const EVIDENCE_RELS = ["HAS_VALIDATION", "HAS_VERIFICATION", "HAS_LOSS"] as const;
 const CRITICALITIES = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"] as const;
 const ASSURANCES = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"] as const;
-
-interface StructureOption {
-  asset?: SoINode;
-  loss?: SoINode;
-  root: SoINode;
-}
-
-interface Finding {
-  severity: "ERROR" | "WARNING" | "INFO";
-  nodeHid?: string;
-  message: string;
-}
-
-type Notice = { kind: "success" | "error" | "info"; text: string } | null;
-
+interface StructureOption { asset?: SoINode; loss?: SoINode; root: SoINode }
+interface Finding { severity: "ERROR" | "WARNING" | "INFO"; nodeHid?: string; message: string }
 type GsnEdge = { source: string; target: string; type: string };
 
-export default function GoalKeeperTool({
-  ctx,
-}: {
-  ctx: ToolLaunchContext;
-  manifest: ToolManifest;
-}) {
-  const qc = useQueryClient();
-  const openDrawer = useDrawer((s) => s.openDrawer);
-  const drawerOpen = useDrawer((s) => s.open);
-  const [mode, setMode] = useState<Mode>("structure");
-  const [rootHid, setRootHid] = useState("");
-  const [selectedHid, setSelectedHid] = useState<string | null>(null);
-  const [notice, setNotice] = useState<Notice>(null);
-  const [search, setSearch] = useState("");
-
-  const soi = useQuery({
-    queryKey: ["soi", ctx.soiHid],
-    queryFn: () => api.soi(ctx.soiHid!),
-    enabled: !!ctx.soiHid,
-  });
-  const nodes = useMemo(() => soi.data?.nodes ?? [], [soi.data]);
-  const byHid = useMemo(() => new Map(nodes.map((n) => [n.hid, n])), [nodes]);
-  const gsnNodes = nodes.filter((n) => GSN_LABELS.includes(n.typeName as GsnLabel));
-  const assets = nodes.filter((n) => n.typeName === "Asset" || n.typeName === "DerivedAsset");
-  const losses = nodes.filter((n) => n.typeName === "Loss");
-  const evidenceNodes = nodes.filter((n) => ["Validation", "Verification", "Loss"].includes(n.typeName));
-
-  const structures = useMemo(() => buildStructures(assets, losses, gsnNodes, byHid), [assets, losses, gsnNodes, byHid]);
-  const graph = useMemo(() => buildGsnGraph(rootHid, gsnNodes, byHid), [rootHid, gsnNodes, byHid]);
-  const selectedNode = selectedHid ? byHid.get(selectedHid) : undefined;
-  const findings = useMemo(() => validateStructure(rootHid, graph.nodes, gsnNodes), [rootHid, graph.nodes, gsnNodes]);
-
-  useEffect(() => {
-    // Cross-tool focus context wins over Data Drawer context (SRS §6.4).
-    const hid = ctx.focusHid ?? ctx.drawerNodeHid;
-    if (!hid || rootHid) return;
-    const node = byHid.get(hid);
-    if (!node) return;
-    if (GSN_LABELS.includes(node.typeName as GsnLabel)) {
-      const root = rootForNode(hid, gsnNodes);
-      if (root) {
-        setRootHid(root);
-        setSelectedHid(hid);
-      }
-    } else if (node.typeName === "Asset" || node.typeName === "DerivedAsset") {
-      const root = structures.find((s) => s.asset?.hid === hid)?.root.hid;
-      if (root) setRootHid(root);
-    } else if (node.typeName === "Loss") {
-      const root = structures.find((s) => s.loss?.hid === hid)?.root.hid;
-      if (root) setRootHid(root);
+export default function GoalKeeperTool({ctx}: {ctx:ToolLaunchContext;manifest:ToolManifest}) {
+  const [workspaceSoi,setWorkspaceSoi]=useState(ctx.soiHid), [dirty,setDirty]=useState(false), [working,setWorking]=useState(false);
+  const [rootHid,setRootHid]=useState("");
+  const focusSeen=useRef<string|null>(null);
+  useEffect(()=>{if(!dirty&&!working)setWorkspaceSoi(ctx.soiHid);},[ctx.soiHid,dirty,working]);
+  const soi=useQuery({queryKey:["soi",workspaceSoi],queryFn:()=>api.soi(workspaceSoi!),enabled:!!workspaceSoi});
+  const nodes=useMemo(()=>soi.data?.nodes??[],[soi.data]);
+  const byHid=useMemo(()=>new Map(nodes.map(n=>[n.hid,n])),[nodes]);
+  const gsnNodes=useMemo(()=>nodes.filter(n=>GSN_LABELS.includes(n.typeName as GsnLabel)),[nodes]);
+  const structures=useMemo(()=>buildStructures(nodes.filter(n=>n.typeName==="Asset"||n.typeName==="DerivedAsset"),nodes.filter(n=>n.typeName==="Loss"),gsnNodes,byHid),[nodes,gsnNodes,byHid]);
+  useEffect(()=>{
+    if(dirty||working)return;
+    const focus=ctx.focusHid??ctx.drawerNodeHid;
+    if(focus && focusSeen.current!==focus){
+      focusSeen.current=focus;
+      const found=structures.find(s=>s.root.hid===rootForNode(focus,gsnNodes)||s.asset?.hid===focus||s.loss?.hid===focus);
+      if(found){setRootHid(found.root.hid);return;}
     }
-  }, [byHid, ctx.drawerNodeHid, ctx.focusHid, gsnNodes, rootHid, structures]);
+    if(!structures.some(s=>s.root.hid===rootHid))setRootHid(structures[0]?.root.hid??"");
+  },[structures,gsnNodes,ctx.focusHid,ctx.drawerNodeHid,rootHid,dirty,working]);
+  if(!workspaceSoi)return <ToolStatus needsSoI/>;
+  if(!soi.data&&(soi.isLoading||soi.error))return <ToolStatus loading={soi.isLoading} error={soi.error} onRetry={()=>void soi.refetch()}/>;
+  // A background response is not permission to discard the mounted snapshot.
+  // In particular, another writer may remove this root while we hold a draft or commit.
+  const retainMissingRoot=!!rootHid&&!byHid.has(rootHid)&&(dirty||working);
+  return <div className="sstpa-gk-host">
+    <div className="sstpa-gk-hostbar"><label htmlFor="sstpa-gk-root">Argument</label><select id="sstpa-gk-root" className="sstpa-input" disabled={dirty||working} value={rootHid} onChange={e=>setRootHid(e.target.value)}>
+      {retainMissingRoot&&<option value={rootHid}>{rootHid} · Retained argument</option>}
+      {!structures.length&&<option value="">No root Goal in this SoI</option>}{structures.map(s=><option key={s.root.hid} value={s.root.hid}>{s.root.hid} · {String(s.root.properties.Name??"Root Goal")}</option>)}
+    </select><span className="sstpa-gk-metadata">GSN v3 · core notation</span></div>
+    {workspaceSoi!==ctx.soiHid&&<div className="sstpa-alert-warning">This draft belongs to {workspaceSoi}. Commit or Revert before following the selected SoI.</div>}
+    {retainMissingRoot&&<div className="sstpa-alert-warning">Root Goal {rootHid} is absent from the latest Core response. Your current work is retained. Export it or Revert / reload to reconcile with Core.</div>}
+    {soi.error&&<div className="sstpa-alert-warning">Refresh failed; the loaded argument is retained. {errorText(soi.error)}</div>}
+    {rootHid&&(byHid.has(rootHid)||retainMissingRoot)?<ArgumentLoadBoundary key={`${workspaceSoi}:${rootHid}`} nodes={nodes} onRetry={()=>void soi.refetch()}><ArgumentWorkspace initialNodes={nodes} rootHid={rootHid} soiHid={workspaceSoi} focusHid={ctx.focusHid??ctx.drawerNodeHid} onDirty={setDirty} onWorking={setWorking}/></ArgumentLoadBoundary>:
+      <ToolStatus empty="No Goal Structure in this SoI." emptyHint="Use Asset Manager to establish an ordinary Asset's Loss and root Goal, or open an existing Goal in the Data Drawer."/>}
+  </div>;
+}
 
-  useEffect(() => {
-    if (!rootHid && structures[0]) setRootHid(structures[0].root.hid);
-  }, [rootHid, structures]);
-
-  const commit = useMutation({
-    mutationFn: (ops: CommitOperation[]) =>
-      api.commit({ soiHid: ctx.soiHid ?? undefined, toolId: "sstpa.goalkeeper", operations: ops }),
-    onSuccess: (res) => {
-      setNotice({ kind: "success", text: `Goal Keeper commit ${res.commitId.slice(0, 8)} accepted.` });
-      void qc.invalidateQueries({ queryKey: ["soi"] });
-    },
-    onError: (e) => setNotice({ kind: "error", text: errorText(e) }),
-  });
-
-  if (!ctx.soiHid) return <ToolStatus needsSoI />;
-  if (soi.isLoading || soi.error) {
-    return <ToolStatus loading={soi.isLoading} error={soi.error} onRetry={() => void soi.refetch()} />;
+class ArgumentLoadBoundary extends Component<{ nodes: SoINode[]; onRetry: () => void; children: ReactNode }, { error: Error | null }> {
+  state: { error: Error | null } = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  componentDidUpdate(previous: Readonly<{ nodes: SoINode[] }>) {
+    // Only a replacement Core response clears a load error; ordinary refetches never reset a live draft.
+    // eslint-disable-next-line react/no-did-update-set-state
+    if (this.state.error && previous.nodes !== this.props.nodes) this.setState({ error: null });
   }
-
-  return (
-    <div className="tool-shell" style={{ height: "100%" }}>
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          alignItems: "center",
-          flexWrap: "wrap",
-          padding: "var(--sstpa-sp-2) var(--sstpa-sp-3)",
-          borderBottom: "var(--sstpa-border-soft)",
-        }}
-      >
-        <select
-          className="sstpa-input"
-          style={{ width: 300 }}
-          value={rootHid}
-          onChange={(e) => {
-            setRootHid(e.target.value);
-            setSelectedHid(e.target.value);
-          }}
-        >
-          <option value="">Select Goal Structure</option>
-          {structures.map((s) => (
-            <option key={s.root.hid} value={s.root.hid}>
-              {s.root.hid} - {String(s.root.properties.Name ?? "Root Goal")}
-              {s.loss ? ` / ${s.loss.hid}` : ""}
-            </option>
-          ))}
-        </select>
-        <button className={`sstpa-button ${mode === "structure" ? "" : "secondary"}`} onClick={() => setMode("structure")}>Structure</button>
-        <button className={`sstpa-button ${mode === "evidence" ? "" : "secondary"}`} onClick={() => setMode("evidence")}>Evidence</button>
-        <button className={`sstpa-button ${mode === "validation" ? "" : "secondary"}`} onClick={() => setMode("validation")}>
-          Validation {findings.filter((f) => f.severity === "ERROR").length > 0 ? "!" : ""}
-        </button>
-        <button className={`sstpa-button ${mode === "export" ? "" : "secondary"}`} onClick={() => setMode("export")}>Export</button>
-        <input className="sstpa-input" style={{ width: 180 }} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search GSN" />
-        <span style={{ flex: 1 }} />
-        <button
-          className="icon-button"
-          disabled={!rootHid}
-          onClick={() =>
-            commit.mutate([
-              {
-                op: "updateNode",
-                hid: rootHid,
-                properties: {
-                  GoalStructure: JSON.stringify(
-                    layoutSnapshot(rootHid, byHid.get(rootHid)?.uuid, graph.nodes),
-                  ),
-                },
-              },
-            ])
-          }
-        >
-          Commit Layout
-        </button>
-      </div>
-      {notice && (
-        <div
-          className={
-            notice.kind === "success"
-              ? "sstpa-alert-success"
-              : notice.kind === "error"
-                ? "sstpa-alert-error"
-                : "sstpa-alert-warning"
-          }
-          style={{ margin: "6px 12px" }}
-        >
-          {notice.text} <button className="icon-button" onClick={() => setNotice(null)}>x</button>
-        </div>
-      )}
-      <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-        <StructureList structures={structures} selectedRoot={rootHid} onSelect={setRootHid} />
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          {mode === "structure" && (
-            <StructureView
-              rootHid={rootHid}
-              nodes={filterGraphNodes(graph.nodes, search)}
-              edges={graph.edges}
-              selectedHid={selectedHid}
-              findings={findings}
-              onSelect={setSelectedHid}
-            />
-          )}
-          {mode === "evidence" && (
-            <EvidenceView nodes={graph.nodes} byHid={byHid} onSelect={setSelectedHid} />
-          )}
-          {mode === "validation" && (
-            <ValidationView findings={findings} allGsnNodes={gsnNodes} graphNodes={graph.nodes} onSelect={setSelectedHid} />
-          )}
-          {mode === "export" && (
-            <ExportView
-              rootHid={rootHid}
-              rootUuid={byHid.get(rootHid)?.uuid}
-              nodes={graph.nodes}
-              edges={graph.edges}
-              byHid={byHid}
-              findings={findings}
-            />
-          )}
-        </div>
-        <DetailPanel
-          node={selectedNode}
-          rootHid={rootHid}
-          graphNodes={graph.nodes}
-          graphEdges={graph.edges}
-          evidenceNodes={evidenceNodes}
-          drawerOpen={drawerOpen}
-          onOpenDrawer={(hid) => openDrawer({ mode: "edit", hid })}
-          onCommit={(ops) => commit.mutate(ops)}
-          onSelect={setSelectedHid}
-        />
-      </div>
-    </div>
-  );
+  render() { return this.state.error ? <ToolStatus error={this.state.error} onRetry={this.props.onRetry}/> : this.props.children; }
 }
 
-function StructureList({
-  structures,
-  selectedRoot,
-  onSelect,
-}: {
-  structures: StructureOption[];
-  selectedRoot: string;
-  onSelect: (hid: string) => void;
-}) {
-  return (
-    <ResizablePane dock="left" storageKey="goalkeeper.structures" defaultWidth={280}>
-      {structures.map((s) => (
-        <button
-          key={s.root.hid}
-          className="entity-card"
-          style={{ width: "calc(100% - 12px)", margin: 6, textAlign: "left", borderColor: selectedRoot === s.root.hid ? "var(--sstpa-accent)" : undefined }}
-          onClick={() => onSelect(s.root.hid)}
-        >
-          <div className="entity-card-header">
-            <span className="entity-hid">{s.root.hid}</span>
-            <span className="type-badge" style={{ background: "var(--sstpa-status-info)" }}>ROOT</span>
-          </div>
-          <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{String(s.root.properties.Name ?? "")}</div>
-          <div style={{ color: "var(--sstpa-muted)", fontSize: "0.68rem" }}>
-            {s.asset ? `${s.asset.hid} ${String(s.asset.properties.Name ?? "")}` : "No Asset"}<br />
-            {s.loss ? `${s.loss.hid} ${String(s.loss.properties.Name ?? "")}` : "No paired Loss"}
-          </div>
-        </button>
-      ))}
-      {structures.length === 0 && <p style={{ padding: 12, color: "var(--sstpa-muted)" }}>No root Goals in this SoI.</p>}
-    </ResizablePane>
-  );
-}
-
-function StructureView({
-  rootHid,
-  nodes,
-  edges,
-  selectedHid,
-  findings,
-  onSelect,
-}: {
-  rootHid: string;
-  nodes: SoINode[];
-  edges: { source: string; target: string; type: string }[];
-  selectedHid: string | null;
-  findings: Finding[];
-  onSelect: (hid: string) => void;
-}) {
-  const byTier = tierNodes(rootHid, nodes);
-  const errors = new Set(findings.filter((f) => f.severity === "ERROR").map((f) => f.nodeHid));
-  return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
-      <div style={{ flex: 1, overflow: "auto", padding: "var(--sstpa-sp-3)" }}>
-        <div style={{ display: "flex", gap: 14, alignItems: "flex-start", minWidth: "max-content" }}>
-          {byTier.map(([tier, group]) => (
-            <div key={tier} style={{ width: 220 }}>
-              <div className="mono" style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)", marginBottom: 6 }}>Tier {tier}</div>
-              {group.map((n) => (
-                <button
-                  key={n.hid}
-                  className="entity-card"
-                  style={{
-                    width: "100%",
-                    marginBottom: 8,
-                    textAlign: "left",
-                    borderColor: selectedHid === n.hid ? "var(--sstpa-accent)" : errors.has(n.hid) ? "var(--sstpa-status-error)" : undefined,
-                    borderRadius: shapeRadius(n.typeName),
-                  }}
-                  onClick={() => onSelect(n.hid)}
-                >
-                  <div className="entity-card-header">
-                    <span className="entity-hid">{n.hid}</span>
-                    <GsnBadge typeName={n.typeName} />
-                  </div>
-                  <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{String(n.properties.Name ?? "")}</div>
-                  <div style={{ fontSize: "0.68rem", color: "var(--sstpa-muted)" }}>{statement(n).slice(0, 90)}</div>
-                </button>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div style={{ maxHeight: 150, overflow: "auto", borderTop: "var(--sstpa-border-soft)" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.72rem" }}>
-          <tbody>
-            {edges.map((e) => (
-              <tr key={`${e.source}-${e.type}-${e.target}`} style={{ borderBottom: "1px solid var(--sstpa-line-soft)" }}>
-                <td className="mono" style={{ padding: "3px 6px" }}>{e.source}</td>
-                <td>{e.type}</td>
-                <td className="mono">{e.target}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+function ArgumentWorkspace({initialNodes,rootHid,soiHid,focusHid,onDirty,onWorking}:{initialNodes:SoINode[];rootHid:string;soiHid:string;focusHid:string|null;onDirty:(v:boolean)=>void;onWorking:(v:boolean)=>void}) {
+  const qc=useQueryClient(),openDrawer=useDrawer(s=>s.openDrawer),drawerOpen=useDrawer(s=>s.open),closeTool=useToolWindows(s=>s.closeTool);
+  // Freeze this snapshot until an explicit save/reload. Background refetch never consumes a draft.
+  const [nodes,setNodes]=useState(initialNodes),[mode,setMode]=useState<Mode>("structure"),[selectedHid,setSelectedHid]=useState<string|null>(()=>focusHid&&fromCore(rootHid,initialNodes).elements.has(focusHid)?focusHid:rootHid);
+  const [viewDirty,setViewDirty]=useState(false),[nodeDirty,setNodeDirty]=useState(false),[working,setWorking]=useState(false),[needsRefresh,setNeedsRefresh]=useState(false);
+  const [notice,setNotice]=useState(""),[inspector,setInspector]=useState(false),[outline,setOutline]=useState(false),[model,setModel]=useState(false),[colors,setColors]=useState(false),[search,setSearch]=useState(""),[confirmClose,setConfirmClose]=useState(false),[confirmRevert,setConfirmRevert]=useState(false),[epoch,setEpoch]=useState(0);
+  const theme=useGsnTheme(),generation=useRef(0);
+  const byHid=useMemo(()=>new Map(nodes.map(n=>[n.hid,n])),[nodes]);
+  const structure=useMemo(()=>fromCore(rootHid,nodes),[rootHid,nodes]);
+  const [view,setView]=useState<CoreView>(()=>readCoreView(initialNodes.find(n=>n.hid===rootHid),fromCore(rootHid,initialNodes)));
+  const root=byHid.get(rootHid),gsnNodes=nodes.filter(n=>GSN_LABELS.includes(n.typeName as GsnLabel));
+  const graph = {
+    nodes: [...structure.elements.keys()].map(hid => byHid.get(hid)!),
+    edges: [...structure.elements.values()].flatMap(el => [
+      ...el.supportedBy.map(target => ({ source: el.gsnId, target, type: "SUPPORTED_BY" })),
+      ...el.inContextOf.map(target => ({ source: el.gsnId, target, type: "IN_CONTEXT_OF" })),
+      ...(byHid.get(el.gsnId)?.relationships ?? []).filter(rel => EVIDENCE_RELS.includes(rel.type as typeof EVIDENCE_RELS[number]) && el.hasEvidence.includes(rel.targetHID) && structure.evidence.has(rel.targetHID)).map(rel => ({ source: el.gsnId, target: rel.targetHID, type: rel.type })),
+    ]),
+  };
+  const findings:Finding[]=validateGsn(structure).map(f=>({severity:f.severity,nodeHid:f.nodeId,message:f.message}));
+  const workingStructure=useMemo(()=>({...structure,layout:{...structure.layout,savedAt:view.savedAt,viewport:view.viewport,nodes:view.positions,display:{...structure.layout.display,nodeStyles:view.nodeStyles}}}),[structure,view]);
+  const dirty=viewDirty||nodeDirty||needsRefresh;
+  useEffect(()=>{onDirty(dirty);},[dirty,onDirty]);
+  useEffect(()=>{onWorking(working);},[working,onWorking]);
+  useEffect(()=>()=>{generation.current++;onDirty(false);onWorking(false);},[onDirty,onWorking]);
+  useEffect(()=>{
+    const close=(e:Event)=>{if(working){e.preventDefault();setNotice("Wait for the current operation to finish.");}else if(dirty){e.preventDefault();setConfirmClose(true);}};
+    const unload=(e:BeforeUnloadEvent)=>{if(dirty||working){e.preventDefault();e.returnValue="";}};
+    window.addEventListener("sstpa.goalkeeper.request-close",close);window.addEventListener("beforeunload",unload);
+    return()=>{window.removeEventListener("sstpa.goalkeeper.request-close",close);window.removeEventListener("beforeunload",unload);};
+  },[dirty,working]);
+  useEffect(() => {
+    const loaded = readCoreView(nodes.find(n => n.hid === rootHid), structure);
+    if (loaded.hasSavedLayout) return;
+    const ticket = ++generation.current;
+    setWorking(true);
+    void layoutArgument(structure).then(positions => {
+      if (ticket !== generation.current) return;
+      setView(v => ({ ...v, positions, viewport: { x: 0, y: 0, zoom: 1 } }));
+      setEpoch(x => x + 1);
+    }).catch(error => { if (ticket === generation.current) setNotice(`Initial arrangement failed: ${errorText(error)}. Use Arrange to retry.`); })
+      .finally(() => { if (ticket === generation.current) setWorking(false); });
+    // This ref is a sequence counter, not a DOM ref: invalidate this request only if it is still current.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => { if (ticket === generation.current) generation.current++; };
+  }, [nodes, rootHid, structure]);
+  const invalidate=()=>{void qc.invalidateQueries({queryKey:["soi"]});void qc.invalidateQueries({queryKey:["model-text"]});};
+  const adopt=(fresh:SoINode[])=>{const next=fromCore(rootHid,fresh);setNodes(fresh);setView(readCoreView(fresh.find(n=>n.hid===rootHid),next));setViewDirty(false);setNodeDirty(false);setNeedsRefresh(false);setEpoch(x=>x+1);};
+  const reload=async()=>{setWorking(true);const ticket=++generation.current;try{const fresh=await api.soi(soiHid);if(ticket!==generation.current)return;adopt(fresh.nodes??[]);setNotice("Reloaded the committed argument and presentation.");}catch(e){if(ticket===generation.current)setNotice(errorText(e));}finally{if(ticket===generation.current)setWorking(false);}};
+  const commit=async(operations:CommitOperation[],isView=false)=>{
+    if(working||needsRefresh)return;
+    setWorking(true);const ticket=++generation.current;let accepted=false;
+    try{await api.commit({soiHid,toolId:"sstpa.goalkeeper",operations});accepted=true;if(ticket!==generation.current)return;setNeedsRefresh(true);const fresh=await api.soi(soiHid);if(ticket!==generation.current)return;adopt(fresh.nodes??[]);invalidate();setNotice(isView?"Presentation committed to Core.":"Argument changes committed to Core.");}
+    catch(e){if(ticket!==generation.current)return;setNotice(accepted?"COMMIT SUCCEEDED, but reload failed. The draft is retained for comparison. Export if needed, then Reload committed before submitting another transaction.":errorText(e));}
+    finally{if(ticket===generation.current)setWorking(false);}
+  };
+  const saveView=()=>{if(!root)return;try{const value=serializeCoreView(root,structure,view);const op:CommitOperation={op:"updateNode",hid:rootHid,expectedGoalStructure:typeof root.properties.GoalStructure==="string"?root.properties.GoalStructure:null,properties:{GoalStructure:value}};void commit([op],true);}catch(e){setNotice(errorText(e));}};
+  const arrange=async()=>{const ticket=++generation.current;setWorking(true);try{const positions=await layoutArgument(structure);if(ticket!==generation.current)return;setView(v=>({...v,positions}));setViewDirty(true);setEpoch(x=>x+1);}catch(e){setNotice(errorText(e));}finally{if(ticket===generation.current)setWorking(false);}};
+  const setViewport=useCallback((viewport:ViewportState)=>{if(!working&&!needsRefresh&&!nodeDirty)setView(v=>v.viewport.x===viewport.x&&v.viewport.y===viewport.y&&v.viewport.zoom===viewport.zoom&&v.viewport.focusId===viewport.focusId?v:{...v,viewport});},[working,needsRefresh,nodeDirty]);
+  const select=(id:string|null)=>{if(working||needsRefresh)return;if(nodeDirty&&id!==selectedHid){setNotice("Commit or Revert the node edit before selecting another node.");return;}if(id&&!structure.elements.has(id)){openDrawer({mode:"edit",hid:id});return;}setSelectedHid(id);setInspector(true);};
+  const searchResults=filterGraphNodes(graph.nodes,search);
+  const md=exportCoreMarkdown(workingStructure);
+  const svg=()=>renderDiagram(workingStructure,view.positions,{theme,nodeStyles:view.nodeStyles});
+  const json=()=>JSON.stringify({format:"sstpa-goalkeeper-export",version:1,soiHid,rootHid,rootUuid:root?.uuid,scope:"whole argument",presentation:{positions:view.positions,viewport:view.viewport,nodeStyles:view.nodeStyles},gsnNodes:graph.nodes.map(n=>({hid:n.hid,uuid:n.uuid,typeName:n.typeName,properties:n.properties})),relationships:graph.edges,evidence:[...structure.evidence.entries()],findings},null,2);
+  return <>
+    <div className="sstpa-gk-menubar" role="toolbar" aria-label="Goal Keeper actions">
+      {(["structure","evidence","validation","export"] as Mode[]).map(m=><button key={m} className={`sstpa-button ${mode===m?"":"secondary"}`} onClick={()=>setMode(m)}>{m[0].toUpperCase()+m.slice(1)}{m==="validation"&&findings.some(f=>f.severity==="ERROR")?" !":""}</button>)}
+      <details className="sstpa-gk-view-menu"><summary className="sstpa-button secondary">View</summary><div>
+        <button className="sstpa-button secondary" onClick={()=>setModel(true)}>SysML / KerML equivalent</button>
+        <button className="sstpa-button secondary" onClick={()=>setOutline(v=>!v)}>{outline?"Hide":"Show"} argument outline</button>
+        <button className="sstpa-button secondary" disabled={nodeDirty} onClick={()=>setInspector(v=>!v)}>{inspector?"Hide":"Show"} inspector</button>
+      </div></details>
+      <button className="sstpa-button secondary" disabled={working||nodeDirty||needsRefresh} onClick={()=>setColors(true)}>Node type colors</button>
+      <button className="sstpa-button secondary" disabled={working||nodeDirty||needsRefresh} onClick={()=>void arrange()}>Arrange</button>
+      <span className="sstpa-gk-spacer"/><button className="sstpa-button" disabled={!viewDirty||working||nodeDirty||needsRefresh} onClick={saveView}>Commit presentation</button>
+      <button className="sstpa-button secondary" disabled={working} onClick={()=>{if(dirty&&!needsRefresh)setConfirmRevert(true);else void reload();}}>{needsRefresh?"Reload committed":"Revert / reload"}</button>
     </div>
-  );
+    {notice&&<div className="sstpa-alert-warning" role="status">{notice}<button className="icon-button" aria-label="Dismiss status" onClick={()=>setNotice("")}>×</button></div>}
+    {view.warnings.map((warning,i)=><div key={i} className="sstpa-alert-warning">{warning}</div>)}
+    <div className="sstpa-gk-titlebar"><div><h2>{String(root?.properties.Name??"Assurance argument")}</h2><p>{structure.elements.size} elements · {findings.filter(f=>f.severity==="WARNING").length} incomplete findings{dirty?" · Uncommitted changes":""}</p></div><input className="sstpa-input" aria-label="Search GSN" placeholder="Find ID or statement…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
+    {search.trim()&&<div className="sstpa-gk-search-results">{searchResults.length?searchResults.map(n=><button key={n.hid} className="sstpa-button secondary" onClick={()=>{select(n.hid);setMode("structure");}}>{gsnId(n)||n.hid} · {String(n.properties.Name??"")}</button>):"No matching nodes."}</div>}
+    <div className="sstpa-gk-workspace">
+      {outline&&<ResizablePane dock="left" storageKey="goalkeeper.outline" defaultWidth={230}><div className="sstpa-gk-outline">{graph.nodes.map(n=><button key={n.hid} className="sstpa-button secondary" onClick={()=>select(n.hid)}><strong>{gsnId(n)||n.hid}</strong> {String(n.properties.Name??"")}</button>)}</div></ResizablePane>}
+      <div className="sstpa-gk-main">
+        <div className="sstpa-gk-canvas-host" style={{display:mode==="structure"?"flex":"none"}}><GsnCanvas key={epoch} structure={workingStructure} positions={view.positions} viewport={view.viewport} setViewport={setViewport} theme={theme} revealToken={epoch} graphEpoch={epoch} disabled={working||needsRefresh||nodeDirty} restoreViewport={view.hasSavedLayout||viewDirty} selectedId={selectedHid} errorIds={new Set(findings.filter(f=>f.severity==="ERROR").map(f=>f.nodeHid!).filter(Boolean))} onSelect={select} onDrag={(id,x,y)=>{if(working||needsRefresh)return;generation.current++;setView(v=>({...v,positions:{...v.positions,[id]:{x,y}}}));setViewDirty(true);}} onInteraction={()=>{if(!working&&!needsRefresh&&!nodeDirty)setViewDirty(true);}}/></div>
+        {mode==="evidence"&&<EvidenceView nodes={graph.nodes} byHid={byHid} onSelect={select}/>}
+        {mode==="validation"&&<ValidationView findings={findings} allGsnNodes={gsnNodes} graphNodes={graph.nodes} onSelect={select}/>}
+        {mode==="export"&&<div className="sstpa-gk-export"><div className="sstpa-gk-menubar"><button className="sstpa-button" onClick={()=>downloadText(`sstpa-${rootHid}-gsn.svg`,svg(),"image/svg+xml")}>SVG</button><button className="sstpa-button" onClick={()=>downloadText(`sstpa-${rootHid}-gsn.json`,json(),"application/json")}>JSON</button><button className="sstpa-button" onClick={()=>downloadText(`sstpa-${rootHid}-gsn.md`,md,"text/markdown")}>Markdown</button><span>Whole argument · working presentation</span></div><pre>{md}</pre></div>}
+      </div>
+      {inspector&&<fieldset className="sstpa-gk-inspector-fieldset" disabled={working||viewDirty||needsRefresh}><DetailPanel node={byHid.get(selectedHid??"")} rootHid={rootHid} graphNodes={graph.nodes} allGsnNodes={gsnNodes} graphEdges={graph.edges} evidenceNodes={nodes.filter(n=>["Validation","Verification","Loss"].includes(n.typeName))} drawerOpen={drawerOpen} onOpenDrawer={hid=>openDrawer({mode:"edit",hid})} onCommit={ops=>void commit(ops)} onSelect={select} onEditDirty={setNodeDirty} editDirty={nodeDirty}/>{viewDirty&&<p>Commit or Revert presentation changes before editing Core nodes.</p>}</fieldset>}
+    </div>
+    {model&&<ModelDialog structure={workingStructure} view={view} theme={theme} soiHid={soiHid} onClose={()=>setModel(false)}/>}
+    {colors&&!working&&!needsRefresh&&!nodeDirty&&<ColorsDialog styles={view.nodeStyles} theme={theme} onChange={nodeStyles=>{setView(v=>({...v,nodeStyles}));setViewDirty(true);}} onClose={()=>setColors(false)}/>}
+    {confirmRevert&&<ConfirmDialog title="Discard uncommitted Goal Keeper changes?" danger confirmLabel="Discard and reload" onConfirm={()=>{setConfirmRevert(false);void reload();}} onCancel={()=>setConfirmRevert(false)}>Reloading replaces your current node edits and presentation with the last committed Core values.</ConfirmDialog>}
+    {confirmClose&&<ConfirmDialog title="Discard uncommitted Goal Keeper changes?" danger confirmLabel="Discard and close" onConfirm={()=>closeTool("sstpa.goalkeeper")} onCancel={()=>setConfirmClose(false)}>The last committed argument remains in Core. Your current presentation or node edits will be discarded.</ConfirmDialog>}
+  </>;
 }
 
 function EvidenceView({
@@ -413,7 +264,7 @@ function ValidationView({
       {findings.length === 0 && <p className="state-ok">No structural findings for this Goal Structure.</p>}
       {unreachable.length > 0 && (
         <>
-          <h3>Unreachable GSN Nodes In SoI</h3>
+          <h3>Other GSN nodes in this SoI</h3><p>These may belong to other arguments. Open them in the Core drawer to inspect.</p>
           {unreachable.map((n) => (
             <button key={n.hid} className="icon-button" onClick={() => onSelect(n.hid)}>{n.hid} {String(n.properties.Name ?? "")}</button>
           ))}
@@ -423,99 +274,45 @@ function ValidationView({
   );
 }
 
-function ExportView({
-  rootHid,
-  rootUuid,
-  nodes,
-  edges,
-  byHid,
-  findings,
-}: {
-  rootHid: string;
-  rootUuid?: string;
-  nodes: SoINode[];
-  edges: GsnEdge[];
-  byHid: Map<string, SoINode>;
-  findings: Finding[];
-}) {
-  const md = exportMarkdown(rootHid, nodes, edges, findings);
-  // Full diagram JSON per §6.5.11.9/§6.5.11.19: authoritative GSN content
-  // plus layout, viewport, and display settings sufficient to reconstruct
-  // the diagram from Backend data alone.
-  const json = JSON.stringify(
-    {
-      ...layoutSnapshot(rootHid, rootUuid, nodes),
-      gsnNodes: nodes.map((n) => ({
-        hid: n.hid,
-        uuid: n.uuid,
-        typeName: n.typeName,
-        gsnId: gsnId(n) || null,
-        name: String(n.properties.Name ?? ""),
-        statement: statement(n),
-      })),
-      gsnRelationships: edges,
-      evidenceReferences: nodes
-        .filter((n) => n.typeName === "GsnSolution")
-        .map((n) => ({
-          solutionHid: n.hid,
-          evidence: evidenceFor(n, byHid).map(({ node: e, relType }) => ({
-            relType,
-            hid: e.hid,
-            typeName: e.typeName,
-            name: String(e.properties.Name ?? ""),
-          })),
-        })),
-      validationFindings: findings,
-    },
-    null,
-    2,
-  );
-  return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <div style={{ padding: "var(--sstpa-sp-2) var(--sstpa-sp-3)", borderBottom: "var(--sstpa-border-soft)", display: "flex", gap: 8, alignItems: "center" }}>
-        <button className="sstpa-button" onClick={() => downloadText(`sstpa-${rootHid}-gsn.md`, md, "text/markdown")}>Markdown</button>
-        <button className="sstpa-button" onClick={() => downloadText(`sstpa-${rootHid}-gsn.json`, json, "application/json")}>JSON</button>
-        <span style={{ fontSize: "0.72rem", color: "var(--sstpa-muted)" }}>
-          PNG/SVG export deferred: the structure view renders as DOM tiers, not a canvas.
-        </span>
-      </div>
-      <pre style={{ flex: 1, overflow: "auto", margin: 0, padding: "var(--sstpa-sp-3)", whiteSpace: "pre-wrap", fontSize: "0.76rem" }}>{md}</pre>
-    </div>
-  );
-}
-
 function DetailPanel({
   node,
   rootHid,
   graphNodes,
+  allGsnNodes,
   graphEdges,
   evidenceNodes,
   drawerOpen,
   onOpenDrawer,
   onCommit,
   onSelect,
+  onEditDirty,
+  editDirty,
 }: {
   node?: SoINode;
   rootHid: string;
   graphNodes: SoINode[];
   graphEdges: GsnEdge[];
+  allGsnNodes: SoINode[];
   evidenceNodes: SoINode[];
   drawerOpen: boolean;
   onOpenDrawer: (hid: string) => void;
   onCommit: (ops: CommitOperation[]) => void;
   onSelect: (hid: string) => void;
+  onEditDirty: (dirty: boolean) => void;
+  editDirty: boolean;
 }) {
   const [newLabel, setNewLabel] = useState<GsnLabel>("GsnGoal");
   const [relType, setRelType] = useState<GsnRel>("SUPPORTED_BY");
   const [existingTarget, setExistingTarget] = useState("");
   const [evidenceTarget, setEvidenceTarget] = useState("");
-  const [edit, setEdit] = useState({ name: "", statement: "" });
+  const [edit, setEdit] = useState({ name: "", statement: "", undeveloped: false, identifier: "" });
   const [confirm, setConfirm] = useState<{ title: string; body: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     if (!node) return;
-    setEdit({ name: String(node.properties.Name ?? ""), statement: statement(node) });
-  }, [node]);
+    setEdit({ name: String(node.properties.Name ?? ""), statement: statement(node), undeveloped: node.properties.Undeveloped === true, identifier: String(node.properties[`${node.typeName.slice(3)}ID`] ?? "") });
+    onEditDirty(false);
+  }, [node, onEditDirty]);
 
   if (!node) {
     return (
@@ -531,10 +328,16 @@ function DetailPanel({
   const outgoing = (node.relationships ?? []).filter((r) => ["SUPPORTED_BY", "IN_CONTEXT_OF", ...EVIDENCE_RELS].includes(r.type));
   const isRoot = rootHid === node.hid;
   const rootPath = pathToRoot(rootHid, node.hid, graphEdges);
+  const idProperty = `${node.typeName.slice(3)}ID`, idValue = edit.identifier.trim();
+  const numericId = Number(idValue);
+  const identifierError = idValue && (!/^\d+$/.test(idValue) || !Number.isSafeInteger(numericId) || numericId < 1)
+    ? "Use a positive whole number within the safe integer range."
+    : idValue && graphNodes.some(other => other.hid !== node.hid && other.typeName === node.typeName && Number(other.properties[idProperty]) === numericId)
+      ? "This identifier is already used by another node of this type in this argument." : "";
 
   const createNode = () => {
     const temp = "gsn";
-    const props = defaultGsnProps(newLabel);
+    const props = defaultGsnProps(newLabel, allGsnNodes);
     const rel = relationshipFor(node.typeName, newLabel, relType);
     if (!rel) return;
     onCommit([
@@ -544,7 +347,8 @@ function DetailPanel({
   };
 
   const save = () => {
-    onCommit([{ op: "updateNode", hid: node.hid, properties: { Name: edit.name, [statementProp(node.typeName)]: edit.statement } }]);
+    if (identifierError) return;
+    onCommit([{ op: "updateNode", hid: node.hid, properties: { Name: edit.name, ...(idValue ? { [idProperty]: numericId } : {}), [statementProp(node.typeName)]: edit.statement, ...(["GsnGoal","GsnStrategy"].includes(node.typeName)?{Undeveloped:edit.undeveloped}:{}) } }]);
   };
 
   /** §6.5.11.11: warn before Commit when removing a relationship would leave
@@ -569,7 +373,7 @@ function DetailPanel({
     setConfirm({
       title: isRoot ? "Delete Root Goal" : `Delete ${node.typeName.replace("Gsn", "")}`,
       body: isRoot
-        ? `Deleting Root Goal ${node.hid} removes the entire certification argument for this Asset-Loss case (SRS §6.5.11.13). This cannot be undone.`
+        ? `Deleting Root Goal ${node.hid} removes its links. Descendant nodes remain in Core and may become unreachable. This cannot be undone.`
         : `Delete ${node.hid} (${String(node.properties.Name ?? "")}) and all of its relationships? Descendant nodes may become unreachable.`,
       onConfirm: () => onCommit([{ op: "deleteNode", hid: node.hid }]),
     });
@@ -584,8 +388,8 @@ function DetailPanel({
         <span className="mono" style={{ fontSize: "0.7rem", marginLeft: 6 }}>GSN ID: {gsnId(node)}</span>
       )}
       <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-        <button className="sstpa-button" disabled={drawerOpen} onClick={() => onOpenDrawer(node.hid)}>Open Drawer</button>
-        <button className="sstpa-button danger" onClick={deleteNode}>Delete Node</button>
+        <button className="sstpa-button" disabled={drawerOpen || editDirty} onClick={() => onOpenDrawer(node.hid)}>Open Drawer</button>
+        <button className="sstpa-button danger" disabled={editDirty} onClick={deleteNode}>Delete Node</button>
       </div>
 
       {/* Path-to-root display (§6.5.11.17). */}
@@ -603,9 +407,15 @@ function DetailPanel({
 
       {GSN_LABELS.includes(node.typeName as GsnLabel) && (
         <>
-          <label style={labelStyle}>Name<input className="sstpa-input" value={edit.name} onChange={(e) => setEdit((x) => ({ ...x, name: e.target.value }))} /></label>
-          <label style={labelStyle}>Statement<textarea className="sstpa-input" rows={4} value={edit.statement} onChange={(e) => setEdit((x) => ({ ...x, statement: e.target.value }))} /></label>
-          <button className="sstpa-button" onClick={save}>Commit Node</button>
+          <label style={labelStyle}>{node.typeName.slice(3)} identifier<input className="sstpa-input" aria-label="GSN identifier" type="number" min="1" step="1" value={edit.identifier} onChange={e=>{setEdit(x=>({...x,identifier:e.target.value}));onEditDirty(true);}}/></label>
+          <small>Positive integer; a blank entry leaves the existing value unchanged.</small>
+          {identifierError&&<p role="alert">{identifierError}</p>}
+          <label style={labelStyle}>Name<input aria-label="Node name" className="sstpa-input" value={edit.name} onChange={(e) => {setEdit((x) => ({ ...x, name: e.target.value }));onEditDirty(true);}} /></label>
+          <label style={labelStyle}>Statement<textarea className="sstpa-input" rows={4} value={edit.statement} onChange={(e) => {setEdit((x) => ({ ...x, statement: e.target.value }));onEditDirty(true);}} /></label>
+          <label>{["GsnGoal","GsnStrategy"].includes(node.typeName)&&<><input type="checkbox" checked={edit.undeveloped} onChange={e=>{setEdit(x=>({...x,undeveloped:e.target.checked}));onEditDirty(true);}}/> Undeveloped</>}</label>
+          <button className="sstpa-button" disabled={!!identifierError} onClick={save}>Commit Node</button>
+          {editDirty&&<button className="sstpa-button secondary" onClick={()=>{setEdit({name:String(node.properties.Name??""),statement:statement(node),undeveloped:node.properties.Undeveloped===true,identifier:String(node.properties[idProperty]??"")});onEditDirty(false);}}>Revert node edit</button>}
+          {editDirty&&<p>Commit or Revert this node edit before changing presentation or other Core records.</p>}
         </>
       )}
 
@@ -621,7 +431,7 @@ function DetailPanel({
               <option>IN_CONTEXT_OF</option>
             </select>
           </div>
-          <button className="sstpa-button" style={{ marginTop: 6 }} disabled={!relationshipFor(node.typeName, newLabel, relType)} onClick={createNode}>
+          <button className="sstpa-button" style={{ marginTop: 6 }} disabled={editDirty || !relationshipFor(node.typeName, newLabel, relType)} onClick={createNode}>
             Create
           </button>
           <h4>Link Existing</h4>
@@ -631,7 +441,7 @@ function DetailPanel({
               <option key={n.hid} value={n.hid}>{n.hid} - {String(n.properties.Name ?? "")}</option>
             ))}
           </select>
-          <button className="sstpa-button" style={{ marginTop: 6 }} disabled={!existingTarget} onClick={() => onCommit([{ op: "createRelationship", type: relType, sourceHid: node.hid, targetHid: existingTarget }])}>
+          <button className="sstpa-button" style={{ marginTop: 6 }} disabled={editDirty || !existingTarget} onClick={() => onCommit([{ op: "createRelationship", type: relType, sourceHid: node.hid, targetHid: existingTarget }])}>
             Link
           </button>
         </>
@@ -649,7 +459,7 @@ function DetailPanel({
           <button
             className="sstpa-button"
             style={{ marginTop: 6 }}
-            disabled={!evidenceTarget}
+            disabled={editDirty || !evidenceTarget}
             onClick={() => {
               const target = evidenceNodes.find((n) => n.hid === evidenceTarget);
               const type = target?.typeName === "Validation" ? "HAS_VALIDATION" : target?.typeName === "Verification" ? "HAS_VERIFICATION" : "HAS_LOSS";
@@ -665,7 +475,7 @@ function DetailPanel({
       {outgoing.map((r) => (
         <div key={`${r.type}-${r.targetHID}`} style={{ borderBottom: "1px solid var(--sstpa-line-soft)", padding: "4px 0", fontSize: "0.72rem" }}>
           <button className="icon-button" onClick={() => onSelect(r.targetHID)}>{r.type} {r.targetHID}</button>
-          <button className="icon-button danger" onClick={() => removeRelationship(r.type, r.targetHID)}>Commit Remove</button>
+          <button className="icon-button danger" disabled={editDirty} onClick={() => removeRelationship(r.type, r.targetHID)}>Commit Remove</button>
         </div>
       ))}
       {isRoot && <div className="state-info" style={{ marginTop: 10, fontSize: "0.72rem" }}>Root Goal</div>}
@@ -762,7 +572,7 @@ function buildStructures(assets: SoINode[], losses: SoINode[], goals: SoINode[],
       out.push({ asset, loss: paired, root });
     }
   }
-  for (const root of goals.filter((g) => g.typeName === "GsnGoal" && !out.some((s) => s.root.hid === g.hid))) {
+  for (const root of goals.filter((g) => g.typeName === "GsnGoal" && !goals.some(parent => parent.relationships?.some(r => r.type === "SUPPORTED_BY" && r.targetHID === g.hid)) && !out.some((s) => s.root.hid === g.hid))) {
     const asset = assets.find((a) => (a.relationships ?? []).some((r) => r.type === "HAS_GOAL" && r.targetHID === root.hid));
     const loss = losses.find((l) => asset?.relationships?.some((r) => r.type === "HAS_LOSS" && r.targetHID === l.hid));
     out.push({ asset, loss, root });
@@ -770,165 +580,8 @@ function buildStructures(assets: SoINode[], losses: SoINode[], goals: SoINode[],
   return out.sort((a, b) => a.root.hid.localeCompare(b.root.hid));
 }
 
-function buildGsnGraph(rootHid: string, allGsnNodes: SoINode[], byHid: Map<string, SoINode>) {
-  if (!rootHid) return { nodes: [] as SoINode[], edges: [] as { source: string; target: string; type: string }[] };
-  const seen = new Set<string>();
-  const edges: { source: string; target: string; type: string }[] = [];
-  const queue = [rootHid];
-  while (queue.length > 0) {
-    const hid = queue.shift()!;
-    if (seen.has(hid)) continue;
-    seen.add(hid);
-    const n = byHid.get(hid);
-    if (!n) continue;
-    for (const rel of n.relationships ?? []) {
-      if (!["SUPPORTED_BY", "IN_CONTEXT_OF", ...EVIDENCE_RELS].includes(rel.type)) continue;
-      edges.push({ source: hid, target: rel.targetHID, type: rel.type });
-      const target = byHid.get(rel.targetHID);
-      if (target && GSN_LABELS.includes(target.typeName as GsnLabel)) queue.push(rel.targetHID);
-    }
-  }
-  return { nodes: allGsnNodes.filter((n) => seen.has(n.hid)), edges };
-}
-
-/** Structural validation per §6.5.11.14: exactly-one-root, DAG acyclicity,
- *  duplicate relationships, GSN ID uniqueness, Solution rules. Solutions
- *  without evidence are incompleteness (WARNING), not a hard error. */
-function validateStructure(rootHid: string, nodes: SoINode[], allGsnNodes: SoINode[]): Finding[] {
-  const findings: Finding[] = [];
-  if (!rootHid) return [{ severity: "ERROR", message: "No Root Goal selected." }];
-  const root = nodes.find((n) => n.hid === rootHid);
-  if (!root) findings.push({ severity: "ERROR", message: "Root Goal is not reachable in the current graph.", nodeHid: rootHid });
-
-  const inStructure = new Set(nodes.map((n) => n.hid));
-  const incomingSupport = new Set<string>();
-  const edgeCounts = new Map<string, number>();
-  for (const n of nodes) {
-    for (const rel of n.relationships ?? []) {
-      if (!["SUPPORTED_BY", "IN_CONTEXT_OF", ...EVIDENCE_RELS].includes(rel.type)) continue;
-      if (rel.type === "SUPPORTED_BY" && inStructure.has(rel.targetHID)) incomingSupport.add(rel.targetHID);
-      const key = `${n.hid}|${rel.type}|${rel.targetHID}`;
-      edgeCounts.set(key, (edgeCounts.get(key) ?? 0) + 1);
-    }
-  }
-
-  // Exactly one Root Goal (§6.5.11.8): no other in-structure GsnGoal may be
-  // free of incoming SUPPORTED_BY.
-  for (const n of nodes) {
-    if (n.typeName === "GsnGoal" && n.hid !== rootHid && !incomingSupport.has(n.hid)) {
-      findings.push({
-        severity: "ERROR",
-        nodeHid: n.hid,
-        message: `${n.hid} is a second root Goal (no incoming SUPPORTED_BY). A Goal Structure has exactly one Root Goal.`,
-      });
-    }
-  }
-
-  // Duplicate logical relationships (§6.5.11.7).
-  for (const [key, count] of edgeCounts) {
-    if (count > 1) {
-      const [source, type, target] = key.split("|");
-      findings.push({
-        severity: "ERROR",
-        nodeHid: source,
-        message: `Duplicate ${type} relationship ${source} -> ${target} (${count} copies). Remove the duplicates.`,
-      });
-    }
-  }
-
-  // DAG acyclicity (§6.5.11.7) — DFS over SUPPORTED_BY within the structure.
-  const cycleAt = findSupportCycle(nodes, inStructure);
-  if (cycleAt) {
-    findings.push({
-      severity: "ERROR",
-      nodeHid: cycleAt,
-      message: `Cycle detected in SUPPORTED_BY relationships involving ${cycleAt}. The Goal Structure must be a DAG.`,
-    });
-  }
-
-  // GSN ID uniqueness within the structure (§6.5.11.14).
-  const idOwners = new Map<string, string[]>();
-  for (const n of nodes) {
-    const gid = gsnId(n);
-    if (gid) idOwners.set(gid, [...(idOwners.get(gid) ?? []), n.hid]);
-  }
-  for (const [gid, hids] of idOwners) {
-    if (hids.length > 1) {
-      findings.push({
-        severity: "ERROR",
-        nodeHid: hids[1],
-        message: `GSN ID "${gid}" is used by ${hids.length} nodes (${hids.join(", ")}). GSN IDs must be unique within the Goal Structure.`,
-      });
-    }
-  }
-
-  for (const n of nodes) {
-    if ((n.typeName === "GsnGoal" || n.typeName === "GsnStrategy") && !hasSupport(n)) {
-      findings.push({ severity: "WARNING", nodeHid: n.hid, message: `${n.hid} has no SUPPORTING node.` });
-    }
-    if (n.typeName === "GsnSolution" && evidenceRelCount(n) === 0) {
-      findings.push({
-        severity: "WARNING",
-        nodeHid: n.hid,
-        message: `${n.hid} is a Solution without evidence — the Goal Structure cannot be marked complete until evidence is referenced (§6.5.11.12).`,
-      });
-    }
-    if (n.typeName === "GsnSolution" && (n.relationships ?? []).some((r) => r.type === "SUPPORTED_BY")) {
-      findings.push({ severity: "ERROR", nodeHid: n.hid, message: `${n.hid} is a Solution with outgoing SUPPORT.` });
-    }
-  }
-  const unreachable = allGsnNodes.filter((n) => !inStructure.has(n.hid));
-  if (unreachable.length > 0) findings.push({ severity: "INFO", message: `${unreachable.length} GSN node(s) in the SoI are outside this Goal Structure.` });
-  return findings;
-}
-
-/** DFS cycle detection over SUPPORTED_BY edges; returns a node on a cycle. */
-function findSupportCycle(nodes: SoINode[], inStructure: Set<string>): string | null {
-  const adj = new Map<string, string[]>();
-  for (const n of nodes) {
-    adj.set(
-      n.hid,
-      (n.relationships ?? [])
-        .filter((r) => r.type === "SUPPORTED_BY" && inStructure.has(r.targetHID))
-        .map((r) => r.targetHID),
-    );
-  }
-  const state = new Map<string, 1 | 2>(); // 1 = in stack, 2 = done
-  const visit = (hid: string): string | null => {
-    state.set(hid, 1);
-    for (const next of adj.get(hid) ?? []) {
-      const st = state.get(next);
-      if (st === 1) return next;
-      if (st === undefined) {
-        const found = visit(next);
-        if (found) return found;
-      }
-    }
-    state.set(hid, 2);
-    return null;
-  };
-  for (const n of nodes) {
-    if (!state.has(n.hid)) {
-      const found = visit(n.hid);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-/** Per-type GSN ID property (GoalID, StrategyID, …) per the schema. */
 function gsnId(n: SoINode): string {
-  if (!GSN_LABELS.includes(n.typeName as GsnLabel)) return "";
-  const prop = `${n.typeName.replace("Gsn", "")}ID`;
-  return String(n.properties[prop] ?? "").trim();
-}
-
-function hasSupport(n: SoINode): boolean {
-  return (n.relationships ?? []).some((r) => r.type === "SUPPORTED_BY");
-}
-
-function evidenceRelCount(n: SoINode): number {
-  return (n.relationships ?? []).filter((r) => EVIDENCE_RELS.includes(r.type as (typeof EVIDENCE_RELS)[number])).length;
+  return GSN_LABELS.includes(n.typeName as GsnLabel) ? displayIdFor(n) : "";
 }
 
 function evidenceFor(solution: SoINode, byHid: Map<string, SoINode>): { node: SoINode; relType: string }[] {
@@ -952,31 +605,6 @@ function filterGraphNodes(nodes: SoINode[], search: string): SoINode[] {
       .toLowerCase()
       .includes(q);
   });
-}
-
-function tierNodes(rootHid: string, nodes: SoINode[]): [number, SoINode[]][] {
-  const byHid = new Map(nodes.map((n) => [n.hid, n]));
-  const tiers = new Map<string, number>([[rootHid, 0]]);
-  const queue = [rootHid];
-  while (queue.length > 0) {
-    const hid = queue.shift()!;
-    const n = byHid.get(hid);
-    if (!n) continue;
-    for (const rel of n.relationships ?? []) {
-      if (!["SUPPORTED_BY", "IN_CONTEXT_OF"].includes(rel.type)) continue;
-      if (!byHid.has(rel.targetHID)) continue;
-      if (!tiers.has(rel.targetHID)) {
-        tiers.set(rel.targetHID, (tiers.get(hid) ?? 0) + 1);
-        queue.push(rel.targetHID);
-      }
-    }
-  }
-  const grouped = new Map<number, SoINode[]>();
-  for (const n of nodes) {
-    const tier = tiers.get(n.hid) ?? 0;
-    grouped.set(tier, [...(grouped.get(tier) ?? []), n]);
-  }
-  return [...grouped.entries()].sort(([a], [b]) => a - b);
 }
 
 /** Resolve the Root Goal for any GSN node by walking incoming SUPPORTED_BY
@@ -1019,7 +647,7 @@ function rootForNode(hid: string, nodes: SoINode[]): string | null {
 function relationshipFor(sourceType: string, targetType: string, requested: GsnRel): GsnRel | null {
   if (requested === "SUPPORTED_BY") {
     if (sourceType === "GsnGoal" && ["GsnGoal", "GsnStrategy", "GsnSolution"].includes(targetType)) return "SUPPORTED_BY";
-    if (sourceType === "GsnStrategy" && ["GsnGoal", "GsnSolution"].includes(targetType)) return "SUPPORTED_BY";
+    if (sourceType === "GsnStrategy" && targetType === "GsnGoal") return "SUPPORTED_BY";
   }
   if (requested === "IN_CONTEXT_OF") {
     if (["GsnGoal", "GsnStrategy"].includes(sourceType) && ["GsnContext", "GsnJustification", "GsnAssumption"].includes(targetType)) return "IN_CONTEXT_OF";
@@ -1027,9 +655,11 @@ function relationshipFor(sourceType: string, targetType: string, requested: GsnR
   return null;
 }
 
-function defaultGsnProps(label: GsnLabel): Record<string, unknown> {
-  const prop = statementProp(label);
-  return { Name: label.replace("Gsn", "New "), [prop]: "" };
+function defaultGsnProps(label: GsnLabel, nodes: SoINode[]): Record<string, unknown> {
+  const prop = statementProp(label), idProperty = `${label.slice(3)}ID`;
+  const used = new Set(nodes.filter(node => node.typeName === label).map(node => Number(node.properties[idProperty])));
+  let id = 1; while (used.has(id)) id++;
+  return { Name: label.replace("Gsn", "New "), [idProperty]: id, [prop]: "", ...(["GsnGoal", "GsnStrategy"].includes(label) ? { Undeveloped: true } : {}) };
 }
 
 function statementProp(typeName: string): string {
@@ -1060,55 +690,8 @@ function gsnColor(typeName: string): string {
   return "var(--sstpa-node-muted)";
 }
 
-function shapeRadius(typeName: string): number {
-  if (typeName === "GsnSolution") return 999;
-  if (typeName === "GsnContext") return 18;
-  if (typeName === "GsnAssumption" || typeName === "GsnJustification") return 999;
-  return 4;
-}
-
 function sameCriticalityAssurance(loss: SoINode, goal: SoINode): boolean {
   const c = ["SafetyCritical", "MissionCritical", "FlightCritical", "SecurityCritical"].some((k) => loss.properties[k] === true && goal.properties[k] === true);
   const a = ["Confidentiality", "Availability", "Authenticity", "NonRepudiation", "Certifiable", "Privacy", "Trustworthy"].some((k) => loss.properties[k] === true && goal.properties[k] === true);
   return c && a;
-}
-
-/** Persisted diagram JSON per §6.5.11.9: schema version, root identity, tool
- *  type, viewport/zoom, node positions, edge routing, collapsed state, and
- *  display toggles — presentation data only, never authoritative. */
-function layoutSnapshot(rootHid: string, rootUuid: string | undefined, nodes: SoINode[]) {
-  return {
-    schemaVersion: "1.0",
-    rootGoalHid: rootHid,
-    rootGoalUuid: rootUuid ?? null,
-    toolType: "sstpa.goalkeeper",
-    savedAt: new Date().toISOString(),
-    layoutMode: "hierarchical-left-to-right",
-    viewport: { x: 0, y: 0 },
-    zoom: 1,
-    displayToggles: {
-      evidencePanel: true,
-      statements: true,
-      validationMarkers: true,
-    },
-    edgeRouting: [],
-    nodes: tierNodes(rootHid, nodes).flatMap(([tier, group]) =>
-      group.map((n, idx) => ({ hid: n.hid, x: tier * 260, y: idx * 130, collapsed: false })),
-    ),
-  };
-}
-
-function exportMarkdown(rootHid: string, nodes: SoINode[], edges: GsnEdge[], findings: Finding[]): string {
-  let md = `# Goal Structure ${rootHid}\n\nGenerated: ${new Date().toISOString()}\n\n`;
-  for (const [tier, group] of tierNodes(rootHid, nodes)) {
-    md += `## Tier ${tier}\n\n`;
-    for (const n of group) md += `- ${n.hid} ${n.typeName}: ${String(n.properties.Name ?? "")}\n  ${statement(n)}\n`;
-    md += "\n";
-  }
-  md += "## Relationships\n\n";
-  for (const e of edges) md += `- ${e.source} -[:${e.type}]-> ${e.target}\n`;
-  md += "\n## Findings\n\n";
-  for (const f of findings) md += `- ${f.severity}: ${f.nodeHid ? `${f.nodeHid} ` : ""}${f.message}\n`;
-  if (findings.length === 0) md += "No findings.\n";
-  return md;
 }
